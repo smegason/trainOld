@@ -1,4 +1,6 @@
 $(document).ready(function(){
+	// written by Sean Megason, megason@hms.harvard.edu
+	
 	/*  Copyright (c) 2016, Sean Gregory Megason, Harvard Univeristy
 		All rights reserved.
 		
