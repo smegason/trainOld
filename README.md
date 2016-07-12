@@ -5,12 +5,13 @@ Programs in Train look just like a wooden toy train set. Executing a program mea
 
 The train editor/interpretor is written in Javascript. The graphics are all rendered using Blender--engines, cars, and cargo are rendered from 64 directions to allow animation, while tracks and stations are rendered from 8 directions for different orientations. All code is open source under a BSD license.
 
-Train is being developed in the same spirit as Scratch from MIT but targeting a younger age group. The goal is to teach kids coding concepts as well as numbers, colors, math, and logic in the course of playing. Kids do not need to know how to read in order to program Train unlike other "visual" programming languages. Train simplifies and merges many concepts from other programming languages--for example in other programming languages source code, compiled code, memory, and output are all different things that together define a programs state whereas in Train the train track is everything (code, memory, output) so program state is simply the current physical location of all the tracks, stations, engines, cars, and blocks.
+Train is being developed in the same spirit as Scratch from MIT but targeting a younger age group. The goal is to teach kids coding concepts as well as numbers, colors, math, and logic in the course of playing. Kids do not need to know how to read in order to program Train unlike other "visual" programming languages. Train simplifies and merges many concepts from other programming languages--for example in other programming languages source code, compiled code, memory, and output are all different things that together define a program's state whereas in Train the train track is everything (code, memory, output) so program state is simply the current physical location of all the tracks, stations, engines, cars, and blocks.
 
-My goal is to have a group of coders develop Train in an open source, community fashion to create a both web and app (iOS and Android) version of Train. These will let users play with and learn Train by completing a series of levels. Users can also develop their own programs (called TrainTracks) and share them with the community via a website. If you are intereested in contributing please let me know.
+My goal is to have a group of coders develop Train in an open source, community fashion to create both web and app (iOS and Android) versions of Train. These will let users play with and learn Train by completing a series of levels. Users can also develop their own programs (called TrainTracks) and share them with the community via a website (www.train-hub.org). If you are intereested in contributing please let me know (megason@hms.harvard.edu).
 
 Files:
 train.js- contains all of the logic of the editor/interpretor
 index.html- simply displays a javascript panel for train.js
-img/ - contains the rendered images used for animating Train as well as the Blender source files.
+img/renders - the rendered images used for animating Train 
+img/blender- the Blender source files for rendering.
 
