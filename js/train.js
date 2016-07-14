@@ -912,7 +912,7 @@ $(document).ready(function(){
 	// test loop diagonal
 	trx[37]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[{"gridx":2,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":1,"type":"Track45","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[{"gridx":3,"gridy":0,"type":"Track45","orientation":7,"state":"left","subtype":""},null,{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":7,"state":"left","subtype":""},null,{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":5,"gridy":2,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,{"gridx":6,"gridy":3,"type":"TrackStraight","orientation":7,"state":"left","subtype":""},null,{"gridx":6,"gridy":5,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,{"gridx":7,"gridy":4,"type":"TrackStraight","orientation":7,"state":"left","subtype":""},null,{"gridx":7,"gridy":6,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null,null],[null,null,null,null,null,{"gridx":8,"gridy":5,"type":"TrackStraight","orientation":7,"state":"left","subtype":""},null,{"gridx":8,"gridy":7,"type":"TrackStraight","orientation":3,"state":"left","subtype":""},null,null],[null,null,null,null,null,null,{"gridx":9,"gridy":6,"type":"TrackStraight","orientation":7,"state":"left","subtype":""},null,{"gridx":9,"gridy":8,"type":"Track90","orientation":3,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,{"gridx":10,"gridy":7,"type":"Track90","orientation":1,"state":"left","subtype":""},null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":4,"gridy":1,"type":"EngineBasic","orientation":3,"state":"","speed":20,"position":0.5}],[]]';
 		
-	openTrxJSON(trx[1]);
+	openTrxJSON(trx[5]);
 	
 	buildTrains();
 	
@@ -1151,7 +1151,7 @@ $(document).ready(function(){
 	}		    
 
 	function drawSprite(name, ori) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles
-		if (useSprites) {
+	//	if (useSprites) {
 			ctx.rotate(-ori * Math.PI/4);
 			switch (name) {
 				case "Track90":
@@ -1315,12 +1315,6 @@ $(document).ready(function(){
 				case "dump":
 					ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
-				default:
-					console.log("ERROR-unhandled case for drawSprite name="+name);
-			}
-			ctx.rotate(ori * Math.PI/4);
-		} else {
-			switch (name) {
 				case "speedController":
 				 	//draw engine speed controller
 				 	ctx.save();
@@ -1367,6 +1361,19 @@ $(document).ready(function(){
 				 	
 				 	ctx.restore();
 				 	break;
+				default:
+					ctx.beginPath();
+				    ctx.fillStyle    = tieColor;
+				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
+				    ctx.textBaseline = 'Top';
+				    ctx.textAlign    = 'Center';
+					ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
+					break;
+					console.log("ERROR-unhandled case for drawSprite name="+name);
+			}
+			ctx.rotate(ori * Math.PI/4);
+	/*	} else {
+			switch (name) {
 				case "pickDrop":
 					ctx.beginPath();
 				    ctx.fillStyle    = tieColor;
@@ -1666,16 +1673,8 @@ $(document).ready(function(){
 					ctx.strokeStyle = insetStrokeColor;
 		 			ctx.stroke();
 	 				break;
-				default:
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
-					break;
 			}
-		}
+		}*/
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
@@ -2076,6 +2075,7 @@ $(document).ready(function(){
 		  		case "Download":
 					var loadTrack = prompt("Please enter track number to load", "1");
 					openTrxJSON(trx[loadTrack]);
+					buildTrains();
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
@@ -2499,6 +2499,7 @@ $(document).ready(function(){
 //		}
 //		return;
 		trains.length = 0;
+		//console.log("engines="+engines.length);
 		for (var i=0; i<engines.length; i++) {
 			var train = [];
 			train.push(engines[i]);
@@ -2506,6 +2507,7 @@ $(document).ready(function(){
 
 			//step forward from engine and add adjacent cars to train	
 			var ec = engines[i];
+			//console.log("engine "+i+" speed="+ec.speed)
 			var recip, next, prev;
 			do {
 				if (ec.speed>=0) next = getNextTrack(ec);
@@ -3462,7 +3464,7 @@ $(document).ready(function(){
 				var ec = train[c];
 				//console.log("t="+t+" c="+c);
 				if (ec.position >= 0.5 && ec.position < 0.5+ec.speed/1000 && ec.type == "CarBasic") { //perform action when car reaches middle of track
-					console.log("detect stations");
+					//console.log("detect stations");
 					// pickup cargo lying on track (not on station)
 				/*	if (ec.cargo == undefined && tracks[ec.gridx][ec.gridy].cargo != undefined && tracks[ec.gridx][ec.gridy].type == "supply") {
 						//move cargo
@@ -3579,9 +3581,9 @@ $(document).ready(function(){
 					}
 					
 					//pickdrop cargo
-					console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
+					//console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
 					if (tracks[ec.gridx][ec.gridy].subtype == "pickDrop") {
-						console.log("Pickdrop");
+						//console.log("Pickdrop");
 						//if station has cargo and car doesn't, then swap station cargo to car
 						if (ec.cargo == undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined) {
 							playSound("pickdrop");

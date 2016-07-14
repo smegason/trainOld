@@ -4,10 +4,12 @@ Game plan for development
 Sprites:
 
 Refactor:
+-make dino sprites
 -Loading of sprites
 -remove nonsprite code
 
 New features:
+-let kids type their name in blocks
 -change buttons to sprites
 -add stop, reverse, decouple stations
 -make all stations only work for matching type. When click on pd station to get caption, it should let you just choose first level (e.g. dinosaur) or second level rather than just second.
