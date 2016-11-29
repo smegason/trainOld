@@ -1,4 +1,6 @@
 $(document).ready(function(){
+	// written by Sean Megason, megason@hms.harvard.edu
+	
 	/*  Copyright (c) 2016, Sean Gregory Megason, Harvard Univeristy
 		All rights reserved.
 		
@@ -38,7 +40,9 @@ $(document).ready(function(){
 	var ctx = canvas.getContext("2d");
 	var canvasWidth = $("#canvas").width();
 	var canvasHeight = $("#canvas").height();
-	var toolBarWidth = 80; //width of toolbar in pixels
+	var buttonWidth = 76;
+	var buttonPadding = 10;
+	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
 	var toolBarHeight = canvasHeight; //height of toolbar in pixels
 	var tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
 	var tracksHeight = canvasHeight; //height of the tracks area in pixels
@@ -114,7 +118,7 @@ $(document).ready(function(){
 	//var cargoAmericanAnimals
 	
 	//buttonArrays - used to store the order in which buttons are displayed in captions
-	var buttonsStation = [["pickDrop","supply","dump",""],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"]]
+	var buttonsStation = [["none","pickDrop","supply","dump"],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"]]
  	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareLess","compareGreater"]];
  	var buttonsCargoTypes = [["numbers","uppercase","lowercase"],["colors","safariAnimals","dinosaurs"]] //needs to match the 0th element of each cargo subarray
 
@@ -124,12 +128,35 @@ $(document).ready(function(){
     	//ctx.drawImage(imgTerrain, 0, 0);
     	draw();
   	};
-  	imgTerrain.src = 'img/rug-flower-880.jpg';
+  	imgTerrain.src = 'img/rug-flower-720h.jpg';
+//  	imgTerrain.src = 'img/rug-flower-880.jpg';
 //  	imgTerrain.src = 'img/sisal-rug-880.jpg';
 //  	imgTerrain.src = 'img/grass2.jpg';
 //  	imgTerrain.src = 'img/cracked.png';
 //  	imgTerrain.src = 'img/dirt.jpg';
 	
+	//load images for buttons in captions for choosing station type
+	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
+	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/renders/CaptionButtons/add.png';
+	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/renders/CaptionButtons/catapult.png';
+	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/renders/CaptionButtons/decrement.png';
+	var imgCaptionDivide = new Image(); imgCaptionDivide.src = 'img/renders/CaptionButtons/divide.png';
+	var imgCaptionDump = new Image(); imgCaptionDump.src = 'img/renders/CaptionButtons/dump.png';
+	var imgCaptionIncrement = new Image(); imgCaptionIncrement.src = 'img/renders/CaptionButtons/increment.png';
+	var imgCaptionMultiply = new Image(); imgCaptionMultiply.src = 'img/renders/CaptionButtons/multiply.png';
+	var imgCaptionPickDrop = new Image(); imgCaptionPickDrop.src = 'img/renders/CaptionButtons/pickDrop.png';
+	var imgCaptionSlingshot = new Image(); imgCaptionSlingshot.src = 'img/renders/CaptionButtons/slingshot.png';
+	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
+	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
+
+	//load images for buttons in captions for choosing station type
+	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
+	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/renders/CaptionButtons/greater.png';
+	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/renders/CaptionButtons/lazy.png';
+	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/renders/CaptionButtons/lesser.png';
+	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/renders/CaptionButtons/prompt.png';
+	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/renders/CaptionButtons/sprung.png';
+
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
 	var imgEngine = [];
 	for (var i=0; i<64; i++) {
@@ -793,7 +820,6 @@ $(document).ready(function(){
 	saveButtonColors[8] = "black";
 	
 	var toolButtons = [];
-	var buttonWidth = 40;
 
 	//Sounds
 	var sounds = [];
@@ -915,20 +941,20 @@ $(document).ready(function(){
 	buildTrains();
 	
 //	currentCaptionedObject = undefined;
-	
-	new ToolButton(20, 2*13+0*(1.2*buttonWidth), buttonWidth, buttonWidth, "Play", 0);
+	new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0);
 
-	new ToolButton(20, 3*13+1*(1.2*buttonWidth), buttonWidth, buttonWidth, "Track", 1);
-	new ToolButton(20, 3*13+2*(1.2*buttonWidth), buttonWidth, buttonWidth, "Engine", 1);
-	new ToolButton(20, 3*13+3*(1.2*buttonWidth), buttonWidth, buttonWidth, "Car", 1);
-	new ToolButton(20, 3*13+4*(1.2*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1);
-	new ToolButton(20, 3*13+5*(1.2*buttonWidth), buttonWidth, buttonWidth, "Select", 1);
+	new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1);
+	new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1);
+	new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1);
+	new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1);
+	new ToolButton(buttonPadding, 14+2*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1);
+//	new ToolButton(padding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1);
 
-//	new ToolButton(20, 4*13+6*(1.2*buttonWidth), buttonWidth, buttonWidth, "Clear");
-	new ToolButton(20, 4*13+6*(1.2*buttonWidth), buttonWidth, buttonWidth, "Save");
-	new ToolButton(20, 4*13+7*(1.2*buttonWidth), buttonWidth, buttonWidth, "Open");
-	new ToolButton(20, 4*13+8*(1.2*buttonWidth), buttonWidth, buttonWidth, "Upload");
-	new ToolButton(20, 4*13+9*(1.2*buttonWidth), buttonWidth, buttonWidth, "Download");
+//	new ToolButton(padding, 4*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear");
+//	new ToolButton(padding, 4*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save");
+//	new ToolButton(padding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open");
+//	new ToolButton(padding, 4*buttonPadding+8*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload");
+	new ToolButton(buttonPadding, 20+3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download", 2);
 	
 	getButton("Track").down = true;
 	
@@ -991,6 +1017,7 @@ $(document).ready(function(){
 			case "Track90":
 			case "Track45":
 			case "TrackCargo":
+			case "TrackBlank":
 			case "TrackCross":
 				drawSprite(track.type, track.orientation);
 				break; 
@@ -1149,9 +1176,64 @@ $(document).ready(function(){
 	}		    
 
 	function drawSprite(name, ori) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles
-		if (useSprites) {
+	//	if (useSprites) {
 			ctx.rotate(-ori * Math.PI/4);
+			//console.log("drawSprite="+name); //kkk
 			switch (name) {
+				case "Captionnone":
+					ctx.drawImage(imgCaptionNone, 0, -11);
+					break;
+				case "Captionalternate":
+					ctx.drawImage(imgCaptionAlternate, 0, -11);
+					break;
+				case "CaptioncompareGreater":
+					ctx.drawImage(imgCaptionGreater, 0, -11);
+					break;
+				case "Captionlazy":
+					ctx.drawImage(imgCaptionLazy, 0, -11);
+					break;
+				case "CaptioncompareLess":
+					ctx.drawImage(imgCaptionLesser, 0, -11);
+					break;
+				case "Captionprompt":
+					ctx.drawImage(imgCaptionPrompt, 0, -11);
+					break;
+				case "Captionsprung":
+					ctx.drawImage(imgCaptionSprung, 0, -11);
+					break;
+				case "Captionadd":
+					ctx.drawImage(imgCaptionAdd, 0, -11);
+					break;
+				case "Captioncatapult":
+					ctx.drawImage(imgCaptionCatapult, 0, -11);
+					break;
+				case "Captiondecrement":
+					ctx.drawImage(imgCaptionDecrement, 0, -11);
+					break;
+				case "Captiondivide":
+					ctx.drawImage(imgCaptionDivide, 0, -11);
+					break;
+				case "Captiondump":
+					ctx.drawImage(imgCaptionDump, 0, -11);
+					break;
+				case "Captionincrement":
+					ctx.drawImage(imgCaptionIncrement, 0, -11);
+					break;
+				case "Captionmultiply":
+					ctx.drawImage(imgCaptionMultiply, 0, -11);
+					break;
+				case "CaptionpickDrop":
+					ctx.drawImage(imgCaptionPickDrop, 0, -11);
+					break;
+				case "Captionslingshot":
+					ctx.drawImage(imgCaptionSlingshot, 0, -11);
+					break;
+				case "Captionsubtract":
+					ctx.drawImage(imgCaptionSubtract, 0, -11);
+					break;
+				case "Captionsupply":
+					ctx.drawImage(imgCaptionSupply, 0, -11);
+					break;
 				case "Track90":
 					ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
@@ -1276,6 +1358,8 @@ $(document).ready(function(){
 					var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
 					ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
+				case "TrackBlank":
+					break;
 				case "TrackCargo":
 					var oriRot = ori%2;
 					ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
@@ -1308,17 +1392,12 @@ $(document).ready(function(){
 					ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
 				case "pickDrop":
+					console.log ("PickDrop ori=" + ori);
 					ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
 				case "dump":
 					ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 					break;
-				default:
-					console.log("ERROR-unhandled case for drawSprite name="+name);
-			}
-			ctx.rotate(ori * Math.PI/4);
-		} else {
-			switch (name) {
 				case "speedController":
 				 	//draw engine speed controller
 				 	ctx.save();
@@ -1365,6 +1444,19 @@ $(document).ready(function(){
 				 	
 				 	ctx.restore();
 				 	break;
+				default:
+					ctx.beginPath();
+				    ctx.fillStyle    = tieColor;
+				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
+				    ctx.textBaseline = 'Top';
+				    ctx.textAlign    = 'Center';
+					ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
+					break;
+					console.log("ERROR-unhandled case for drawSprite name="+name);
+			}
+			ctx.rotate(ori * Math.PI/4);
+	/*	} else {
+			switch (name) {
 				case "pickDrop":
 					ctx.beginPath();
 				    ctx.fillStyle    = tieColor;
@@ -1664,16 +1756,8 @@ $(document).ready(function(){
 					ctx.strokeStyle = insetStrokeColor;
 		 			ctx.stroke();
 	 				break;
-				default:
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
-					break;
 			}
-		}
+		}*/
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
@@ -1868,6 +1952,7 @@ $(document).ready(function(){
 			
 			var value = obj.cargo.value;
 			var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
+			if (obj.type == "TrackCargo" || obj.type == "TrackBlank") frame = 16;
 			//console.log("type="+obj.cargo.type[0]+" value="+obj.cargo.value);
 			try {
 				ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
@@ -1907,13 +1992,13 @@ $(document).ready(function(){
 	    return undefined;
 	}
 	
-	// mouse detection
+	// mouse detection==
 	$('#canvas').mousedown(function(e) {
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop; //screen coordinates
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 		
-		//see if clicked in button caption
+		//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
 		if (currentCaptionedButton != undefined) {	
 	    	if (mouseX > buttonCaptionX && mouseX < (buttonCaptionX+3*tileWidth) && mouseYWorld > buttonCaptionY && mouseYWorld < (buttonCaptionY+3*tileWidth)) {
 	    		//inside caption
@@ -1955,7 +2040,7 @@ $(document).ready(function(){
 	    	}
 	    	
 	    	//check if select button down
-	    	if (getButton("Select").down) {
+	    	/*if (getButton("Select").down) {
 	    		//console.log("Select button down");
 	   			if (mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
 	   			   && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
@@ -1970,12 +2055,32 @@ $(document).ready(function(){
 		    		startSelectX = tileWidth*Math.round(mouseX/tileWidth);
 		    		startSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
 	    		}
-	    	}
+	    	} */
 	    	
 	    	//check if car button down
 	    	if (getButton("Car").down) {
 	    		isDrawingCar = true;
 	    		addPointEC(mouseX, mouseYWorld);
+	    	}
+	    	
+	    	//check if cargo button down
+	    	if (getButton("Cargo").down) {
+	    		var gridx = Math.floor(mouseX/tileWidth);
+	    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+	    		if (tracks[gridx][gridy] == null) {
+		    		//if no track at that location then add TrackBlank with "A"
+	    			console.log("Empty grid, add blank Track");
+	    			tracks[gridx][gridy] = new Track(gridx, gridy, "TrackBlank"); 
+	    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
+	    		} else {
+		    		//if trackCargo at that location then change cargo type
+		    		//if empty car at that location then add "A"
+		    		
+		    		//if full car at that location then change cargo type
+	    		}
+	    		
+	    		
+	    		
 	    	}
 	    	
 	    	//check if erase button down
@@ -2001,19 +2106,26 @@ $(document).ready(function(){
 				//delete clicked car
 	    		for (var i=0; i<cars.length; i++) {
 	    			if (cars[i].gridx == gridx && cars[i].gridy == gridy) {
-	    				//console.log("Delete car i=" + i);
-	    				train = getTrain(cars[i]);
-	    				//console.log("Deleted car is in train of length="+train.length);
-	    				var oldCar = cars.splice(i,1); //delete car
-	    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
-	    				delete oldCar;
-	    				i = cars.length;
+	    				if (cars[i].cargo == null) {
+		    				console.log("Delete car i=" + i);
+		    				train = getTrain(cars[i]);
+		    				console.log("Deleted car is in train of length="+train.length);
+		    				var oldCar = cars.splice(i,1); //delete car
+		    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
+		    				delete oldCar;
+		    				i = cars.length;
+	    				} else {
+	    					console.log ("Car has cargo. Delete cargo");
+	    					cars[i].cargo = null;
+	    					draw();
+	    				}
 	    				
 	    			}
 	    		}
 	    		
 	    		//if deleted engine or car then rebuild train
 	    		if (train) {
+	    			console.log ("Rebuild train after delete");
     				//set cars in this train to speed 0 and rebuild train to account for disconnecting a car from an engine or deleting an engine
     				for (var t=0; t<train.length; t++) {
     					if (train[t].type != "EngineBasic") {
@@ -2074,6 +2186,7 @@ $(document).ready(function(){
 		  		case "Download":
 					var loadTrack = prompt("Please enter track number to load", "1");
 					openTrxJSON(trx[loadTrack]);
+					buildTrains();
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
@@ -2168,7 +2281,7 @@ $(document).ready(function(){
 	    		var gridy = Math.floor(mouseY/(tileWidth*tileRatio));
 	    		
 	    		if ((secondaryCaption) && captionSecondaryX !=undefined && gridx >= captionSecondaryX && gridx< captionSecondaryX+3 && gridy >= captionSecondaryY && gridy< captionSecondaryY+3) {
-    				//clicked in secondary caption
+    				//clicked in secondary caption ***********************
     				//console.log ("Clicked in secondary caption bubble");
   					var fracX = (mouseX-(captionSecondaryX+0.1)*tileWidth)/(2.8*tileWidth); //account for for border then divide
 					var fracY = (mouseY-(captionSecondaryY+0.1)*tileWidth*tileRatio)/(2.8*tileWidth*tileRatio);
@@ -2194,6 +2307,8 @@ $(document).ready(function(){
 					i = Math.min(i, cargoValues[iCargo].length-2);
 					//console.log("value ="+cargoValues[iCargo][i+1]+" row="+row+" col="+col+" nRows="+nRows+" nCols="+nCols);
 					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]);
+					secondaryCaption = undefined;
+					captionX = undefined;
    				
     			} else {
     				secondaryCaption = undefined;
@@ -2201,7 +2316,7 @@ $(document).ready(function(){
     			}
     			
 	    		if (captionX !=undefined && gridx >= captionX && gridx< captionX+2 && gridy >= captionY && gridy< captionY+2) {
-    				//clicked in caption
+    				//clicked in caption (primary) *******************
  					var fracX = (mouseX-(captionX+0.1)*tileWidth)/(1.8*tileWidth);
 					var fracY = (mouseY-(captionY+0.1)*tileWidth*tileRatio)/(1.8*tileWidth*tileRatio);
    				
@@ -2209,9 +2324,11 @@ $(document).ready(function(){
     				switch (currentCaptionedObject.type) {
     					case "EngineBasic":
 	    					//adjust speed
-		    				var angle = Math.atan2(mouseYWorld-(captionY+1.8)*tileWidth, mouseX-(captionX+1)*tileWidth);
+		    				var angle = Math.atan2(mouseYWorld-(captionY+0.7)*tileWidth, mouseX-(captionX+1)*tileWidth);
+		    				//var angle = Math.atan2(mouseYWorld-(captionY+1.8)*tileWidth, mouseX-(captionX+1)*tileWidth);
 		    				if (angle>1) angle = -Math.PI;
 		    				var speed = (2*angle/Math.PI+1)*maxEngineSpeed;
+		    				console.log ("Speed="+speed+" angle="+angle);
 		    				speed = Math.min(speed, maxEngineSpeed);
 		    				speed = Math.max(speed, -maxEngineSpeed);
 		    				speed = (maxEngineSpeed/(nNumSpeeds/2))*Math.round(speed/(maxEngineSpeed/(nNumSpeeds/2)));
@@ -2256,7 +2373,6 @@ $(document).ready(function(){
 						case "TrackStraight":
  	  						var row = Math.floor(fracY*buttonsStation.length);
     						var col = Math.floor(fracX*buttonsStation[row].length);
-    						currentCaptionedObject.subtype = buttonsStation[row][col];
     						if (currentCaptionedObject.subtype  == "pickDrop"
     						 || currentCaptionedObject.subtype  == "supply"
     						 || currentCaptionedObject.subtype  == "catapult"
@@ -2264,7 +2380,8 @@ $(document).ready(function(){
     						 || currentCaptionedObject.subtype  == "subtract"
     						 || currentCaptionedObject.subtype  == "multiply"
     						 || currentCaptionedObject.subtype  == "divide" ) {
-    						 	addTrackCargo(currentCaptionedObject);
+ 		  						currentCaptionedObject.subtype = buttonsStation[row][col];
+     						 	addTrackCargo(currentCaptionedObject);
     						 }
  							break;
 						case "TrackWye":
@@ -2280,7 +2397,7 @@ $(document).ready(function(){
 							break;
 					}
 						
-	    		} else if (secondaryCaption == undefined) { //select object for caption
+	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -2295,7 +2412,7 @@ $(document).ready(function(){
 	    			if (tracks[gridx] != undefined)  if (!getButton("Eraser").down && !foundEC ) {
 			    		if (tracks[gridx][gridy] != undefined) {
 				    		if (tracks[gridx][gridy].type == "TrackWye" || tracks[gridx][gridy].type == "TrackWyeLeft" 
-				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight" 
+				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight"
 				    		 || tracks[gridx][gridy].type == "TrackCargo") {
 				    			currentCaptionedObject = tracks[gridx][gridy];
 					    		captionX = undefined;
@@ -2348,55 +2465,55 @@ $(document).ready(function(){
 
 	    }
 
-	    	if (isSelecting) {
-	    		endSelectX = tileWidth*Math.round(mouseX/tileWidth);
-	    		endSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
-	    		draw();
-	   			if (mouseX>Math.min(startSelectX, endSelectX) 
-	   			 && mouseYWorld>Math.min(startSelectY, endSelectY)
-	   			 && mouseX<Math.max(startSelectX, endSelectX)
-	   			 && mouseYWorld<Math.max(startSelectY, endSelectY))
-	   			  e.target.style.cursor = 'move';
-	    	}
-	    	
-	    	if (isMoving) {
-	    		endMoveX = tileWidth*Math.round(mouseX/tileWidth);
-	    		endMoveY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
-	    		moveX = undefined
-				isMoving = false;
-				
-				//copy tracks and ecs 
-		    	for (gridx= Math.min(startSelectX, endSelectX)/tileWidth; gridx<Math.max(startSelectX, endSelectX)/tileWidth; gridx++) {
-			    	for (gridy= Math.min(startSelectY, endSelectY)/tileWidth/tileRatio; gridy<Math.max(startSelectY, endSelectY)/tileWidth/tileRatio; gridy++) {
-//						ctx.translate(startX-startSelectX, startY-startSelectY); //center origin on tile
-			    		//copy track 
-			    		var track = tracks[gridx][gridy];
-			    		console.log("COpy tracl at "+gridx+", "+gridy);
-			    		if (track) {
-			    			console.log("endMoveX="+endMoveX+ " stMvX="+startMoveX);
-			    			console.log("New track at "+ gridx+Math.round((endMoveX-startMoveX)/tileWidth)+", "+gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
-			    			new Track ( gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), track.type, track.orientation, track.state, track.subtype);
-			    		}
-			    		// delete any ECs for which new track is placed on top of
-			    		var ecOld =getEC(gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
-						if (ecOld) deleteEC(ecOld); // delete any ECs for which new track is placed on top of
-			    		//copy EC
-			    		var ec=getEC(gridx,gridy);
-			    		if (ec) {
-			    			var newEC = new EC (gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), ec.type, ec.orientation, ec.state, ec.speed, ec.position);
-			    			newEC.cargo = ec.cargo; //copy cargo
-			    		}
-			    	}
-		    	}
-				
-	    		draw();
-	    	}
-	    	
+    	if (isSelecting) {
+    		endSelectX = tileWidth*Math.round(mouseX/tileWidth);
+    		endSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
+    		draw();
+   			if (mouseX>Math.min(startSelectX, endSelectX) 
+   			 && mouseYWorld>Math.min(startSelectY, endSelectY)
+   			 && mouseX<Math.max(startSelectX, endSelectX)
+   			 && mouseYWorld<Math.max(startSelectY, endSelectY))
+   			  e.target.style.cursor = 'move';
+    	}
+    	
+    	if (isMoving) {
+    		endMoveX = tileWidth*Math.round(mouseX/tileWidth);
+    		endMoveY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
+    		moveX = undefined
 			isMoving = false;
-			isErasing = false;
-			isSelecting = false;
-	    	isDrawingEngine = false;
-	    	isDrawingCar = false;
+			
+			//copy tracks and ecs 
+	    	for (gridx= Math.min(startSelectX, endSelectX)/tileWidth; gridx<Math.max(startSelectX, endSelectX)/tileWidth; gridx++) {
+		    	for (gridy= Math.min(startSelectY, endSelectY)/tileWidth/tileRatio; gridy<Math.max(startSelectY, endSelectY)/tileWidth/tileRatio; gridy++) {
+//						ctx.translate(startX-startSelectX, startY-startSelectY); //center origin on tile
+		    		//copy track 
+		    		var track = tracks[gridx][gridy];
+		    		console.log("COpy tracl at "+gridx+", "+gridy);
+		    		if (track) {
+		    			console.log("endMoveX="+endMoveX+ " stMvX="+startMoveX);
+		    			console.log("New track at "+ gridx+Math.round((endMoveX-startMoveX)/tileWidth)+", "+gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
+		    			new Track ( gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), track.type, track.orientation, track.state, track.subtype);
+		    		}
+		    		// delete any ECs for which new track is placed on top of
+		    		var ecOld =getEC(gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
+					if (ecOld) deleteEC(ecOld); // delete any ECs for which new track is placed on top of
+		    		//copy EC
+		    		var ec=getEC(gridx,gridy);
+		    		if (ec) {
+		    			var newEC = new EC (gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), ec.type, ec.orientation, ec.state, ec.speed, ec.position);
+		    			newEC.cargo = ec.cargo; //copy cargo
+		    		}
+		    	}
+	    	}
+			
+    		draw();
+    	}
+    	
+		isMoving = false;
+		isErasing = false;
+		isSelecting = false;
+    	isDrawingEngine = false;
+    	isDrawingCar = false;
 	    
 	});
 	
@@ -2497,6 +2614,7 @@ $(document).ready(function(){
 //		}
 //		return;
 		trains.length = 0;
+		//console.log("engines="+engines.length);
 		for (var i=0; i<engines.length; i++) {
 			var train = [];
 			train.push(engines[i]);
@@ -2504,6 +2622,7 @@ $(document).ready(function(){
 
 			//step forward from engine and add adjacent cars to train	
 			var ec = engines[i];
+			//console.log("engine "+i+" speed="+ec.speed)
 			var recip, next, prev;
 			do {
 				if (ec.speed>=0) next = getNextTrack(ec);
@@ -2597,11 +2716,9 @@ $(document).ready(function(){
 		//add background texture
 		ctx.drawImage(imgTerrain,0,0);
 		drawToolBar();
-		if (getButton("Track").down) drawGrid();
+		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 		drawSquares();
 		drawAllTracks();
-		//drawAllEngines();
-		//drawAllCars();
 		drawAllEnginesAndCars();
 		drawCaption();
 		drawSecondaryCaption();
@@ -3007,6 +3124,9 @@ $(document).ready(function(){
 				
 		var captionWidth =2;
 		var captionHeight =2;
+		if (currentCaptionedObject.type == 'TrackStraight') {
+			captionHeight =3;
+		}
 		var obj = getCenter(currentCaptionedObject);
 		//console.log("objx="+obj.X+" objy="+obj.Y);
 
@@ -3081,23 +3201,27 @@ $(document).ready(function(){
 	
 	function drawButtonsArray(array, isSecondary) {
 		var captionWidth = 1.8;
+		var captionHeight = 1.8;
+		console.log ("Array length="+array.length);
+		if (array[0].length*array.length > 8) captionHeight = 2.8;
 		if (isSecondary) captionWidth = 2.8;
-		
+		console.log("Begin draw button array");
  		for (var row=0; row<array.length; row++) {
  			for (var col=0; col<array[row].length; col++) {
  				var xSpacing = (captionWidth*tileWidth-array[row].length*insetWidth)/(array[row].length+1);
- 				var ySpacing = (captionWidth*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
+ 				var ySpacing = (captionHeight*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
 			 	ctx.save();
 			 	if (isSecondary) {
 			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionSecondaryX+0.1)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionSecondaryY+0.1)*tileWidth*tileRatio);
 			 	} else {
 			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionX+0.1)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionY+0.1)*tileWidth*tileRatio);
 			 	}
-			 	drawTrackInset();
-			 	drawSprite(array[row][col]);
+			 	//drawTrackInset();
+			 	drawSprite("Caption"+array[row][col],0); //kkk
 			 	ctx.restore();
  			}
  		}
+		console.log("End draw button array");
 	}
 	
 	function drawCaptionBubble (capX, capY, captionWidth, captionHeight, objX, objY, isSecondary) { //capX, capY is upperleft corner of caption, objX, objY is location of where pointer goes
@@ -3226,7 +3350,7 @@ $(document).ready(function(){
 		var hC=3;
 		buttonCaptionX = xC*tileWidth;
 		buttonCaptionY = yC*tileWidth;
-		
+
 		drawCaptionBubble (xC, yC, wC, hC, tracksWidth+currentCaptionedButton.x, currentCaptionedButton.y+currentCaptionedButton.height/2);
 		for (var i=0; i<wC; i++) {
 			for (var j=0; j<hC; j++) {
@@ -3460,7 +3584,7 @@ $(document).ready(function(){
 				var ec = train[c];
 				//console.log("t="+t+" c="+c);
 				if (ec.position >= 0.5 && ec.position < 0.5+ec.speed/1000 && ec.type == "CarBasic") { //perform action when car reaches middle of track
-					console.log("detect stations");
+					//console.log("detect stations");
 					// pickup cargo lying on track (not on station)
 				/*	if (ec.cargo == undefined && tracks[ec.gridx][ec.gridy].cargo != undefined && tracks[ec.gridx][ec.gridy].type == "supply") {
 						//move cargo
@@ -3577,9 +3701,9 @@ $(document).ready(function(){
 					}
 					
 					//pickdrop cargo
-					console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
+					//console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
 					if (tracks[ec.gridx][ec.gridy].subtype == "pickDrop") {
-						console.log("Pickdrop");
+						//console.log("Pickdrop");
 						//if station has cargo and car doesn't, then swap station cargo to car
 						if (ec.cargo == undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined) {
 							playSound("pickdrop");
@@ -4156,6 +4280,7 @@ $(document).ready(function(){
 		this.draw = draw;
 		
 		function draw () {
+			offset = -7;
 			ctx.fillStyle = "Silver";
 			ctx.save();
 			ctx.translate(tracksWidth+x, y);
@@ -4201,6 +4326,8 @@ $(document).ready(function(){
 					}
 					break;
 				case "Track":
+					ctx.drawImage(imgTrackStraight[1], -10,-10);
+/*
 					//draw ties
 					ctx.strokeStyle = tieColor;
 					ctx.lineWidth = 3;
@@ -4223,7 +4350,15 @@ $(document).ready(function(){
 					ctx.stroke();
 
 					drawCrosshair(width,height);
-					
+					*/
+					if (this.down) {
+						ctx.lineWidth = 3;
+					    ctx.strokeStyle = "yellow";
+					    ctx.strokeRect(0, 0, width, height);        
+					}
+					break;
+				case "Cargo":
+					ctx.drawImage(imgCargoUppercase[0][14], -8,3);
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -4273,8 +4408,10 @@ $(document).ready(function(){
 					ctx.stroke();
 					break;
 				case "Engine":
-					drawCrosshair(width,height);
-					ctx.beginPath();
+					// engine icon
+					ctx.drawImage(imgEngine[46], offset,offset);
+					//drawCrosshair(width,height);
+					/*ctx.beginPath();
 					ctx.moveTo(0.4*width,0.4*height);
 					ctx.lineTo(0.4*width,0.8*height);
 					ctx.lineTo(0.9*width, 0.6*height);
@@ -4283,7 +4420,7 @@ $(document).ready(function(){
 					ctx.fill();
 					ctx.lineWidth = 1;
 					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.stroke();*/
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -4291,8 +4428,9 @@ $(document).ready(function(){
 					}
 					break;
 				case "Car":
-					drawCrosshair(width,height);
-					ctx.beginPath();
+					ctx.drawImage(imgCar[14], offset,offset);
+					//drawCrosshair(width,height);
+					/*ctx.beginPath();
 					ctx.moveTo(0.375*width,0.45*height);
 					ctx.lineTo(0.375*width,0.75*height);
 					ctx.lineTo(0.875*width, 0.75*height);
@@ -4302,7 +4440,7 @@ $(document).ready(function(){
 					ctx.fill();
 					ctx.lineWidth = 1;
 					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.stroke();*/
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
