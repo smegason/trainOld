@@ -1,11 +1,9 @@
 To Do:
 
 Game plan for development
-Sprites:
-
-Refactor:
+-cleanup captions after clicks- on mouse move
+-use sprites for captions
 -make dino sprites
--Loading of sprites
 -remove nonsprite code
 
 New features:
