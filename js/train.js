@@ -782,7 +782,7 @@ $(document).ready(function(){
 	}
 
 	var imgCargoSafariAnimals = [];
-	for (var j=0; j<10; j++) {
+/*	for (var j=0; j<10; j++) {
 		imgCargoSafariAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoSafariAnimals[j][i] = new Image();
@@ -793,7 +793,7 @@ $(document).ready(function(){
 			imgCargoSafariAnimals[j][i].src = name;
 		}
 	}
-
+*/
 	//colors
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
