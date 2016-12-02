@@ -12,6 +12,7 @@ Cache-Control:public;
         <title>Train</title>
         <meta name="description" content="">
 		<meta name="viewport" content="user-scalable=no, width=device-width" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
         <link rel="stylesheet" href="css/normalize.css">
@@ -48,8 +49,10 @@ Cache-Control:public;
         <script src="js/plugins.js"></script>
         <script src="js/train.js" type="text/javascript"></script>
 
-     	<div id="container" style="border:1px solid; width:960px; height:720px;">
-        	<canvas id="canvas" width="960" height="720" > </canvas>
+     	<div id="container"; width:3000px; height:2000px;">
+            <canvas id="canvas" width="500" height="500" > </canvas>
+            <!--<canvas id="canvas" width=viewport.width height=viewport.height > </canvas>-->
+            <!--<canvas id="canvas" width=window. window.innerWidth * window.devicePixelRatio height=window.innerHeight * window.devicePixelRatio > </canvas>-->
         </div>
 		<div id="sound_element">
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   

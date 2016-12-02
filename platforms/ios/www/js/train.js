@@ -36,10 +36,20 @@ $(document).ready(function(){
 
 	//globals
 	//Canvas stuff
-	var canvas = $("#canvas")[0];
+    var canvas = $("#canvas")[0];
+    
+    var windowWidth = window.innerWidth;
+    var windowHeight = window.innerHeight;
+    var pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+    console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+    canvas.height = windowHeight;// * pixelRatio;
+    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+    canvas.style.height = windowHeight + 'px';
+
 	var ctx = canvas.getContext("2d");
-	var canvasWidth = $("#canvas").width();
-	var canvasHeight = $("#canvas").height();
+    var canvasWidth = canvas.width;
+    var canvasHeight = canvas.height;
 	var buttonWidth = 76;
 	var buttonPadding = 10;
 	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
@@ -47,10 +57,16 @@ $(document).ready(function(){
 	var tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
 	var tracksHeight = canvasHeight; //height of the tracks area in pixels
 	
+    var tileRatio = 1.00; //aspect ratio of tiles
+    var globalAlpha = 0.5;
+    if (useSprites) {
+        tileRatio = 57/63;
+        globalAlpha = 1;
+    }
 	var tileWidth=60;
 	var insetWidth = 0.35*tileWidth;
 	var numTilesX = Math.floor(tracksWidth/tileWidth);
-	var numTilesY = Math.floor(tracksHeight/tileWidth);
+	var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
 	var tracks = createArray(numTilesX, numTilesY);
 	var engines = [];
 	var cars = [];
@@ -94,12 +110,6 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
-	var tileRatio = 1;
-	var globalAlpha = 0.5;
-	if (useSprites) {
-		tileRatio = 57/63;
-		globalAlpha = 1;
-	}
 		
 	//cargo
 	var cargoValues = []; // array of arrays of different types of cargo
@@ -128,7 +138,8 @@ $(document).ready(function(){
     	//ctx.drawImage(imgTerrain, 0, 0);
     	draw();
   	};
-  	imgTerrain.src = 'img/rug-flower-720h.jpg';
+        imgTerrain.src = 'img/rug-flower-1200.jpg';
+//        imgTerrain.src = 'img/rug-flower-720h.jpg';
 //  	imgTerrain.src = 'img/rug-flower-880.jpg';
 //  	imgTerrain.src = 'img/sisal-rug-880.jpg';
 //  	imgTerrain.src = 'img/grass2.jpg';
