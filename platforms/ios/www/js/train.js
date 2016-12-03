@@ -28,13 +28,11 @@ $(document).ready(function(){
 		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	 */
 	
-	console.debug("readyXXXY");
-	console.log("readyXXXYlog");
-    if (window.cordova.logger) {
-        window.cordova.logger.__onDeviceReady();
-    }
 	console.debug("readyXXX");
 	console.log("readyXXXlog");
+//    navigator.notification.alert("Ready");
+    window.addEventListener('orientationchange', doOnOrientationChange);
+    
     var useSprites = true;
  
 	// "constants"
@@ -45,9 +43,9 @@ $(document).ready(function(){
 	//Canvas stuff
     var canvas = $("#canvas")[0];
     
-    var windowWidth = window.innerWidth;
-    var windowHeight = window.innerHeight;
-    var pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+    var windowWidth = 100;
+    var windowHeight = 100;
+    var pixelRatio = 1; /// get pixel ratio of device
     console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
     canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
     canvas.height = windowHeight;// * pixelRatio;
@@ -55,15 +53,15 @@ $(document).ready(function(){
     canvas.style.height = windowHeight + 'px';
 
 	var ctx = canvas.getContext("2d");
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
+    var canvasWidth;
+    var canvasHeight;
 	var buttonWidth = 76;
 	var buttonPadding = 10;
 	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
-	var toolBarHeight = canvasHeight; //height of toolbar in pixels
-	var tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
-	var tracksHeight = canvasHeight; //height of the tracks area in pixels
-	
+	var toolBarHeight; //height of toolbar in pixels
+	var tracksWidth; //width of the tracks area in pixels
+	var tracksHeight; //height of the tracks area in pixels
+	calculateLayout();
     var tileRatio = 1.00; //aspect ratio of tiles
     var globalAlpha = 0.5;
     if (useSprites) {
@@ -74,7 +72,7 @@ $(document).ready(function(){
 	var insetWidth = 0.35*tileWidth;
 	var numTilesX = Math.floor(tracksWidth/tileWidth);
 	var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
-	var tracks = createArray(numTilesX, numTilesY);
+	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
 	var engines = [];
 	var cars = [];
 	var trains = []
@@ -2172,8 +2170,6 @@ $(document).ready(function(){
 		  	
 		  	switch (toolButtons[pushedButton].name) {
 		  		case "Play":
-                    console.debug("Play pushed");
-                    console.log("Play pusheddddd");
                     //console.debugger("Testttttt");
 		  			if (toolButtons[pushedButton].down ) {
 		  				playSound("stop");
@@ -2732,12 +2728,35 @@ $(document).ready(function(){
 		}
 	}
 	
+    function doOnOrientationChange() {
+        calculateLayout();
+        draw();
+    }
+    
+    function calculateLayout() {
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
+        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+        canvas.height = windowHeight;// * pixelRatio;
+        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+        canvas.style.height = windowHeight + 'px';
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        toolBarHeight = canvasHeight; //height of toolbar in pixels
+        tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
+        tracksHeight = canvasHeight; //height of the tracks area in pixels
+        numTilesX = Math.floor(tracksWidth/tileWidth);
+        numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
+    
+    }
 	//////////////////////
 	function draw() {
-		//ctx.fillStyle = tracksBackColor;
-		//ctx.fillRect(0,0, canvasWidth, canvasHeight);
+        
 		//add background texture
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
+        
 		drawToolBar();
 		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 		drawSquares();

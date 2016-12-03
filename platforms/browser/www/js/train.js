@@ -1,3 +1,4 @@
+
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
 	
@@ -28,8 +29,11 @@ $(document).ready(function(){
 	 */
 	
 	console.debug("readyXXX");
-	var useSprites = true;
-
+	console.log("readyXXXlog");
+//    navigator.notification.alert("Ready");
+    
+    var useSprites = true;
+ 
 	// "constants"
 	var oct1 = Math.SQRT2/(2+2*Math.SQRT2);
 	var oct2 = (Math.SQRT2 + 2)/(2+2*Math.SQRT2);
@@ -138,7 +142,7 @@ $(document).ready(function(){
     	//ctx.drawImage(imgTerrain, 0, 0);
     	draw();
   	};
-        imgTerrain.src = 'img/rug-flower-1200.jpg';
+        imgTerrain.src = 'img/WoodShutterstockLightSmall.jpg';
 //        imgTerrain.src = 'img/rug-flower-720h.jpg';
 //  	imgTerrain.src = 'img/rug-flower-880.jpg';
 //  	imgTerrain.src = 'img/sisal-rug-880.jpg';
@@ -808,7 +812,8 @@ $(document).ready(function(){
 	//colors
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
-	var gridColor = "rgba(220,255,220,0.3)";
+	var gridColor = "rgba(122,106,49,0.2)";
+//	var gridColor = "rgba(220,255,220,0.4)";
 	var tieColor = "#2A1506";
 	var railColor = "Gray";
 	var engineColor = "FireBrick";
@@ -991,6 +996,7 @@ $(document).ready(function(){
         this.restore();
     }
 
+                 
 	//tracks ///////////////////////////////////////////
 	function Track(gridx, gridy, type, orientation, state, subtype) { //this object is stored by JSON.stringify so no functions allowed in object
 		tracks[gridx][gridy] = this;
@@ -2164,6 +2170,7 @@ $(document).ready(function(){
 		  	switch (toolButtons[pushedButton].name) {
 		  		case "Play":
                     console.debug("Play pushed");
+                    console.log("Play pusheddddd");
                     //console.debugger("Testttttt");
 		  			if (toolButtons[pushedButton].down ) {
 		  				playSound("stop");
@@ -2727,7 +2734,7 @@ $(document).ready(function(){
 		//ctx.fillStyle = tracksBackColor;
 		//ctx.fillRect(0,0, canvasWidth, canvasHeight);
 		//add background texture
-		ctx.drawImage(imgTerrain,0,0);
+		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
 		drawToolBar();
 		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 		drawSquares();
