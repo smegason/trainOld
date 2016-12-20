@@ -165,7 +165,7 @@ $(document).ready(function(){
 	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
 	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
 
-	//load images for buttons in captions for choosing station type
+	//load images for buttons in captions for choosing wye type
 	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
 	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/renders/CaptionButtons/greater.png';
 	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/renders/CaptionButtons/lazy.png';
@@ -1193,11 +1193,43 @@ $(document).ready(function(){
 		
 	}		    
 
-	function drawSprite(name, ori) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles
+	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles. Value for choosing from array of values for cargo type
 	//	if (useSprites) {
 			ctx.rotate(-ori * Math.PI/4);
-			//console.log("drawSprite="+name); //kkk
+			console.log("drawSprite="+name); //kkk
+            var cargoOffsetX = -37;
+            var cargoOffsetY = -26;
 			switch (name) {
+				case "Captionuppercase":
+                    ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "CaptionA":
+                    ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionlowercase":
+					ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captiona":
+					ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captioncolors":
+					ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionwhite":
+					ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionnumbers":
+					ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Caption0":
+					ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captiondinosaurs":
+					//ctx.drawImage(imgCargoDinosaurs[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "CaptionsafariAnimals":
+					//ctx.drawImage(imgCargoSafariAnimals[0][16], cargoOffsetX, cargoOffsetY);
+					break;
 				case "Captionnone":
 					ctx.drawImage(imgCaptionNone, 0, -11);
 					break;
@@ -1473,309 +1505,6 @@ $(document).ready(function(){
 					console.log("ERROR-unhandled case for drawSprite name="+name);
 			}
 			ctx.rotate(ori * Math.PI/4);
-	/*	} else {
-			switch (name) {
-				case "pickDrop":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('pd', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "lazy":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.3*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-					ctx.fillText  ('Z', 0.09*tileWidth, 0.275*tileWidth);
-					break;
-				case "prompt":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.3*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-					ctx.fillText  ('?', 0.09*tileWidth, 0.275*tileWidth);
-					break;
-				case "alternate":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					ctx.moveTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.135*tileWidth, 0.125*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.125*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.225*tileWidth, 0.125*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.225*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "compareLess":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					// <
-					ctx.moveTo (0.15*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.15*tileWidth);
-					ctx.lineTo (0.15*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					// >
-					ctx.moveTo (0.2*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.135*tileWidth);
-					ctx.lineTo (0.2*tileWidth, 0.195*tileWidth);
-					ctx.stroke();
-					// -
-					ctx.moveTo (0.2*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.3*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "compareGreater":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					// < .175 - .3 = .125
-					ctx.moveTo (0.275*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.2*tileWidth, 0.15*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					// >
-					ctx.moveTo (0.075*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.15*tileWidth, 0.135*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.195*tileWidth);
-					ctx.stroke();
-					// -
-					ctx.moveTo (0.075*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.175*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "dump":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' X ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "supply":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					ctx.moveTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.145*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.145*tileWidth, 0.275*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.stroke();
-					break;
-				case "slingshot":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('ss', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "catapult":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('cat', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "multiply":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' *', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "divide":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' /', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "subtract":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' - ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "add":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' + ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "decrement":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' --', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "increment":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('++', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "numbers":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('123', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "uppercase":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('ABC', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "lowercase":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('abc', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "colors":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('RGB', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "safariAnimals":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('Ani', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "dinosaurs":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.15
-				    *tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('Dino', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "Track90":
-					//draw ties
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						var t= -(i+0.5) * Math.PI/6/2;
-						ctx.beginPath();
-						ctx.moveTo(Math.round(0.8*Math.cos(t)*tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, Math.round(0.8*Math.sin(t)*tileWidth/(2+Math.SQRT2)) + 0.5*tileWidth);
-						ctx.lineTo(Math.round(1.1*Math.cos(t)*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, Math.round(1.1*Math.sin(t)*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) + 0.5*tileWidth);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.lineWidth = 3;
-					//inner curve
-					ctx.beginPath();
-					ctx.arc( - 0.5*tileWidth, 0.5*tileWidth, Math.round(tileWidth/(2+Math.SQRT2)), 0, 3*Math.PI/2, true);
-					ctx.stroke();
-					//outer curve
-					ctx.beginPath();
-					ctx.arc( - 0.5*tileWidth, 0.5*tileWidth, Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)), 0, 3*Math.PI/2, true);
-					ctx.stroke();
-					break;
-				case "Track45":
-					//draw ties
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						var t= -(i+0.5) * Math.PI/13/2;
-						ctx.beginPath();
-						ctx.moveTo(Math.round(.99*Math.cos(t)*(.75*tileWidth+tileWidth/(2+Math.SQRT2))) - 1.3*tileWidth, Math.round(.99*Math.sin(t)*(.75*tileWidth+tileWidth/(2+Math.SQRT2))) + 0.5*tileWidth);
-						ctx.lineTo(Math.round(1.07*Math.cos(t)*(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2))) - 1.3*tileWidth, Math.round(1.07*Math.sin(t)*(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2))) + 0.5*tileWidth);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.lineWidth = 3;
-					//inner curve
-					ctx.beginPath();
-					ctx.arc( -1.25*tileWidth, 0.5*tileWidth, Math.round(.75*tileWidth+tileWidth/(2+Math.SQRT2)), 0, 3.51*Math.PI/2, true);
-					ctx.stroke();
-					//outer curve
-					ctx.beginPath();
-					ctx.arc( -1.25*tileWidth, 0.5*tileWidth, Math.round(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)), 0, 3.51*Math.PI/2, true);
-					ctx.stroke();
-					break;
-				case "TrackStraight":
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						ctx.beginPath();
-						ctx.moveTo(Math.round(0.75*tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth+i*tileWidth/6 + tileWidth/12);
-						ctx.lineTo(Math.round(1.098*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth+i*tileWidth/6 + tileWidth/12);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.beginPath();
-					ctx.lineWidth = 3;
-					ctx.moveTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth);
-					ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, tileWidth - 0.5*tileWidth);
-		 			ctx.stroke();
-					ctx.moveTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth);
-					ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, tileWidth - 0.5*tileWidth);
-		 			ctx.stroke();
-					break;
-				case "TrackCross":
-					drawSprite("TrackStraight", ori);
-					ctx.rotate(Math.PI/2);
-					drawSprite("TrackStraight", ori);
-					break;
-				case "TrackCargo":
-					ctx.beginPath();
-					ctx.moveTo((oct1-0.5)*tileWidth, (0-0.5)*tileWidth);
-					ctx.lineTo((oct2-0.5)*tileWidth, (0-0.5)*tileWidth);
-					ctx.arcTo((oct2-0.5)*tileWidth, (oct1-0.5)*tileWidth, (1-0.5)*tileWidth, (oct1-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((1-0.5)*tileWidth, (oct2-0.5)*tileWidth);
-					ctx.arcTo((oct2-0.5)*tileWidth, (oct2-0.5)*tileWidth, (oct2-0.5)*tileWidth, (1-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((oct1-0.5)*tileWidth, (1-0.5)*tileWidth);
-					ctx.arcTo((oct1-0.5)*tileWidth, (oct2-0.5)*tileWidth, (0-0.5)*tileWidth, (oct2-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((0-0.5)*tileWidth, (oct1-0.5)*tileWidth);
-					ctx.arcTo((oct1-0.5)*tileWidth, (oct1-0.5)*tileWidth, (oct1-0.5)*tileWidth, (0-0.5)*tileWidth, oct1*tileWidth);
-		 			ctx.fillStyle = insetFillColor;
-		 			ctx.fill();
-		 			ctx.lineWidth = 1;
-					ctx.strokeStyle = insetStrokeColor;
-		 			ctx.stroke();
-	 				break;
-			}
-		}*/
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
@@ -3259,7 +2988,16 @@ $(document).ready(function(){
 			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionX+0.1)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionY+0.1)*tileWidth*tileRatio);
 			 	}
 			 	//drawTrackInset();
-			 	drawSprite("Caption"+array[row][col],0); //kkk
+			 	if (isSecondary) {
+                    if (array[row][col] != undefined) {
+                        var index = 1;
+                        index = row*(array.length-1)+col;
+                        console.log("row="+row+", col="+col+", value="+array[row][col]+", index="+index);
+                        drawSprite("Caption"+array[0][0],0, index); //kkk
+                    }
+                } else {
+                    drawSprite("Caption"+array[row][col],0, 0); //kkk
+                }
 			 	ctx.restore();
  			}
  		}

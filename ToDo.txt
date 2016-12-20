@@ -4,6 +4,9 @@ Game plan for development
 -cleanup captions after clicks- on mouse move
 -use sprites for captions
 -make dino sprites
+-make safari animal sprites
+-make ponies?
+-add yes/no data type
 -remove nonsprite code
 
 New features:
