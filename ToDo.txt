@@ -1,14 +1,20 @@
 To Do:
 
 Game plan for development
+-change mouse interactions to touch so works on iPad
+-change cursor to active icon
 -cleanup captions after clicks- on mouse move
--use sprites for captions
 -make dino sprites
+-make safari animal sprites
+-make ponies?
+-add yes/no data type
 -remove nonsprite code
+
+Bug-
+-cant change value of blocks that are by selves
 
 New features:
 -let kids type their name in blocks
--change buttons to sprites
 -add stop, reverse, decouple stations
 -make all stations only work for matching type. When click on pd station to get caption, it should let you just choose first level (e.g. dinosaur) or second level rather than just second.
 -add immutable property to tracks, ecs, and cargo so can distinguish level base trx from user drawn, render in different color

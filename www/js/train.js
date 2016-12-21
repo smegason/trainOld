@@ -1,3 +1,4 @@
+
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
 	
@@ -27,31 +28,54 @@ $(document).ready(function(){
 		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	 */
 	
-	console.log("readyXXX");
-	var useSprites = true;
-
+	console.debug("readyXXX");
+	console.log("readyXXXlog");
+//    navigator.notification.alert("Ready");
+    window.addEventListener('orientationchange', doOnOrientationChange);
+    
+    var useSprites = true;
+ 
 	// "constants"
 	var oct1 = Math.SQRT2/(2+2*Math.SQRT2);
 	var oct2 = (Math.SQRT2 + 2)/(2+2*Math.SQRT2);
 
 	//globals
 	//Canvas stuff
-	var canvas = $("#canvas")[0];
+    var canvas = $("#canvas")[0];
+    
+    var windowWidth = 100;
+    var windowHeight = 100;
+    var pixelRatio = 1; /// get pixel ratio of device
+    console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+    canvas.height = windowHeight;// * pixelRatio;
+    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+    canvas.style.height = windowHeight + 'px';
+
 	var ctx = canvas.getContext("2d");
-	var canvasWidth = $("#canvas").width();
-	var canvasHeight = $("#canvas").height();
+    var canvasWidth;
+    var canvasHeight;
 	var buttonWidth = 76;
 	var buttonPadding = 10;
 	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
-	var toolBarHeight = canvasHeight; //height of toolbar in pixels
-	var tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
-	var tracksHeight = canvasHeight; //height of the tracks area in pixels
-	
+	var toolBarHeight; //height of toolbar in pixels
+	var tracksWidth; //width of the tracks area in pixels
+	var tracksHeight; //height of the tracks area in pixels
+	calculateLayout();
+    var tileRatio = 1.00; //aspect ratio of tiles
+    var globalAlpha = 0.5;
+    if (useSprites) {
+        tileRatio = 57/63;
+        globalAlpha = 1;
+    }
 	var tileWidth=60;
 	var insetWidth = 0.35*tileWidth;
 	var numTilesX = Math.floor(tracksWidth/tileWidth);
-	var numTilesY = Math.floor(tracksHeight/tileWidth);
-	var tracks = createArray(numTilesX, numTilesY);
+	var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
+    var trackArrayWidth = 10;
+    var trackArrayHeight = 10;
+	var tracks = createArray(trackArrayWidth, trackArrayHeight);
+//	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
 	var engines = [];
 	var cars = [];
 	var trains = []
@@ -94,12 +118,6 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
-	var tileRatio = 1;
-	var globalAlpha = 0.5;
-	if (useSprites) {
-		tileRatio = 57/63;
-		globalAlpha = 1;
-	}
 		
 	//cargo
 	var cargoValues = []; // array of arrays of different types of cargo
@@ -128,7 +146,8 @@ $(document).ready(function(){
     	//ctx.drawImage(imgTerrain, 0, 0);
     	draw();
   	};
-  	imgTerrain.src = 'img/rug-flower-720h.jpg';
+        imgTerrain.src = 'img/WoodShutterstockLightSmall.jpg';
+//        imgTerrain.src = 'img/rug-flower-720h.jpg';
 //  	imgTerrain.src = 'img/rug-flower-880.jpg';
 //  	imgTerrain.src = 'img/sisal-rug-880.jpg';
 //  	imgTerrain.src = 'img/grass2.jpg';
@@ -149,7 +168,7 @@ $(document).ready(function(){
 	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
 	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
 
-	//load images for buttons in captions for choosing station type
+	//load images for buttons in captions for choosing wye type
 	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
 	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/renders/CaptionButtons/greater.png';
 	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/renders/CaptionButtons/lazy.png';
@@ -797,7 +816,8 @@ $(document).ready(function(){
 	//colors
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
-	var gridColor = "rgba(220,255,220,0.3)";
+	var gridColor = "rgba(122,106,49,0.2)";
+//	var gridColor = "rgba(220,255,220,0.4)";
 	var tieColor = "#2A1506";
 	var railColor = "Gray";
 	var engineColor = "FireBrick";
@@ -980,8 +1000,10 @@ $(document).ready(function(){
         this.restore();
     }
 
+                 
 	//tracks ///////////////////////////////////////////
 	function Track(gridx, gridy, type, orientation, state, subtype) { //this object is stored by JSON.stringify so no functions allowed in object
+        if (tracks[gridx] == undefined) tracks[gridx]=[];//bbbb
 		tracks[gridx][gridy] = this;
 		this.gridx = gridx || 0;
 		this.gridy = gridy || 0;
@@ -1022,7 +1044,7 @@ $(document).ready(function(){
 				drawSprite(track.type, track.orientation);
 				break; 
 			case "TrackStraight":
-				if (track.subtype == "") drawSprite("TrackStraight", track.orientation);
+				if (track.subtype == "none" || track.subtype == "") drawSprite("TrackStraight", track.orientation);
 				else drawSprite(track.subtype, track.orientation);
 				break;
 			case "TrackWyeLeft":
@@ -1175,11 +1197,43 @@ $(document).ready(function(){
 		
 	}		    
 
-	function drawSprite(name, ori) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles
+	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles. Value for choosing from array of values for cargo type
 	//	if (useSprites) {
 			ctx.rotate(-ori * Math.PI/4);
 			//console.log("drawSprite="+name); //kkk
+            var cargoOffsetX = -37;
+            var cargoOffsetY = -26;
 			switch (name) {
+				case "Captionuppercase":
+                    ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "CaptionA":
+                    ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionlowercase":
+					ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captiona":
+					ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captioncolors":
+					ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionwhite":
+					ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captionnumbers":
+					ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Caption0":
+					ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "Captiondinosaurs":
+					//ctx.drawImage(imgCargoDinosaurs[0][16], cargoOffsetX, cargoOffsetY);
+					break;
+				case "CaptionsafariAnimals":
+					//ctx.drawImage(imgCargoSafariAnimals[0][16], cargoOffsetX, cargoOffsetY);
+					break;
 				case "Captionnone":
 					ctx.drawImage(imgCaptionNone, 0, -11);
 					break;
@@ -1455,309 +1509,6 @@ $(document).ready(function(){
 					console.log("ERROR-unhandled case for drawSprite name="+name);
 			}
 			ctx.rotate(ori * Math.PI/4);
-	/*	} else {
-			switch (name) {
-				case "pickDrop":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('pd', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "lazy":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.3*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-					ctx.fillText  ('Z', 0.09*tileWidth, 0.275*tileWidth);
-					break;
-				case "prompt":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.3*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-					ctx.fillText  ('?', 0.09*tileWidth, 0.275*tileWidth);
-					break;
-				case "alternate":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					ctx.moveTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.135*tileWidth, 0.125*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.125*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.225*tileWidth, 0.125*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.225*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "compareLess":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					// <
-					ctx.moveTo (0.15*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.15*tileWidth);
-					ctx.lineTo (0.15*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					// >
-					ctx.moveTo (0.2*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.135*tileWidth);
-					ctx.lineTo (0.2*tileWidth, 0.195*tileWidth);
-					ctx.stroke();
-					// -
-					ctx.moveTo (0.2*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.3*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "compareGreater":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					// < .175 - .3 = .125
-					ctx.moveTo (0.275*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.2*tileWidth, 0.15*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					// >
-					ctx.moveTo (0.075*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.15*tileWidth, 0.135*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.195*tileWidth);
-					ctx.stroke();
-					// -
-					ctx.moveTo (0.075*tileWidth, 0.225*tileWidth);
-					ctx.lineTo (0.175*tileWidth, 0.225*tileWidth);
-					ctx.stroke();
-					break;
-				case "dump":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' X ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "supply":
-					ctx.beginPath();
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth =2;
-					ctx.moveTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.145*tileWidth, 0.075*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.145*tileWidth, 0.275*tileWidth);
-					ctx.lineTo (0.075*tileWidth, 0.175*tileWidth);
-					ctx.lineTo (0.275*tileWidth, 0.175*tileWidth);
-					ctx.stroke();
-					break;
-				case "slingshot":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('ss', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "catapult":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('cat', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "multiply":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' *', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "divide":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' /', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "subtract":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' - ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "add":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' + ', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "decrement":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (' --', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "increment":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('++', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "numbers":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('123', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "uppercase":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('ABC', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "lowercase":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('abc', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "colors":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('RGB', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "safariAnimals":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.2*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('Ani', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "dinosaurs":
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.15
-				    *tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  ('Dino', 0.02*tileWidth, 0.225*tileWidth);
-					break;
-				case "Track90":
-					//draw ties
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						var t= -(i+0.5) * Math.PI/6/2;
-						ctx.beginPath();
-						ctx.moveTo(Math.round(0.8*Math.cos(t)*tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, Math.round(0.8*Math.sin(t)*tileWidth/(2+Math.SQRT2)) + 0.5*tileWidth);
-						ctx.lineTo(Math.round(1.1*Math.cos(t)*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, Math.round(1.1*Math.sin(t)*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) + 0.5*tileWidth);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.lineWidth = 3;
-					//inner curve
-					ctx.beginPath();
-					ctx.arc( - 0.5*tileWidth, 0.5*tileWidth, Math.round(tileWidth/(2+Math.SQRT2)), 0, 3*Math.PI/2, true);
-					ctx.stroke();
-					//outer curve
-					ctx.beginPath();
-					ctx.arc( - 0.5*tileWidth, 0.5*tileWidth, Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)), 0, 3*Math.PI/2, true);
-					ctx.stroke();
-					break;
-				case "Track45":
-					//draw ties
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						var t= -(i+0.5) * Math.PI/13/2;
-						ctx.beginPath();
-						ctx.moveTo(Math.round(.99*Math.cos(t)*(.75*tileWidth+tileWidth/(2+Math.SQRT2))) - 1.3*tileWidth, Math.round(.99*Math.sin(t)*(.75*tileWidth+tileWidth/(2+Math.SQRT2))) + 0.5*tileWidth);
-						ctx.lineTo(Math.round(1.07*Math.cos(t)*(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2))) - 1.3*tileWidth, Math.round(1.07*Math.sin(t)*(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2))) + 0.5*tileWidth);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.lineWidth = 3;
-					//inner curve
-					ctx.beginPath();
-					ctx.arc( -1.25*tileWidth, 0.5*tileWidth, Math.round(.75*tileWidth+tileWidth/(2+Math.SQRT2)), 0, 3.51*Math.PI/2, true);
-					ctx.stroke();
-					//outer curve
-					ctx.beginPath();
-					ctx.arc( -1.25*tileWidth, 0.5*tileWidth, Math.round(.75*tileWidth+tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)), 0, 3.51*Math.PI/2, true);
-					ctx.stroke();
-					break;
-				case "TrackStraight":
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 4;
-					for (var i=0; i<6; i++) {
-						ctx.beginPath();
-						ctx.moveTo(Math.round(0.75*tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth+i*tileWidth/6 + tileWidth/12);
-						ctx.lineTo(Math.round(1.098*tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth+i*tileWidth/6 + tileWidth/12);
-						ctx.stroke();
-					}
-			
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.beginPath();
-					ctx.lineWidth = 3;
-					ctx.moveTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth);
-					ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, tileWidth - 0.5*tileWidth);
-		 			ctx.stroke();
-					ctx.moveTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0 - 0.5*tileWidth);
-					ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, tileWidth - 0.5*tileWidth);
-		 			ctx.stroke();
-					break;
-				case "TrackCross":
-					drawSprite("TrackStraight", ori);
-					ctx.rotate(Math.PI/2);
-					drawSprite("TrackStraight", ori);
-					break;
-				case "TrackCargo":
-					ctx.beginPath();
-					ctx.moveTo((oct1-0.5)*tileWidth, (0-0.5)*tileWidth);
-					ctx.lineTo((oct2-0.5)*tileWidth, (0-0.5)*tileWidth);
-					ctx.arcTo((oct2-0.5)*tileWidth, (oct1-0.5)*tileWidth, (1-0.5)*tileWidth, (oct1-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((1-0.5)*tileWidth, (oct2-0.5)*tileWidth);
-					ctx.arcTo((oct2-0.5)*tileWidth, (oct2-0.5)*tileWidth, (oct2-0.5)*tileWidth, (1-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((oct1-0.5)*tileWidth, (1-0.5)*tileWidth);
-					ctx.arcTo((oct1-0.5)*tileWidth, (oct2-0.5)*tileWidth, (0-0.5)*tileWidth, (oct2-0.5)*tileWidth, oct1*tileWidth);
-					ctx.lineTo((0-0.5)*tileWidth, (oct1-0.5)*tileWidth);
-					ctx.arcTo((oct1-0.5)*tileWidth, (oct1-0.5)*tileWidth, (oct1-0.5)*tileWidth, (0-0.5)*tileWidth, oct1*tileWidth);
-		 			ctx.fillStyle = insetFillColor;
-		 			ctx.fill();
-		 			ctx.lineWidth = 1;
-					ctx.strokeStyle = insetStrokeColor;
-		 			ctx.stroke();
-	 				break;
-			}
-		}*/
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
@@ -2022,7 +1773,7 @@ $(document).ready(function(){
 	    		draw();
 	    	}
 	    }
-	    	
+	    	console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
   			startXPoint = mouseX;
   			startYPoint = mouseYWorld;
@@ -2064,21 +1815,17 @@ $(document).ready(function(){
 	    	}
 	    	
 	    	//check if cargo button down
-	    	if (getButton("Cargo").down) {
+	    	if (getButton("Cargo").down && currentCaptionedObject == undefined) {
 	    		var gridx = Math.floor(mouseX/tileWidth);
 	    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-	    		if (tracks[gridx][gridy] == null) {
+                console.log("gridx="+gridx+"tracks length="+tracks.length);
+	    		if (tracks[gridx] == undefined || tracks[gridx][gridy] == undefined || tracks[gridx][gridy] == null) {
 		    		//if no track at that location then add TrackBlank with "A"
 	    			console.log("Empty grid, add blank Track");
-	    			tracks[gridx][gridy] = new Track(gridx, gridy, "TrackBlank"); 
+	    			new Track(gridx, gridy, "TrackBlank");
 	    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
-	    		} else {
-		    		//if trackCargo at that location then change cargo type
-		    		//if empty car at that location then add "A"
-		    		
-		    		//if full car at that location then change cargo type
-	    		}
-	    		
+                    draw();
+                }
 	    		
 	    		
 	    	}
@@ -2152,6 +1899,7 @@ $(document).ready(function(){
 		  	
 		  	switch (toolButtons[pushedButton].name) {
 		  		case "Play":
+                    //console.debugger("Testttttt");
 		  			if (toolButtons[pushedButton].down ) {
 		  				playSound("stop");
 		  				clearInterval(interval);
@@ -2190,7 +1938,7 @@ $(document).ready(function(){
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
-		  			tracks = createArray(numTilesX, numTilesY);
+                    tracks = createArray(trackArrayWidth, trackArrayHeight);
 		  			engines.length = 0;
 		  			cars.length = 0;
 		  			trains.length = 0;
@@ -2321,6 +2069,7 @@ $(document).ready(function(){
 					var fracY = (mouseY-(captionY+0.1)*tileWidth*tileRatio)/(1.8*tileWidth*tileRatio);
    				
    					//which caption was cliked in
+                    console.log("Captioned object="+currentCaptionedObject.type);
     				switch (currentCaptionedObject.type) {
     					case "EngineBasic":
 	    					//adjust speed
@@ -2360,6 +2109,7 @@ $(document).ready(function(){
 		    				currentCaptionedObject.speed = speed;
 		    				break;
 		    			case "CarBasic":
+		    			case "TrackBlank":
 		    			case "TrackCargo":
  	  						var row = Math.floor(fracY*buttonsCargoTypes.length);
     						var col = Math.floor(fracX*buttonsCargoTypes[row].length);
@@ -2373,16 +2123,16 @@ $(document).ready(function(){
 						case "TrackStraight":
  	  						var row = Math.floor(fracY*buttonsStation.length);
     						var col = Math.floor(fracX*buttonsStation[row].length);
-    						if (currentCaptionedObject.subtype  == "pickDrop"
+/*    						if (currentCaptionedObject.subtype  == "pickDrop"
     						 || currentCaptionedObject.subtype  == "supply"
     						 || currentCaptionedObject.subtype  == "catapult"
     						 || currentCaptionedObject.subtype  == "add"
     						 || currentCaptionedObject.subtype  == "subtract"
     						 || currentCaptionedObject.subtype  == "multiply"
-    						 || currentCaptionedObject.subtype  == "divide" ) {
+    						 || currentCaptionedObject.subtype  == "divide" ) {*/
  		  						currentCaptionedObject.subtype = buttonsStation[row][col];
      						 	addTrackCargo(currentCaptionedObject);
-    						 }
+    						 //}
  							break;
 						case "TrackWye":
 						case "TrackWyeLeft":
@@ -2398,6 +2148,7 @@ $(document).ready(function(){
 					}
 						
 	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
+                console.log("Select object for new caption");
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -2413,7 +2164,7 @@ $(document).ready(function(){
 			    		if (tracks[gridx][gridy] != undefined) {
 				    		if (tracks[gridx][gridy].type == "TrackWye" || tracks[gridx][gridy].type == "TrackWyeLeft" 
 				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight"
-				    		 || tracks[gridx][gridy].type == "TrackCargo") {
+				    		 || tracks[gridx][gridy].type == "TrackCargo"|| tracks[gridx][gridy].type == "TrackBlank") {
 				    			currentCaptionedObject = tracks[gridx][gridy];
 					    		captionX = undefined;
 				    		}
@@ -2709,12 +2460,35 @@ $(document).ready(function(){
 		}
 	}
 	
+    function doOnOrientationChange() {
+        calculateLayout();
+        draw();
+    }
+    
+    function calculateLayout() {
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
+        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+        canvas.height = windowHeight;// * pixelRatio;
+        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+        canvas.style.height = windowHeight + 'px';
+        canvasWidth = canvas.width;
+        canvasHeight = canvas.height;
+        toolBarHeight = canvasHeight; //height of toolbar in pixels
+        tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
+        tracksHeight = canvasHeight; //height of the tracks area in pixels
+        numTilesX = Math.floor(tracksWidth/tileWidth);
+        numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
+    
+    }
 	//////////////////////
 	function draw() {
-		//ctx.fillStyle = tracksBackColor;
-		//ctx.fillRect(0,0, canvasWidth, canvasHeight);
+        
 		//add background texture
-		ctx.drawImage(imgTerrain,0,0);
+		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
+        
 		drawToolBar();
 		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 		drawSquares();
@@ -2746,9 +2520,11 @@ $(document).ready(function(){
 		//draw all tracks
 		//console.log("draw all tracks");
 		
-		for (var i=0; i< tracks.length; i++) {
-		    for (var j=0; j<tracks[i].length; j++) {
-		        if (tracks[i][j]) {
+//		for (var i=0; i< tracks.length; i++) {
+		for (var i=0; i< numTilesX; i++) {
+//		    for (var j=0; j<tracks[i].length; j++) {
+		    for (var j=0; j<numTilesY; j++) {
+		        if (tracks[i] != undefined && tracks[i][j] != undefined) {
 		        	drawTrack(tracks[i][j]);
 		        }
 		    }
@@ -2757,10 +2533,13 @@ $(document).ready(function(){
 	
 	function drawSquares() { 
 		// draw tracks in the squares in the diagonals of tracks where needed
-		for (var i=0; i< tracks.length; i++) {
+		for (var i=0; i< numTilesX; i++) {
+//		for (var i=0; i< tracks.length; i++) {
 		    entry = tracks[i];
-		    for (var j=0; j<entry.length; j++) {
-		    	var track = entry[j];
+		    for (var j=0; j<numTilesY; j++) {
+		    //for (var j=0; j<entry.length; j++) {
+                var track;
+		    	if (entry) track = entry[j];
 		        if (track) {
 		        	//console.log("track type=" + entry[j].type);
 		        	if (tracks[i+1]) if (tracks[i+1][j+1]) {
@@ -3138,6 +2917,7 @@ $(document).ready(function(){
 				break;
 			case "CarBasic":
 			case "TrackCargo":
+			case "TrackBlank":
 		 		drawButtonsArray(buttonsCargoTypes);
 				break;
 			case "TrackStraight":
@@ -3217,7 +2997,16 @@ $(document).ready(function(){
 			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionX+0.1)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionY+0.1)*tileWidth*tileRatio);
 			 	}
 			 	//drawTrackInset();
-			 	drawSprite("Caption"+array[row][col],0); //kkk
+			 	if (isSecondary) {
+                    if (array[row][col] != undefined) {
+                        var index = 1;
+                        index = row*(array.length-1)+col;
+                        //console.log("row="+row+", col="+col+", value="+array[row][col]+", index="+index);
+                        drawSprite("Caption"+array[0][0],0, index); //kkk
+                    }
+                } else {
+                    drawSprite("Caption"+array[row][col],0, 0); //kkk
+                }
 			 	ctx.restore();
  			}
  		}
@@ -3288,9 +3077,11 @@ $(document).ready(function(){
     	for (var a=capx; a<capx+width; a++) {
 	    	for (var b=capy; b<capy+height; b++) {
 	    		if (a<0 || b<0 || a>=Math.floor(tracksWidth/tileWidth) || b>=Math.floor(tracksHeight/tileWidth)) return false;
-    			if (tracks[a][b] != undefined) {
-    				//console.log("No space at capx=" + capx + " capy=" + capy);
-    				return false;
+    			if (tracks[a] != undefined) {
+                    if (tracks[a][b] != undefined) {
+                        //console.log("No space at capx=" + capx + " capy=" + capy);
+                        return false;
+                    }
     			}
     		}
     	}
