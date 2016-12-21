@@ -2161,7 +2161,7 @@ $(document).ready(function(){
 			    		if (tracks[gridx][gridy] != undefined) {
 				    		if (tracks[gridx][gridy].type == "TrackWye" || tracks[gridx][gridy].type == "TrackWyeLeft" 
 				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight"
-				    		 || tracks[gridx][gridy].type == "TrackCargo") {
+				    		 || tracks[gridx][gridy].type == "TrackCargo"|| tracks[gridx][gridy].type == "TrackBlank") {
 				    			currentCaptionedObject = tracks[gridx][gridy];
 					    		captionX = undefined;
 				    		}

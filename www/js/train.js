@@ -72,7 +72,10 @@ $(document).ready(function(){
 	var insetWidth = 0.35*tileWidth;
 	var numTilesX = Math.floor(tracksWidth/tileWidth);
 	var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
-	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
+    var trackArrayWidth = 10;
+    var trackArrayHeight = 10;
+	var tracks = createArray(trackArrayWidth, trackArrayHeight);
+//	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
 	var engines = [];
 	var cars = [];
 	var trains = []
@@ -1000,6 +1003,7 @@ $(document).ready(function(){
                  
 	//tracks ///////////////////////////////////////////
 	function Track(gridx, gridy, type, orientation, state, subtype) { //this object is stored by JSON.stringify so no functions allowed in object
+        if (tracks[gridx] == undefined) tracks[gridx]=[];//bbbb
 		tracks[gridx][gridy] = this;
 		this.gridx = gridx || 0;
 		this.gridy = gridy || 0;
@@ -1040,7 +1044,7 @@ $(document).ready(function(){
 				drawSprite(track.type, track.orientation);
 				break; 
 			case "TrackStraight":
-				if (track.subtype == "") drawSprite("TrackStraight", track.orientation);
+				if (track.subtype == "none" || track.subtype == "") drawSprite("TrackStraight", track.orientation);
 				else drawSprite(track.subtype, track.orientation);
 				break;
 			case "TrackWyeLeft":
@@ -1196,7 +1200,7 @@ $(document).ready(function(){
 	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles. Value for choosing from array of values for cargo type
 	//	if (useSprites) {
 			ctx.rotate(-ori * Math.PI/4);
-			console.log("drawSprite="+name); //kkk
+			//console.log("drawSprite="+name); //kkk
             var cargoOffsetX = -37;
             var cargoOffsetY = -26;
 			switch (name) {
@@ -1769,7 +1773,7 @@ $(document).ready(function(){
 	    		draw();
 	    	}
 	    }
-	    	
+	    	console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
   			startXPoint = mouseX;
   			startYPoint = mouseYWorld;
@@ -1811,21 +1815,17 @@ $(document).ready(function(){
 	    	}
 	    	
 	    	//check if cargo button down
-	    	if (getButton("Cargo").down) {
+	    	if (getButton("Cargo").down && currentCaptionedObject == undefined) {
 	    		var gridx = Math.floor(mouseX/tileWidth);
 	    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-	    		if (tracks[gridx][gridy] == null) {
+                console.log("gridx="+gridx+"tracks length="+tracks.length);
+	    		if (tracks[gridx] == undefined || tracks[gridx][gridy] == undefined || tracks[gridx][gridy] == null) {
 		    		//if no track at that location then add TrackBlank with "A"
 	    			console.log("Empty grid, add blank Track");
-	    			tracks[gridx][gridy] = new Track(gridx, gridy, "TrackBlank"); 
+	    			new Track(gridx, gridy, "TrackBlank");
 	    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
-	    		} else {
-		    		//if trackCargo at that location then change cargo type
-		    		//if empty car at that location then add "A"
-		    		
-		    		//if full car at that location then change cargo type
-	    		}
-	    		
+                    draw();
+                }
 	    		
 	    		
 	    	}
@@ -1938,7 +1938,7 @@ $(document).ready(function(){
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
-		  			tracks = createArray(numTilesX, numTilesY);
+                    tracks = createArray(trackArrayWidth, trackArrayHeight);
 		  			engines.length = 0;
 		  			cars.length = 0;
 		  			trains.length = 0;
@@ -2069,6 +2069,7 @@ $(document).ready(function(){
 					var fracY = (mouseY-(captionY+0.1)*tileWidth*tileRatio)/(1.8*tileWidth*tileRatio);
    				
    					//which caption was cliked in
+                    console.log("Captioned object="+currentCaptionedObject.type);
     				switch (currentCaptionedObject.type) {
     					case "EngineBasic":
 	    					//adjust speed
@@ -2108,6 +2109,7 @@ $(document).ready(function(){
 		    				currentCaptionedObject.speed = speed;
 		    				break;
 		    			case "CarBasic":
+		    			case "TrackBlank":
 		    			case "TrackCargo":
  	  						var row = Math.floor(fracY*buttonsCargoTypes.length);
     						var col = Math.floor(fracX*buttonsCargoTypes[row].length);
@@ -2121,16 +2123,16 @@ $(document).ready(function(){
 						case "TrackStraight":
  	  						var row = Math.floor(fracY*buttonsStation.length);
     						var col = Math.floor(fracX*buttonsStation[row].length);
-    						if (currentCaptionedObject.subtype  == "pickDrop"
+/*    						if (currentCaptionedObject.subtype  == "pickDrop"
     						 || currentCaptionedObject.subtype  == "supply"
     						 || currentCaptionedObject.subtype  == "catapult"
     						 || currentCaptionedObject.subtype  == "add"
     						 || currentCaptionedObject.subtype  == "subtract"
     						 || currentCaptionedObject.subtype  == "multiply"
-    						 || currentCaptionedObject.subtype  == "divide" ) {
+    						 || currentCaptionedObject.subtype  == "divide" ) {*/
  		  						currentCaptionedObject.subtype = buttonsStation[row][col];
      						 	addTrackCargo(currentCaptionedObject);
-    						 }
+    						 //}
  							break;
 						case "TrackWye":
 						case "TrackWyeLeft":
@@ -2146,6 +2148,7 @@ $(document).ready(function(){
 					}
 						
 	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
+                console.log("Select object for new caption");
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -2161,7 +2164,7 @@ $(document).ready(function(){
 			    		if (tracks[gridx][gridy] != undefined) {
 				    		if (tracks[gridx][gridy].type == "TrackWye" || tracks[gridx][gridy].type == "TrackWyeLeft" 
 				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight"
-				    		 || tracks[gridx][gridy].type == "TrackCargo") {
+				    		 || tracks[gridx][gridy].type == "TrackCargo"|| tracks[gridx][gridy].type == "TrackBlank") {
 				    			currentCaptionedObject = tracks[gridx][gridy];
 					    		captionX = undefined;
 				    		}
@@ -2517,9 +2520,11 @@ $(document).ready(function(){
 		//draw all tracks
 		//console.log("draw all tracks");
 		
-		for (var i=0; i< tracks.length; i++) {
-		    for (var j=0; j<tracks[i].length; j++) {
-		        if (tracks[i][j]) {
+//		for (var i=0; i< tracks.length; i++) {
+		for (var i=0; i< numTilesX; i++) {
+//		    for (var j=0; j<tracks[i].length; j++) {
+		    for (var j=0; j<numTilesY; j++) {
+		        if (tracks[i] != undefined && tracks[i][j] != undefined) {
 		        	drawTrack(tracks[i][j]);
 		        }
 		    }
@@ -2528,10 +2533,13 @@ $(document).ready(function(){
 	
 	function drawSquares() { 
 		// draw tracks in the squares in the diagonals of tracks where needed
-		for (var i=0; i< tracks.length; i++) {
+		for (var i=0; i< numTilesX; i++) {
+//		for (var i=0; i< tracks.length; i++) {
 		    entry = tracks[i];
-		    for (var j=0; j<entry.length; j++) {
-		    	var track = entry[j];
+		    for (var j=0; j<numTilesY; j++) {
+		    //for (var j=0; j<entry.length; j++) {
+                var track;
+		    	if (entry) track = entry[j];
 		        if (track) {
 		        	//console.log("track type=" + entry[j].type);
 		        	if (tracks[i+1]) if (tracks[i+1][j+1]) {
@@ -2909,6 +2917,7 @@ $(document).ready(function(){
 				break;
 			case "CarBasic":
 			case "TrackCargo":
+			case "TrackBlank":
 		 		drawButtonsArray(buttonsCargoTypes);
 				break;
 			case "TrackStraight":
@@ -2992,7 +3001,7 @@ $(document).ready(function(){
                     if (array[row][col] != undefined) {
                         var index = 1;
                         index = row*(array.length-1)+col;
-                        console.log("row="+row+", col="+col+", value="+array[row][col]+", index="+index);
+                        //console.log("row="+row+", col="+col+", value="+array[row][col]+", index="+index);
                         drawSprite("Caption"+array[0][0],0, index); //kkk
                     }
                 } else {
@@ -3068,9 +3077,11 @@ $(document).ready(function(){
     	for (var a=capx; a<capx+width; a++) {
 	    	for (var b=capy; b<capy+height; b++) {
 	    		if (a<0 || b<0 || a>=Math.floor(tracksWidth/tileWidth) || b>=Math.floor(tracksHeight/tileWidth)) return false;
-    			if (tracks[a][b] != undefined) {
-    				//console.log("No space at capx=" + capx + " capy=" + capy);
-    				return false;
+    			if (tracks[a] != undefined) {
+                    if (tracks[a][b] != undefined) {
+                        //console.log("No space at capx=" + capx + " capy=" + capy);
+                        return false;
+                    }
     			}
     		}
     	}
