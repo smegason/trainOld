@@ -32,7 +32,20 @@ $(document).ready(function(){
 	console.log("readyXXXlog");
 //    navigator.notification.alert("Ready");
     window.addEventListener('orientationchange', doOnOrientationChange);
+ //   window.addEventListener('touchstart', doTouchStart(e));
+    window.addEventListener('touchstart', function(e){
+        doTouchStart(e);
+    }, false)
     
+    window.addEventListener('touchend', function(e){
+        doTouchEnd(e);
+    }, false)
+    
+    window.addEventListener('touchmove', function(e){
+        doTouchMove(e);
+    }, false)
+    
+          
     var useSprites = true;
  
 	// "constants"
@@ -1743,10 +1756,22 @@ $(document).ready(function(){
 	    return undefined;
 	}
 	
+	// touch detection==
+//	$('#canvas').touchstart(function(e) {
+//        console.log("TOUCH START");
+//	});
+
+
 	// mouse detection==
 	$('#canvas').mousedown(function(e) {
+        console.log("MouseDown");
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop; //screen coordinates
+        onClickDown(mouseX, mouseY);
+	});	
+
+    function onClickDown (mouseX, mouseY) { //for handling both mouse and touch events
+        console.log("onClickDown");
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 		
 		//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
@@ -1954,14 +1979,21 @@ $(document).ready(function(){
 
 			draw();
 		}
-	});	
+	}
 	
 	$('#canvas').mousemove(function(e){
+    console.log("Mousemove");
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop;
+        onClickMove(mouseX,mouseY);
+	});
+        
+    function onClickMove(mouseX,mouseY) {
+        console.log("onClickMove");
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 	    
-	    if (mouseX<tracksWidth) { // in track area
+/*	    //change mouse cursor
+        if (mouseX<tracksWidth) { // in track area
 	    	if (getButton("Engine").down || getButton("Track").down) {
 	   			e.target.style.cursor = 'crosshair';
 			} else if (getButton("Eraser").down) {
@@ -1977,7 +2009,7 @@ $(document).ready(function(){
 	    } else {
    			e.target.style.cursor = 'default';
 	    }
-			
+*/
 	    if (mouseX < canvasWidth && mouseY < canvasHeight) {
 	    	if (isDrawingTrack) {
 	    		addPointTrack(mouseX, mouseYWorld);
@@ -2015,11 +2047,16 @@ $(document).ready(function(){
 	    		if (redraw) draw();
 	    	}
 	    }
-	});
+	}
 	   
 	$('#canvas').mouseup(function(e){
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop;
+        onClickUp(mouseX, mouseY);
+	});
+    
+    function onClickUp(mouseX, mouseY) {
+        console.log ("onClickUp");
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
@@ -2148,7 +2185,7 @@ $(document).ready(function(){
 					}
 						
 	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
-                console.log("Select object for new caption");
+                //console.log("Select object for new caption");
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -2266,7 +2303,7 @@ $(document).ready(function(){
     	isDrawingEngine = false;
     	isDrawingCar = false;
 	    
-	});
+	}
 	
 	function addTrackCargo(track) { //adds a new TrackCargo for the given track. The new TrackCargo will be behind the inset so one tile away
 		step = getTrackCargoStep(track);
@@ -2464,7 +2501,34 @@ $(document).ready(function(){
         calculateLayout();
         draw();
     }
-    
+
+    function doTouchStart(e) {
+        var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
+        var x = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
+        var y = parseInt(touchobj.clientY) // get y position of touch point relative to top edge of browser
+        console.log("TOUCH start!!!! x="+x+" y="+y);
+        e.preventDefault();
+        onClickDown(x, y);
+    }
+        
+    function doTouchMove(e) {
+        var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
+        var x = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
+        var y = parseInt(touchobj.clientY) // get y position of touch point relative to top edge of browser
+        console.log("TOUCH move!!!! x="+x+" y="+y);
+        e.preventDefault();
+        onClickMove(x, y);
+    }
+        
+    function doTouchEnd(e) {
+        var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
+        var x = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
+        var y = parseInt(touchobj.clientY) // get y position of touch point relative to top edge of browser
+        console.log("TOUCH end!!!! x="+x+" y="+y);
+        e.preventDefault();
+        onClickUp(x, y);
+    }
+        
     function calculateLayout() {
         windowWidth = window.innerWidth;
         windowHeight = window.innerHeight;
