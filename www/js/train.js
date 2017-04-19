@@ -1,3 +1,4 @@
+//
 
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
@@ -32,7 +33,7 @@ $(document).ready(function(){
         Bear- made by Oriole from http://www.blendswap.com/blends/view/76070 is CC-BY
 	 */
 	
-	console.debug("readyXXX");
+	console.debug("readyXXXXX");
 	console.log("readyXXXlog");
 //    navigator.notification.alert("Ready");
     window.addEventListener('orientationchange', doOnOrientationChange);
