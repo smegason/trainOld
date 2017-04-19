@@ -1,26 +1,39 @@
 To Do:
 
 Game plan for development
--change mouse interactions to touch so works on iPad
+-change how track direction chosen
 -change cursor to active icon
--make dino sprites
--make safari animal sprites
--make ponies?
 -add yes/no data type
 -remove nonsprite code
+-potential data types
+--yes/no: emoji, traffic light
+--ponies
+--match box cars
+--stuffed animals (beanie babies)
+--dinosaurs
+--safari animals
+--lego minifigures
+--robots
+
+
 
 Bug-
 
+-should allow pinch zoom to different levels so can appreciate the graphics on blocks, first try just rendering bigger and then downsample. Zoom controls tile field but not button bar. Track
+field is fixed at 64x64 and can pinch zoom and two finger pan 
+-need to script rendering
+-should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
+-greater/less than. the equal gives wrong answer. See trx 74 for example.
+-bunny makes increment sound e.g. trx76
+
 New features:
--let kids type their name in blocks
 -add stop, reverse, decouple stations
--make all stations only work for matching type. When click on pd station to get caption, it should let you just choose first level (e.g. dinosaur) or second level rather than just second.
--add immutable property to tracks, ecs, and cargo so can distinguish level base trx from user drawn, render in different color
--sounds for all stations
+-make all stations only work for matching type. 
+-add immutable property to tracks, ecs, and cargo so can distinguish level base trx from user drawn, render in different color or different color octagon underneath
 -add user types, and show/hide functionality based on user types- trainee=no toolbar locked on draw tracks, etc.
 
 -BLENDER
-	-render uppercase, cargoColors, cargoShapes...
+	-render cargoShapes...
 	-to draw: square connectors; stop, reverse, decouple station
 	-animate stations performing their action: catapult and slignshot cargo moving, slide on off for supply, dump, pickDrop
 	
@@ -35,18 +48,10 @@ New features:
 
 
 -APPS
--convert to iPhone and Droid apps using either PhoneGap (or Titanium)
+
 
 *Bugs
--rotate supply sprite 90degres so arrow points to car
--drag and drop of trx sometimes shifts it too far (rounding error?) and sometime copies jibberish (if overlaps then it recopies? need to make full copy first)
--balloon caption should disappear when drawing new track over old track
--make selection go away when switch buttons
--while drawing tracks, it makes wyes when shouldn't (e.g make same 90 curve twice and it makes wye, or diagonal plus 90)
--bug if click track to bring up caption and then click car to get caption without first dismissing track caption
--if engine crashes, set cars to zero speed
--don't cause crash to adjacent car in same train (happens with engine in reverse with car attached to front)
--on clear tracks, remove caption bubble
+
 -need to switch wyes after train passes or if switch after engine then ignore switch until train has passed
 - doesn't crash but shouold on this trax= trx[]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,{"gridx":5,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,{"gridx":6,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":7,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":3,"gridy":2,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[]]'
 
