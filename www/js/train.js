@@ -1,12 +1,4 @@
 
-// db schema
-//users- userID, userName, password, email, firstName, lastName, XP
-//tracks- trackID, userID, track, trackName, trackDescription
-//trackSet- trackSetID, trackID, trackSetDescription, trackSetName
-//TrackSetLinks-trackSetLink, trackSetID, trackID
-//userLevels- userLevelID, name, XP
-
-
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
 	
@@ -40,12 +32,27 @@ $(document).ready(function(){
         Bear- made by Oriole from http://www.blendswap.com/blends/view/76070 is CC-BY
 	 */
 	
-	console.debug("readyXX");
-	console.log("READY!");
-	console.log("w to write tracks to console");
-	console.log("l to load tracks from trx array");
-	console.log("left to decrement trx array");
-	console.log("right to increment trx array");
+	console.debug("readyXXXXX");
+	console.log("READY");
+/*	console.log("w = write tracks to console");
+	console.log("l = load tracks from trx array");
+	console.log("n = new user");
+	console.log("s = sign in user");
+	console.log("f = forgot password");
+	console.log("b = browse tracks to download");
+	console.log("left = decrement trx array");
+	console.log("right = increment trx array");
+*/	console.log("up = upload current track");
+	console.log("down = download track by trackID");
+
+	var newUserLink = document.getElementById('newuserlink');
+	//console.log(newUserLink);
+	newUserLink.style.cursor = 'pointer';
+	newUserLink.onclick = function() {
+	    console.log("New user clicked");
+       	newUserDialog();
+ 	};
+
 //    navigator.notification.alert("Ready");
     window.addEventListener('orientationchange', doOnOrientationChange);
  //   window.addEventListener('touchstart', doTouchStart(e));
@@ -62,7 +69,7 @@ $(document).ready(function(){
     }, false)
  
  	window.addEventListener('keydown', function(event) {
- 		console.log ("Key="+event.keyCode);
+ 		//console.log ("Key="+event.keyCode);
     	if(event.keyCode == 37) {
         	//console.log('Left was pressed');
         	nCurrentTrx--;
@@ -71,9 +78,14 @@ $(document).ready(function(){
 			buildTrains();
 			draw();
     	}
-    	else if(event.keyCode == 38) {
-        	//console.log('Up was pressed');
-        	uploadTracks()
+/*    	else if(event.keyCode == 38) {
+        	console.log('Up was pressed. CurrentUserID='+currentUserID);
+        	if (currentUserID == 1) {
+	        	uploadTrackDialog()
+        		signinUserDialog();
+        	} else {
+        		uploadTrackDialog();
+        	}
  		}
     	else if(event.keyCode == 40) {
         	//console.log('Down was pressed');
@@ -87,7 +99,23 @@ $(document).ready(function(){
         	//console.log('w pressed');
         	writeTracks();
  		}
-    	else if(event.keyCode == 39) {
+     	else if(event.keyCode == 78) {
+        	//console.log('n pressed');
+        	newUserDialog();
+ 		}
+     	else if(event.keyCode == 83) {
+        	//console.log('s pressed');
+        	signinUserDialog();
+ 		}
+     	else if(event.keyCode == 70) {
+        	//console.log('f pressed');
+        	forgotPasswordDialog();
+ 		}
+     	else if(event.keyCode == 66) {
+        	//console.log('b pressed');
+        	browseTracksDialog();
+ 		}
+ */    	else if(event.keyCode == 39) {
         	nCurrentTrx++;
         	//console.log('Right was pressed/ CurrentTrx='+nCurrentTrx);
  //       	if (nCurrentTrx > trx.length) nCurrentTrx = trx.length;
@@ -95,10 +123,6 @@ $(document).ready(function(){
 			buildTrains();
 			draw();
 		}
-    	else if(event.keyCode == 38) {
-        	nCurrentTrx++;
-        	console.log('Down was pressed');
- 		}
 	});   
           
     var useSprites = true;
@@ -189,8 +213,8 @@ $(document).ready(function(){
 	var buttonCaptionX;
 	var buttonCaptionY;
 	
-	var userID = 1; // userID for uploading tracks to database
-	var username = "X"; // username for uploading tracks to database
+	var currentUserID = 1; // userID for uploading tracks to database
+	var currentUsername = "X"; // username for uploading tracks to database
 		
 	//cargo
 	var cargoValues = []; // array of arrays of different types of cargo
@@ -1249,7 +1273,7 @@ $(document).ready(function(){
 			case "TrackCross":
 				drawSprite(track.type, track.orientation);
 				break; 
-			case "TrackStraight":
+			case " traight":
 				if (track.subtype == "none" || track.subtype == "") drawSprite("TrackStraight", track.orientation);
 				else drawSprite(track.subtype, track.orientation);
 				break;
@@ -2188,7 +2212,12 @@ $(document).ready(function(){
 		  			getButton("Save").down = false;
 		  			break;
 		  		case "Upload":
-		  			uploadTracks();
+		        	if (currentUserID == 1) {
+			        	uploadTrackDialog()
+		        		signinUserDialog();
+		        	} else {
+		        		uploadTrackDialog();
+		        	}
 		  			break;
 		  		case "Download":
 		  			downloadTracks();
@@ -3511,42 +3540,339 @@ $(document).ready(function(){
 		cars = trx[2];
 	}
 
-	function writeTracks() { //write out trx to console so can be manually cut and paste to save
+ //// BEGIN code for dialog box for new user
+    var dialogNewUser, dialogSigninUser, dialogForgotPassword,dialogUploadTrack, dialogDownloadTrack, form;
+ 
+    // From http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#e-mail-state-%28type=email%29
+    var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    var username = $("#username");
+    var usernameSignin = $("#usernameSignin");
+    var email = $("#email");
+    var password = $("#password");
+    var passwordSignin = $("#passwordSignin");
+    var trackname = $("#trackname");
+    var trackdescription = $("#trackdescription");
+    var allFields = $( [] ).add(username).add(email).add(password).add(trackname).add(trackdescription);
+    var tips = $(".validateTips");
+  
+     function newUser() {
+    	console.log("Add user");
+    	//var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    	//tips = $( ".validateTips" );
+      	var valid = true;
+      	valid = valid && checkLength( username, "username", 3, 16 );
+     	valid = valid && checkLength( email, "email", 6, 80 );
+      	valid = valid && checkLength( password, "password", 5, 16 );
+ 
+      	valid = valid && checkRegexp( username, /^[a-z]([0-9a-z_\s])+$/i, "Username may consist of a-z, 0-9, underscores, spaces and must begin with a letter." );
+      	valid = valid && checkRegexp( email, emailRegex, "eg. engineer@train-hub.org" );
+      	valid = valid && checkRegexp( password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
+ 
+      	if ( valid ) {
+        	//$( "#users tbody" ).append( "<tr>" + "<td>" + name.val() + "</td>" + "<td>" + email.val() + "</td>" + "<td>" + password.val() + "</td>" + "</tr>" );
+        	console.log("ADD username="+username.val()+", email="+email.val()+", password="+password.val());
+	        xmlhttp = new XMLHttpRequest();
+	        xmlhttp.onreadystatechange = function() {
+	            if (this.readyState == 4 && this.status == 200) {
+	                console.log("Response="+this.responseText);
+	            }
+	        };
+	        var url = "http://localhost/newUser.php?username="+encodeURI(username.val())+"&email="+encodeURI(email.val())+"&password="+encodeURI(password.val());
+	        console.log("url="+url);
+	        xmlhttp.open("GET",url,true);
+	        xmlhttp.send();
+        	dialogNewUser.dialog( "close" );
+      	}
+      	return valid;
+    }
+    
+    function signinUser() {
+    	console.log("Function signinUser");
+     	var valid = true;
+      	valid = valid && checkLength( usernameSignin, "username", 3, 16 );
+      	valid = valid && checkLength( passwordSignin, "password", 5, 16 );
+ 
+      	valid = valid && checkRegexp( usernameSignin, /^[a-z]([0-9a-z_\s])+$/i, "Username may consist of a-z, 0-9, underscores, spaces and must begin with a letter." );
+      	valid = valid && checkRegexp( passwordSignin, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
+ 
+      	if ( valid ) {
+        	//$( "#users tbody" ).append( "<tr>" + "<td>" + name.val() + "</td>" + "<td>" + email.val() + "</td>" + "<td>" + password.val() + "</td>" + "</tr>" );
+        	//console.log("signin username="+usernameSignin.val()+", password="+passwordSignin.val());
+	        xmlhttp = new XMLHttpRequest();
+	        xmlhttp.onreadystatechange = function() {
+	            if (this.readyState == 4 && this.status == 200) {
+	                //console.log("Response="+this.responseText);
+	                if (this.responseText == "fail-login") {
+	                	alert ("Wrong username or password");
+	                } else if (this.responseText == "fail-connect") {
+	                	alert ("Failed to connect");
+	                } else {
+		                var retArray = this.responseText.split("&&&");
+		                currentUserID = retArray[1];
+		                currentUsername = retArray[2];
+		                console.log("Successfully logged in username="+currentUsername+", and userID="+currentUserID);
+		            }
+	            }
+	        };
+	        var url = "http://localhost/signinUser.php?username="+encodeURI(usernameSignin.val())+"&password="+encodeURI(passwordSignin.val());
+	        //console.log("url="+url);
+	        xmlhttp.open("GET",url,true);
+	        xmlhttp.send();
+        	dialogSigninUser.dialog( "close" );
+      	}
+      	return valid;
+    }
+    
+    function forgotPassword() {
+    	console.log ("function forgot password");
+    }
+    
+    function browseTracks() {
+    	console.log("Function browse tracks");
+    }
+
+	function uploadTrack() {
+		console.log ("Function Upload track");
+ 		var trx = [tracks, engines, cars];
+		var strTrx = JSON.stringify(trx);
+
+      	var valid = true;
+      	valid = valid && checkLength( username, "trackname", 3, 25 );
+     	valid = valid && checkLength( trackdescription, "trackdescription", 6, 300 );
+
+      	if ( valid ) {
+        	console.log("trackname="+trackname.val()+", trackdescription="+trackdescription.val());
+	        xmlhttp = new XMLHttpRequest();
+	        xmlhttp.onreadystatechange = function() {
+	            if (this.readyState == 4 && this.status == 200) {
+	                //console.log("Response="+this.responseText);
+	                if (this.responseText.length>3) {
+	                	alert("Track upload successful!");
+ 	                } else {
+	                	alert("Track upload failed.")
+	                }
+	            }
+	        };
+	        var url = "http://localhost/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
+	        //console.log("url="+url);
+	        xmlhttp.open("GET",url,true);
+	        xmlhttp.send();
+ 			dialogUploadTrack.dialog( "close" );
+     	}
+      	return valid;
+	}
+	
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+ 
+     function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "Length of " + n + " must be between " +
+          min + " and " + max + "." );
+        return false;
+      } else {
+        return true;
+      }
+    }
+ 
+    function checkRegexp( o, regexp, n ) {
+      if ( !( regexp.test( o.val() ) ) ) {
+        o.addClass( "ui-state-error" );
+        updateTips( n );
+        return false;
+      } else {
+        return true;
+      }
+    }
+  
+ 	function newUserDialog() {
+		console.log("New user dialog");
+
+	    dialogNewUser = $( "#dialog-newUser" ).dialog({
+	      autoOpen: false,
+	      height: 400,
+	      width: 350,
+	      modal: true,
+	      buttons: {
+	        "Create an account": newUser,
+	        Cancel: function() {
+	          dialog.dialog( "close" );
+	        }
+	      },
+	      close: function() {
+	        form[ 0 ].reset();
+	        allFields.removeClass( "ui-state-error" );
+	      }
+	    });
+	 
+	    form = dialog.find( "form" ).on( "submit", function( event ) {
+	      event.preventDefault();
+	      newUser();
+	    });
+	 
+	    dialogNewUser.dialog( "open" );
+	}
+	
+ 	function signinUserDialog() {
+		console.log("Sign in user dialog");
+
+	    dialogSigninUser = $( "#dialog-signinUser" ).dialog({
+	      autoOpen: false,
+	      height: 400,
+	      width: 350,
+	      modal: true,
+	      buttons: {
+	        "Sign-in user": signinUser,
+	        Cancel: function() {
+	          dialog.dialog( "close" );
+	        }
+	      },
+	      close: function() {
+	        form[ 0 ].reset();
+	        allFields.removeClass( "ui-state-error" );
+	      }
+	    });
+	 
+	    form = dialogSigninUser.find( "form" ).on( "submit", function( event ) {
+	      event.preventDefault();
+	      signinUser();
+	    });
+	 
+	    dialogSigninUser.dialog( "open" );
+	}
+	
+ 	function forgotPasswordDialog() {
+		console.log("Forgot password dialog");
+
+	    dialogForgotPassword = $( "#dialog-forgotPassword" ).dialog({
+	      autoOpen: false,
+	      height: 400,
+	      width: 350,
+	      modal: true,
+	      buttons: {
+	        "Forgot Password": forgotPassword,
+	        Cancel: function() {
+	          dialog.dialog( "close" );
+	        }
+	      },
+	      close: function() {
+	        form[ 0 ].reset();
+	        allFields.removeClass( "ui-state-error" );
+	      }
+	    });
+	 
+	    form = dialogForgotPassword.find( "form" ).on( "submit", function( event ) {
+	      event.preventDefault();
+	      forgotPassword();
+	    });
+	 
+	    dialogForgotPassword.dialog( "open" );
+	}
+	
+ 	function dialogDownloadTracks() {
+		console.log("Browse Tracks dialog");
+
+	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
+	      autoOpen: false,
+	      height: 400,
+	      width: 350,
+	      modal: true,
+	      buttons: {
+	        "Browse Tracks": browseTracks,
+	        Cancel: function() {
+	          dialog.dialog( "close" );
+	        }
+	      },
+	      close: function() {
+	        form[ 0 ].reset();
+	        allFields.removeClass( "ui-state-error" );
+	      }
+	    });
+	 
+	    form = dialogDownloadTracks.find( "form" ).on( "submit", function( event ) {
+	      event.preventDefault();
+	      browseTracks();
+	    });
+	 
+	    dialogDownloadTracks.dialog( "open" );
+	}
+	
+ 	function uploadTrackDialog() {
+		console.log("Upload Track dialog");
+
+	    dialogUploadTrack = $( "#dialog-uploadTrack" ).dialog({
+	      autoOpen: false,
+	      height: 400,
+	      width: 350,
+	      modal: true,
+	      buttons: {
+	        "Upload Track": uploadTrack,
+	        Cancel: function() {
+	          dialog.dialog( "close" );
+	        }
+	      },
+	      close: function() {
+	        form[ 0 ].reset();
+	        allFields.removeClass( "ui-state-error" );
+	      }
+	    });
+	 
+	    form = dialogUploadTrack.find( "form" ).on( "submit", function( event ) {
+	      event.preventDefault();
+	      uploadTrack();
+	    });
+	 
+	    dialogUploadTrack.dialog( "open" );
+	}
+	
+//// END code for dialog boxes
+ 	
+	function writeTrack() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
 		console.log("    trx[]=\'"+JSON.stringify(trx)+"\'\;");
 	}
 
-	function loadTracks() { //load tracks from the trx array
+	function loadTrack() { //load tracks from the trx array
 		nCurrentTrx = prompt("Please enter level number to load", "1");
 		openTrxJSON(trx[nCurrentTrx]);
 		buildTrains();
 		draw();
 	}
 	
-	function uploadTracks() {
-		console.log ("UplOAD tracks to server");
- 		var trx = [tracks, engines, cars];
-		var strTrx = JSON.stringify(trx);
-		strTrx="Tracktesttttt";
-		var trackName = "testTrackName8";
-		var trackDescription = "testTrackDescription8";
+	function downloadTrack() {
+		console.log ("Download track from server");
+		var trackID = prompt("Please enter the trackID to load", "1");
+
+		var url = "http://localhost/downloadTrack.php?trackID="+trackID;
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                console.log("Response="+this.responseText);
+                //console.log("Response="+this.responseText);
+                var retArray = this.responseText.split("&&&");
+                var strTrx = retArray[1];
+                var trackName = retArray[2];
+                var trackDescription = retArray[3];
+                var strTrxD = strTrx.replace(/&quot;/g,'"')
+                console.log("strTrx="+strTrx);
+                console.log("strTrxD="+strTrxD);
+                console.log("trackName="+trackName);
+                console.log("trackDescription="+trackDescription);
+				openTrxJSON(strTrxD);
+				buildTrains();
+				draw();
             }
         };
-        var url = "/train/www/php/uploadTrack.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
-//        var url = "http://localhost/www/php/uploadTracks.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
-        console.log("url="+url);
         xmlhttp.open("GET",url,true);
-        //  localhost/uploadTracks.php?userID=1&trx=testTrx&trackName=testTrackName&trackDescription=testTrackDescription
         xmlhttp.send();
-	}
-	
-	function downloadTracks() {
-		console.log ("Download tracks from server");
-	}
+ 
+ 	}
 	
 	Storage.prototype.setObject = function(key, value) {
 	    this.setItem(key, JSON.stringify(value));
