@@ -1,4 +1,3 @@
-//
 
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
@@ -33,8 +32,12 @@ $(document).ready(function(){
         Bear- made by Oriole from http://www.blendswap.com/blends/view/76070 is CC-BY
 	 */
 	
-	console.debug("readyXXXXX");
-	console.log("readyXXXlog");
+	console.debug("readyXX");
+	console.log("READY!");
+	console.log("w to write tracks to console");
+	console.log("l to load tracks from trx array");
+	console.log("left to decrement trx array");
+	console.log("right to increment trx array");
 //    navigator.notification.alert("Ready");
     window.addEventListener('orientationchange', doOnOrientationChange);
  //   window.addEventListener('touchstart', doTouchStart(e));
@@ -53,16 +56,32 @@ $(document).ready(function(){
  	window.addEventListener('keydown', function(event) {
  		//console.log ("Key="+event.keyCode);
     	if(event.keyCode == 37) {
-        	console.log('Left was pressed');
+        	//console.log('Left was pressed');
         	nCurrentTrx--;
         	if (nCurrentTrx < 1) nCurrentTrx =1;
 			openTrxJSON(trx[nCurrentTrx]);
 			buildTrains();
 			draw();
     	}
+    	else if(event.keyCode == 38) {
+        	//console.log('Up was pressed');
+        	uploadTracks()
+ 		}
+    	else if(event.keyCode == 40) {
+        	//console.log('Down was pressed');
+        	downloadTracks();
+ 		}
+    	else if(event.keyCode == 76) {
+        	//console.log('l pressed');
+        	loadTracks();
+ 		}
+    	else if(event.keyCode == 87) {
+        	//console.log('w pressed');
+        	writeTracks();
+ 		}
     	else if(event.keyCode == 39) {
         	nCurrentTrx++;
-        	console.log('Right was pressed/ CurrentTrx='+nCurrentTrx);
+        	//console.log('Right was pressed/ CurrentTrx='+nCurrentTrx);
  //       	if (nCurrentTrx > trx.length) nCurrentTrx = trx.length;
 			openTrxJSON(trx[nCurrentTrx]);
 			buildTrains();
@@ -157,6 +176,9 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
+	
+	var userID = 1; // userID for uploading tracks to database
+	var username = "X"; // username for uploading tracks to database
 		
 	//cargo
 	var cargoValues = []; // array of arrays of different types of cargo
@@ -2154,12 +2176,10 @@ $(document).ready(function(){
 		  			getButton("Save").down = false;
 		  			break;
 		  		case "Upload":
-		  			uploadTrx();
+		  			uploadTracks();
 		  			break;
 		  		case "Download":
-					nCurrentTrx = prompt("Please enter level number to load", "1");
-					openTrxJSON(trx[nCurrentTrx]);
-					buildTrains();
+		  			downloadTracks();
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
@@ -3479,27 +3499,42 @@ $(document).ready(function(){
 		cars = trx[2];
 	}
 
-	function uploadTrx() { //write out trx to console so can be manually cut and paste to save
+	function writeTracks() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
 		console.log("    trx[]=\'"+JSON.stringify(trx)+"\'\;");
 	}
 
-/*	function uploadTrx() { //upload current trx to website
-		var trx = [tracks, engines, cars];
-//		console.log("trx[]=\'"+JSON.stringify(trx))+"\'\;");
-//		$.post('uploadTrx.php');
-/        $.ajax({
-            url: "uploadTrx.php",
-            data: trx,
-            dataType: 'json',
-            success: function() {
-                if(rsp.success) {
-                    alert('form has been posted successfully');
-                }
+	function loadTracks() { //load tracks from the trx array
+		nCurrentTrx = prompt("Please enter level number to load", "1");
+		openTrxJSON(trx[nCurrentTrx]);
+		buildTrains();
+		draw();
+	}
+	
+	function uploadTracks() {
+		console.log ("UplOAD tracks to server");
+ 		var trx = [tracks, engines, cars];
+		var strTrx = JSON.stringify(trx);
+		strTrx="Tracktesttttt";
+		var trackName = "testTrackName8";
+		var trackDescription = "testTrackDescription8";
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log("Response="+this.responseText);
             }
-        });
-    }
-	*/	
+        };
+        var url = "http://localhost/uploadTracks.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
+        console.log("url="+url);
+        xmlhttp.open("GET",url,true);
+        //  localhost/uploadTracks.php?userID=1&trx=testTrx&trackName=testTrackName&trackDescription=testTrackDescription
+        xmlhttp.send();
+	}
+	
+	function downloadTracks() {
+		console.log ("Download tracks from server");
+	}
+	
 	Storage.prototype.setObject = function(key, value) {
 	    this.setItem(key, JSON.stringify(value));
 	}

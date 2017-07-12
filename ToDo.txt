@@ -1,5 +1,30 @@
 To Do:
 
+Branches to make:
+Upload/download tracks to train-hub.org
+-from train.js allow
+--new users
+--login
+--upload tracks
+--download own tracks or other tracks
+(need new icons for login/new user, upload, download)
+Workflow
+-when upload pushed
+	-sign in dialog box if not already logged in
+	-upload dialog box: track name, track description
+-download
+	-your tracks, search
+	
+Dialogs:
+-new user
+-login
+-send password
+-upload tracks
+-download tracks	
+	
+	
+Signin- username, password ->sign in  OR Join Train
+
 Game plan for development
 -change how track direction chosen
 -change cursor to active icon
@@ -18,7 +43,7 @@ Game plan for development
 
 
 Bug-
-
+-W is a hexagon? Need to re-render.
 -should allow pinch zoom to different levels so can appreciate the graphics on blocks, first try just rendering bigger and then downsample. Zoom controls tile field but not button bar. Track
 field is fixed at 64x64 and can pinch zoom and two finger pan 
 -need to script rendering
