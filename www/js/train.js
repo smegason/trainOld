@@ -3536,7 +3536,8 @@ $(document).ready(function(){
                 console.log("Response="+this.responseText);
             }
         };
-        var url = "http://localhost/www/php/uploadTracks.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
+        var url = "/www/php/uploadTracks.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
+//        var url = "http://localhost/www/php/uploadTracks.php?userID="+userID+"&trx="+strTrx+"&trackName="+trackName+"&trackDescription="+trackDescription;
         console.log("url="+url);
         xmlhttp.open("GET",url,true);
         //  localhost/uploadTracks.php?userID=1&trx=testTrx&trackName=testTrackName&trackDescription=testTrackDescription
