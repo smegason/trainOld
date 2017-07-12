@@ -1273,7 +1273,7 @@ $(document).ready(function(){
 			case "TrackCross":
 				drawSprite(track.type, track.orientation);
 				break; 
-			case " traight":
+			case "TrackStraight":
 				if (track.subtype == "none" || track.subtype == "") drawSprite("TrackStraight", track.orientation);
 				else drawSprite(track.subtype, track.orientation);
 				break;
