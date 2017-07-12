@@ -1,4 +1,12 @@
 
+// db schema
+//users- userID, userName, password, email, firstName, lastName, XP
+//tracks- trackID, userID, track, trackName, trackDescription
+//trackSet- trackSetID, trackID, trackSetDescription, trackSetName
+//TrackSetLinks-trackSetLink, trackSetID, trackID
+//userLevels- userLevelID, name, XP
+
+
 $(document).ready(function(){
 	// written by Sean Megason, megason@hms.harvard.edu
 	
@@ -54,7 +62,7 @@ $(document).ready(function(){
     }, false)
  
  	window.addEventListener('keydown', function(event) {
- 		//console.log ("Key="+event.keyCode);
+ 		console.log ("Key="+event.keyCode);
     	if(event.keyCode == 37) {
         	//console.log('Left was pressed');
         	nCurrentTrx--;
@@ -87,6 +95,10 @@ $(document).ready(function(){
 			buildTrains();
 			draw();
 		}
+    	else if(event.keyCode == 38) {
+        	nCurrentTrx++;
+        	console.log('Down was pressed');
+ 		}
 	});   
           
     var useSprites = true;
