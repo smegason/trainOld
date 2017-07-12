@@ -265,9 +265,9 @@ $(document).ready(function(){
 	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
 	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
 	var imgCaptionHome = new Image(); imgCaptionHome.src = 'img/renders/CaptionButtons/home.png';
-	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/renders/CaptionButtons/greentunnel.png';
-	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/renders/CaptionButtons/redtunnel.png';
-	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/renders/CaptionButtons/bluetunnel.png';
+	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/renders/CaptionButtons/greenTunnel.png';
+	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/renders/CaptionButtons/redTunnel.png';
+	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/renders/CaptionButtons/blueTunnel.png';
 
 	//load images for buttons in captions for choosing wye type
 	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
