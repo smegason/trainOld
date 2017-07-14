@@ -99,6 +99,8 @@ Cache-Control:public;
 		
 		$sql = "SELECT * FROM users";
 		$result = mysqli_query($con,$sql);
+		echo "here";
+		echo $result;
 		if ($result) {
 			$row = mysqli_fetch_array($result);
 			$userID = $row['userID'];
