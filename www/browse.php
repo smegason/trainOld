@@ -61,7 +61,7 @@ Cache-Control:public;
 		<!-- <div id="sound_element">
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
 		</div> --> 		
-        <br>Browse Tracksssss
+        <br>Browse Tracks
 		<?php
 		echo "A";
 		include 'php/connect.php';
@@ -74,12 +74,17 @@ Cache-Control:public;
 		$sql = "SELECT * FROM users";
 		echo "D";
 		$result = mysqli_query($con,$sql);
-		echo "here";
+		echo "E";
 		echo $result;
+		echo "F";
 		if ($result) {
+			echo "G";
 			$row = mysqli_fetch_array($result);
+			echo "H";
 			$userID = $row['userID'];
+			echo "I";
 			$username = $row['userName'];
+			echo "J";
 			echo "&&&".$userID."&&&".$username."&&&";
 		} else {
 			echo "fail-login";
