@@ -66,7 +66,7 @@ Cache-Control:public;
         
 		<?php
 		include 'php/connect.php';
-		
+		echo $dbroot;
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
 		    die('fail-connect');
