@@ -23,7 +23,7 @@ include 'connect.php';
 
 $q = intval($_GET['q']);
 
-$con = mysqli_connect('localhost',$root,$password,$db);
+$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }

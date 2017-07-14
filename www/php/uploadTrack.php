@@ -27,7 +27,7 @@ $trackName = htmlspecialchars($_GET['trackName']);
 $trackDescription = htmlspecialchars($_GET['trackDescription']);
 echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription;
 
-$con = mysqli_connect('localhost',$root,$password,$db);
+$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }

@@ -26,7 +26,7 @@ $email = htmlspecialchars($_GET['email']);
 $password = htmlspecialchars($_GET['password']);
 echo "<br>username=".$username.", pass=".$password.", email=".$email;
 
-$con = mysqli_connect('localhost',$root,$password,$db);
+$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }

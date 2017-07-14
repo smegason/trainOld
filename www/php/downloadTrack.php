@@ -3,7 +3,7 @@ include 'connect.php';
 
 $trackID = htmlspecialchars($_GET["trackID"]);
 
-$con = mysqli_connect('localhost',$root,$password,$db);
+$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
