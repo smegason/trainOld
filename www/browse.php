@@ -61,15 +61,14 @@ Cache-Control:public;
 		<!-- <div id="sound_element">
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
 		</div> --> 		
-        Browse Tracks
-        List by votes
+        <br>Browse Tracks
         
 		<?php
 		include 'php/connect.php';
 		echo $dbroot.", ".$dbpassword.", ".$dbname;
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
-		    die('fail-connect');
+		    echo "fail-connect";
 		}
 		
 		$sql = "SELECT * FROM tracks";
