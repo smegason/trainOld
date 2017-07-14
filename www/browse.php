@@ -63,29 +63,21 @@ Cache-Control:public;
 		</div> --> 		
         <br>Browse Tracks
 		<?php
-		echo "A";
 		include 'php/connect.php';
-		echo "B";
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
 		    echo "fail-connect";
 		}
-		echo "C";
 		$sql = "SELECT * FROM tracks";
-		echo "D";
 		$result = mysqli_query($con,$sql);
-		echo "E";
-		echo "F";
 		if ($result) {
-			echo "G";
+			echo "<table";
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
-				echo "H";
 				$userID = $row['userID'];
-				echo "I";
 				$trackID = $row['trackID'];
-				echo "J";
-				echo "&&&".$userID."&&&".$trackID."&&&     ";
+				echo "<tr><td>".$userID."</td><td>".$trackID."</td></tr>";
 			}
+			echo "</table>";
 		} else {
 			echo "fail-login";
 		}
