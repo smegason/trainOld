@@ -70,10 +70,11 @@ Cache-Control:public;
 		if (!$con) {
 		    echo "fail-connect";
 		}
-		
+		echo "Connected";
 		$sql = "SELECT * FROM tracks";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
+			echo ".";
 			echo "<table>"; // start a table tag in the HTML
 			
 			while($row = mysql_fetch_array($result)) {   //Creates a loop to loop through results
