@@ -62,33 +62,6 @@ Cache-Control:public;
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
 		</div> --> 		
         <br>Browse Tracksssss
-        
-<!--		<?php
-		include 'php/connect.php';
-		echo $dbroot.", ".$dbpassword.", ".$dbname;
-		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
-		if (!$con) {
-		    echo "fail-connect";
-		}
-		echo "Connected";
-		$sql = "SELECT * FROM tracks";
-		$result = mysqli_query($con,$sql);
-		echo $result;
-		if ($result) {
-			echo ".";
-			echo "<table>"; // start a table tag in the HTML
-			
-			while($row = mysql_fetch_array($result)) {   //Creates a loop to loop through results
-				echo "<tr><td>" . $row['trackID'] . "</td><td>" . $row['userID'] . "</td> <td>" . $row['trackName'] . "</td><td>" . $row['trackDescription'] . "</tr>"; 
-			}
-			
-			echo "</table>"; //Close the table in HTML
-			
-		} else {
-			echo "fail-login";
-		}
-		mysqli_close($con);
-		?>  -->
 		<?php
 		echo "A";
 		include 'php/connect.php';
@@ -128,3 +101,30 @@ Cache-Control:public;
 
     </body>
 </html>
+        
+<!--		<?php
+		include 'php/connect.php';
+		echo $dbroot.", ".$dbpassword.", ".$dbname;
+		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
+		if (!$con) {
+		    echo "fail-connect";
+		}
+		echo "Connected";
+		$sql = "SELECT * FROM tracks";
+		$result = mysqli_query($con,$sql);
+		echo $result;
+		if ($result) {
+			echo ".";
+			echo "<table>"; // start a table tag in the HTML
+			
+			while($row = mysql_fetch_array($result)) {   //Creates a loop to loop through results
+				echo "<tr><td>" . $row['trackID'] . "</td><td>" . $row['userID'] . "</td> <td>" . $row['trackName'] . "</td><td>" . $row['trackDescription'] . "</tr>"; 
+			}
+			
+			echo "</table>"; //Close the table in HTML
+			
+		} else {
+			echo "fail-login";
+		}
+		mysqli_close($con);
+		?>  -->
