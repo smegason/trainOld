@@ -71,7 +71,7 @@ Cache-Control:public;
 		    echo "fail-connect";
 		}
 		echo "C";
-		$sql = "SELECT * FROM users";
+		$sql = "SELECT * FROM tracks";
 		echo "D";
 		$result = mysqli_query($con,$sql);
 		echo "E";
@@ -82,9 +82,9 @@ Cache-Control:public;
 				echo "H";
 				$userID = $row['userID'];
 				echo "I";
-				$username = $row['userName'];
+				$trackID = $row['trackID'];
 				echo "J";
-				echo "&&&".$userID."&&&".$username."&&&";
+				echo "&&&".$userID."&&&".$trackID."&&&     ";
 			}
 		} else {
 			echo "fail-login";
