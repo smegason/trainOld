@@ -2220,7 +2220,7 @@ $(document).ready(function(){
 		        	}
 		  			break;
 		  		case "Download":
-		  			downloadTracks();
+		  			downloadTrackDialog();
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
