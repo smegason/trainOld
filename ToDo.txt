@@ -14,6 +14,7 @@ Workflow
 	-upload dialog box: track name, track description
 -download
 	-your tracks, search
+*Scripts done and work on localhost. Need to install mysql on train-hub.org, change password in scripts, and test
 	
 Dialogs:
 -new user
