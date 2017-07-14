@@ -76,8 +76,9 @@ Cache-Control:public;
 		$result = mysqli_query($con,$sql);
 		echo "E";
 		echo "F";
-		while($row = mysql_fetch_array($result)) {   //Creates a loop to loop through results
+		if ($result) {
 			echo "G";
+			$row = mysqli_fetch_array($result);
 			echo "H";
 			$userID = $row['userID'];
 			echo "I";
