@@ -3577,7 +3577,7 @@ $(document).ready(function(){
 	                console.log("Response="+this.responseText);
 	            }
 	        };
-	        var url = "http://localhost/newUser.php?username="+encodeURI(username.val())+"&email="+encodeURI(email.val())+"&password="+encodeURI(password.val());
+	        var url = "php/newUser.php?username="+encodeURI(username.val())+"&email="+encodeURI(email.val())+"&password="+encodeURI(password.val());
 	        console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
@@ -3614,7 +3614,7 @@ $(document).ready(function(){
 		            }
 	            }
 	        };
-	        var url = "http://localhost/signinUser.php?username="+encodeURI(usernameSignin.val())+"&password="+encodeURI(passwordSignin.val());
+	        var url = "php/signinUser.php?username="+encodeURI(usernameSignin.val())+"&password="+encodeURI(passwordSignin.val());
 	        //console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
@@ -3653,7 +3653,7 @@ $(document).ready(function(){
 	                }
 	            }
 	        };
-	        var url = "http://localhost/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
+	        var url = "php/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
 	        //console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
@@ -3851,7 +3851,7 @@ $(document).ready(function(){
 		console.log ("Download track from server");
 		var trackID = prompt("Please enter the trackID to load", "1");
 
-		var url = "http://localhost/downloadTrack.php?trackID="+trackID;
+		var url = "php/downloadTrack.php?trackID="+trackID;
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
