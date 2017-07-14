@@ -97,7 +97,7 @@ Cache-Control:public;
 		    die('fail-connect');
 		}
 		
-		$sql = "SELECT * FROM user";
+		$sql = "SELECT * FROM users";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
 			$row = mysqli_fetch_array($result);
