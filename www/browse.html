@@ -64,6 +64,30 @@ Cache-Control:public;
         Browse Tracks
         List by votes
         
+		<?php
+		include 'connect.php';
+		
+		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
+		if (!$con) {
+		    die('fail-connect');
+		}
+		
+		$sql = "SELECT * FROM tracks";
+		$result = mysqli_query($con,$sql);
+		if ($result) {
+			echo "<table>"; // start a table tag in the HTML
+			
+			while($row = mysql_fetch_array($result)){   //Creates a loop to loop through results
+			echo "<tr><td>" . $row['trackID'] . "</td><td>" . $row['userID'] . "</td> <td>" . $row['trackName'] . "</td><td>" . $row['trackDescription'] . "</tr>"; 
+			}
+			
+			echo "</table>"; //Close the table in HTML
+			
+		} else {
+			echo "fail-login";
+		}
+		mysqli_close($con);
+		?>        
         <!--Train is open source on <a href="https://github.com/smegason/train/">github</a> -->
         
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
