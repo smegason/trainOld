@@ -2220,7 +2220,7 @@ $(document).ready(function(){
 		        	}
 		  			break;
 		  		case "Download":
-		  			dialogDownloadTracks();
+		  			downloadTrackDialog();
 		  			break;
 		  		case "Clear":
 		  			//tracks.length=0;
@@ -3776,7 +3776,7 @@ $(document).ready(function(){
 	    dialogForgotPassword.dialog( "open" );
 	}
 	
- 	function dialogDownloadTracks() {
+ 	function downloadTrackDialog() {
 		console.log("Browse Tracks dialog");
 
 	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
