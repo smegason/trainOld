@@ -71,7 +71,7 @@ Cache-Control:public;
 		    echo "fail-connect";
 		}
 		echo "Connected";
-		$sql = "SELECT * FROM 'tracks'";
+		$sql = "SELECT * FROM tracks";
 		$result = mysqli_query($con,$sql);
 		echo $result;
 		if ($result) {
