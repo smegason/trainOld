@@ -75,7 +75,6 @@ Cache-Control:public;
 		echo "D";
 		$result = mysqli_query($con,$sql);
 		echo "E";
-		echo $result;
 		echo "F";
 		if ($result) {
 			echo "G";
