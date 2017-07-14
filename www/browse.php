@@ -90,11 +90,11 @@ Cache-Control:public;
 		mysqli_close($con);
 		?>  -->
 		<?php
-		include 'connect.php';
+		include 'php/connect.php';
 		
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
-		    die('fail-connect');
+		    echo "fail-connect";
 		}
 		
 		$sql = "SELECT * FROM users";
