@@ -77,8 +77,8 @@ Cache-Control:public;
 		if ($result) {
 			echo "<table>"; // start a table tag in the HTML
 			
-			while($row = mysql_fetch_array($result)){   //Creates a loop to loop through results
-			echo "<tr><td>" . $row['trackID'] . "</td><td>" . $row['userID'] . "</td> <td>" . $row['trackName'] . "</td><td>" . $row['trackDescription'] . "</tr>"; 
+			while($row = mysql_fetch_array($result)) {   //Creates a loop to loop through results
+				echo "<tr><td>" . $row['trackID'] . "</td><td>" . $row['userID'] . "</td> <td>" . $row['trackName'] . "</td><td>" . $row['trackDescription'] . "</tr>"; 
 			}
 			
 			echo "</table>"; //Close the table in HTML
