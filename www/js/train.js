@@ -3637,7 +3637,7 @@ $(document).ready(function(){
 		var strTrx = JSON.stringify(trx);
 
       	var valid = true;
-      	valid = valid && checkLength( username, "trackname", 3, 25 );
+      	valid = valid && checkLength( trackname, "trackname", 3, 25 );
      	valid = valid && checkLength( trackdescription, "trackdescription", 6, 300 );
 
       	if ( valid ) {
