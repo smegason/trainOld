@@ -3778,7 +3778,8 @@ $(document).ready(function(){
 	
  	function downloadTrackDialog() {
 		console.log("Browse Tracks dialog");
-
+		downloadTrack();
+/*	
 	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
 	      autoOpen: false,
 	      height: 400,
@@ -3802,7 +3803,7 @@ $(document).ready(function(){
 	    });
 	 
 	    dialogDownloadTracks.dialog( "open" );
-	}
+*/	}
 	
  	function uploadTrackDialog() {
 		console.log("Upload Track dialog");
