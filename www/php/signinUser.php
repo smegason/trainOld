@@ -1,9 +1,10 @@
 
 <?php
+include 'connect.php';
 $username = htmlspecialchars($_GET["username"]);
 $password = htmlspecialchars($_GET['password']);
 
-$con = mysqli_connect('localhost','root','X*rgXCY_#7l7','trainDB');
+$con = mysqli_connect('localhost',$root,$password,$db);
 if (!$con) {
     die('fail-connect');
 }

@@ -19,13 +19,15 @@ th {text-align: left;}
 <body>
 Upload TRacks----
 <?php
+include 'connect.php';
+
 $userID = htmlspecialchars($_GET["userID"]);
 $trx = htmlspecialchars($_GET['trx']);
 $trackName = htmlspecialchars($_GET['trackName']);
 $trackDescription = htmlspecialchars($_GET['trackDescription']);
 echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription;
 
-$con = mysqli_connect('localhost','root','X*rgXCY_#7l7','trainDB');
+$con = mysqli_connect('localhost',$root,$password,$db);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }

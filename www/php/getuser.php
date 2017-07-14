@@ -19,9 +19,11 @@ th {text-align: left;}
 <body>
 
 <?php
+include 'connect.php';
+
 $q = intval($_GET['q']);
 
-$con = mysqli_connect('localhost','root','X*rgXCY_#7l7','trainDB');
+$con = mysqli_connect('localhost',$root,$password,$db);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }

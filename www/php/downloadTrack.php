@@ -1,7 +1,9 @@
 <?php
+include 'connect.php';
+
 $trackID = htmlspecialchars($_GET["trackID"]);
 
-$con = mysqli_connect('localhost','root','X*rgXCY_#7l7','trainDB');
+$con = mysqli_connect('localhost',$root,$password,$db);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
