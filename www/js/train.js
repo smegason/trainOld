@@ -3712,7 +3712,7 @@ $(document).ready(function(){
 	      }
 	    });
 	 
-	    form = dialog.find( "form" ).on( "submit", function( event ) {
+	    form = dialogNewUser.find( "form" ).on( "submit", function( event ) {
 	      event.preventDefault();
 	      newUser();
 	    });
