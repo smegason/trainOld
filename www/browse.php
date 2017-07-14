@@ -78,13 +78,14 @@ Cache-Control:public;
 		echo "F";
 		if ($result) {
 			echo "G";
-			$row = mysqli_fetch_array($result);
-			echo "H";
-			$userID = $row['userID'];
-			echo "I";
-			$username = $row['userName'];
-			echo "J";
-			echo "&&&".$userID."&&&".$username."&&&";
+			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
+				echo "H";
+				$userID = $row['userID'];
+				echo "I";
+				$username = $row['userName'];
+				echo "J";
+				echo "&&&".$userID."&&&".$username."&&&";
+			}
 		} else {
 			echo "fail-login";
 		}
