@@ -71,7 +71,7 @@ Cache-Control:public;
 		$sql = "SELECT * FROM tracks";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
-			echo "<table";
+			echo "<table>";
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
 				$userID = $row['userID'];
 				$trackID = $row['trackID'];
