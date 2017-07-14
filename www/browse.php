@@ -63,7 +63,7 @@ Cache-Control:public;
 		</div> --> 		
         <br>Browse Tracks
         
-		<?php
+<!--		<?php
 		include 'php/connect.php';
 		echo $dbroot.", ".$dbpassword.", ".$dbname;
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
@@ -88,7 +88,28 @@ Cache-Control:public;
 			echo "fail-login";
 		}
 		mysqli_close($con);
-		?>        
+		?>  -->
+		<?php
+		include 'connect.php';
+		
+		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
+		if (!$con) {
+		    die('fail-connect');
+		}
+		
+		$sql = "SELECT * FROM user";
+		$result = mysqli_query($con,$sql);
+		if ($result) {
+			$row = mysqli_fetch_array($result);
+			$userID = $row['userID'];
+			$username = $row['userName'];
+			echo "&&&".$userID."&&&".$username."&&&";
+		} else {
+			echo "fail-login";
+		}
+		mysqli_close($con);
+		?>
+		       
         <!--Train is open source on <a href="https://github.com/smegason/train/">github</a> -->
         
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
