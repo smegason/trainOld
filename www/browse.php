@@ -65,7 +65,7 @@ Cache-Control:public;
         List by votes
         
 		<?php
-		include 'connect.php';
+		include 'php/connect.php';
 		
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
