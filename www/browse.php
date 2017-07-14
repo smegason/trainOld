@@ -75,7 +75,9 @@ Cache-Control:public;
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
 				$userID = $row['userID'];
 				$trackID = $row['trackID'];
-				echo "<tr><td>".$userID."</td><td>".$trackID."</td></tr>";
+				$trackName = $row['trackName'];
+				$trackDescription = $row['trackDescription'];
+				echo "<tr><td>".$userID."</td><td>".$trackID."</td><td>".$trackName."</td><td>".$trackDescription."</td></tr>";
 			}
 			echo "</table>";
 		} else {
