@@ -10,7 +10,7 @@ Cache-Control:public;
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Train- Browse Tracks</title>
-  		<link rel="stylesheet" href="css/main.css">
+  		<link rel="stylesheet" href="css/normalize.css">
     </head>
 
     <body>
