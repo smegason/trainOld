@@ -53,15 +53,10 @@ Cache-Control:public;
         <!--<script src="js/plugins.js"></script> -->
         <script src="js/train.js" type="text/javascript"></script>
 
-     	<div id="container"; width:300px; height:200px;>
-            <canvas id="canvas" width="500" height="500" > </canvas>
-            <!--<canvas id="canvas" width=viewport.width height=viewport.height > </canvas>-->
-            <!--<canvas id="canvas" width=window. window.innerWidth * window.devicePixelRatio height=window.innerHeight * window.devicePixelRatio > </canvas>-->
-        </div>
 		<!-- <div id="sound_element">
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
 		</div> --> 		
-		<img src=trainlogo.png>
+		<img src=img/trainlogo.png>
         <br>Browse Tracks
 		<?php
 		include 'php/connect.php';
@@ -78,9 +73,16 @@ Cache-Control:public;
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
 				$trainusername = "Username";
-				echo "<br>";
-				echo "<h1>".$trackName."</h1>"."<h2> by ".$trainusername."</h2>";
-				echo $trackDescription;
+				echo "<table>";
+				echo "<tr><td>";
+				echo "<h1>".$trackName."</h1>";
+				echo "<h2> by ".$trainusername."</h2>";
+				echo "<p>".$trackDescription."</p>";
+				echo "</td><td>";
+		     	echo "<div id='container'; width:300px; height:200px;>
+		            <canvas id='canvas' width=300 height=200 > </canvas>
+			        </div>";
+				echo "</td>";
 			}
 		} else {
 			echo "fail-login";
