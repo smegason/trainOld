@@ -61,6 +61,7 @@ Cache-Control:public;
 		<!-- <div id="sound_element">
 		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
 		</div> --> 		
+		<img src=trainlogo.png>
         <br>Browse Tracks
 		<?php
 		include 'php/connect.php';
@@ -71,13 +72,15 @@ Cache-Control:public;
 		$sql = "SELECT * FROM tracks";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
-			echo "<table>";
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
 				$userID = $row['userID'];
 				$trackID = $row['trackID'];
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
-				echo "<tr><td>".$userID."</td><td>".$trackID."</td><td>".$trackName."</td><td>".$trackDescription."</td></tr>";
+				//echo "<tr><td>".$userID."</td><td>".$trackID."</td><td>".$trackName."</td><td>".$trackDescription."</td></tr>";
+				echo "<br>"
+				echo "<h1>".$trackName."</h1>"."<h2> by ".$username."</h2>";
+				echo $trackDescription;
 			}
 			echo "</table>";
 		} else {
