@@ -17,7 +17,7 @@ Cache-Control:public;
         		
         <script src="js/train.js" type="text/javascript"></script>
 		<img src=img/trainLogo.png>
-        <br>Browse Tracks
+        <h1>Browse Tracks</h1>
 		<?php
 		include 'php/connect.php';
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
@@ -35,14 +35,15 @@ Cache-Control:public;
 				$trainusername = "Username";
 				echo "<table>";
 				echo "<tr><td>";
-				echo "<h1>".$trackName."</h1>";
-				echo "<h2> by ".$trainusername."</h2>";
+				echo "<h2>".$trackName."</h2>";
+				echo "<h3> by ".$trainusername."</h3>";
 				echo "<p>".$trackDescription."</p>";
 				echo "</td><td>";
 		     	echo "<div id='container'; width:300px; height:200px;>
 		            <canvas id='canvas' width=300 height=200 > </canvas>
 			        </div>";
 				echo "</td>";
+				echo "</table>";
 			}
 		} else {
 			echo "fail-login";
