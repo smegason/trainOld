@@ -10,30 +10,12 @@ Cache-Control:public;
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Train- Browse Tracks</title>
-        <meta name="description" content="">
   		<link rel="stylesheet" href="css/main.css">
     </head>
 
-    <body ontouchmove="BlockMove(event);">
-        
-        <script>
-	 		function BlockMove(event) {
-	  		// Tell Safari not to move the window.
-	  			event.preventDefault() ;
-	 		}
-		</script>
-		
-       <!-- <script src="http://jsconsole.com/remote.js?<495682754632174>"></script> -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <!--<script src="js/plugins.js"></script> -->
+    <body>
+        		
         <script src="js/train.js" type="text/javascript"></script>
-
-		<!-- <div id="sound_element">
-		    <embed src=sound_file_url hidden=false autostart=true loop=false>   
-		</div> --> 		
 		<img src=img/trainlogo.png>
         <br>Browse Tracks
 		<?php
