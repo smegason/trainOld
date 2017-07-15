@@ -16,7 +16,7 @@ Cache-Control:public;
     <body>
         		
         <script src="js/train.js" type="text/javascript"></script>
-		<img src=img/trainlogo.png>
+		<img src=img/trainLogo.png>
         <br>Browse Tracks
 		<?php
 		include 'php/connect.php';
