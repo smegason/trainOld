@@ -1,3 +1,5 @@
+<html>
 <?php
 phpinfo();
 ?>
+</html>
