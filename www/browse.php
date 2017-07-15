@@ -11,30 +11,8 @@ Cache-Control:public;
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Train- Browse Tracks</title>
         <meta name="description" content="">
-		<meta name="viewport" content="user-scalable=no, width=device-width" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-       <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-		<link rel="apple-touch-startup-image" href="img/startup.png" />
-        <!-- <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-        <script type="text/javascript" charset="utf-8" src="loggingHelper.js"></script> -->
-        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  		<!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
-		<style>
-		    label, input { display:block; }
-		    input.text { margin-bottom:12px; width:95%; padding: .4em; }
-		    fieldset { padding:0; border:0; margin-top:25px; }
-		    h1 { font-size: 1.2em; margin: .6em 0; }
-		    div#users-contain { width: 350px; margin: 20px 0; }
-		    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
-		    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
-		    .ui-dialog .ui-state-error { padding: .3em; }
-		    .validateTips { border: 1px solid transparent; padding: 0.3em; }
-	  	</style>
-   </head>
+  		<link rel="stylesheet" href="css/main.css">
+    </head>
 
     <body ontouchmove="BlockMove(event);">
         
