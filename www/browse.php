@@ -24,7 +24,7 @@ Cache-Control:public;
 		if (!$con) {
 		    echo "fail-connect";
 		}
-		$sql = "SELECT * FROM tracks, users";
+		$sql = "SELECT * FROM users INNER JOIN tracks";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
