@@ -77,10 +77,9 @@ Cache-Control:public;
 				$trackID = $row['trackID'];
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
-				$username="Username";
-				//echo "<tr><td>".$userID."</td><td>".$trackID."</td><td>".$trackName."</td><td>".$trackDescription."</td></tr>";
-				echo "<br>"
-				echo "<h1>".$trackName."</h1>"."<h2> by ".$username."</h2>";
+				$trainusername = "Username";
+				echo "<br>";
+				echo "<h1>".$trackName."</h1>"."<h2> by ".$trainusername."</h2>";
 				echo $trackDescription;
 			}
 		} else {
