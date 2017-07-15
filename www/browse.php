@@ -24,7 +24,7 @@ Cache-Control:public;
 		if (!$con) {
 		    echo "fail-connect";
 		}
-		$sql = "SELECT * FROM tracks";
+		$sql = "SELECT * FROM tracks, users";
 		$result = mysqli_query($con,$sql);
 		if ($result) {
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
@@ -32,7 +32,7 @@ Cache-Control:public;
 				$trackID = $row['trackID'];
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
-				$trainusername = "Username";
+				$trainusername = $row['userName'];
 				echo "<table>";
 				echo "<tr><td>";
 				echo "<h2>".$trackName."</h2>";
