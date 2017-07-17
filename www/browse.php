@@ -55,6 +55,89 @@ Cache-Control:public;
 		mysqli_close($con);
 		?>
 		       
+		<!-- Dialog box for new user -->
+		<div id="dialog-newUser" title="Create new user" style="display: none;">
+		  <p class="validateTips"> </p>
+		 
+		  <form>
+		    <fieldset>
+		      <label for="name">Username</label>
+		      <input type="text" name="username" id="username" value="" class="text ui-widget-content ui-corner-all">
+		      <label for="password">Password</label>
+		      <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all">
+		      <label for="email">Email</label>
+		      <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all">
+		 
+		      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		    </fieldset>
+		  </form>
+		</div>
+		 
+		<!-- Dialog box for forgot password -->
+		<div id="dialog-forgotPassword" title="Forgot password" style="display: none;">
+		  <p class="validateTips"> </p>
+		 
+		  <form>
+		    <fieldset>
+		      <label for="email">Email</label>
+		      <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all">
+		 
+		      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		    </fieldset>
+		  </form>
+		</div>
+		 
+		<!-- Dialog box for signinUser -->
+		<div id="dialog-signinUser" title="Sign-in user" style="display: none;">
+		  <p class="validateTips"> </p>
+		  <form>
+		    <fieldset>
+		      <label for="name">Username</label>
+		      <input type="text" name="username" id="usernameSignin" value="" class="text ui-widget-content ui-corner-all">
+		      <label for="password">Password</label>
+		      <input type="password" name="password" id="passwordSignin" value="" class="text ui-widget-content ui-corner-all">
+		 	  <!---<input type="button" value="New User" id="newuser" style="float: right;">  --->
+		 	  <div id="newuserlink" style="color:#0000FF; float: right;">New User</div>
+		      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		    </fieldset>
+		  </form>
+		</div>
+		 
+		<!-- Dialog box for browse tracks for download -->
+		<div id="dialog-downloadTrack" title="Download track" style="display: none;">
+		  <p class="validateTips"> </p>
+		 
+		  <form>
+		    <fieldset>
+		      <label for="name">Username</label>
+		      <input type="text" name="username" id="username" value="" class="text ui-widget-content ui-corner-all">
+		 
+		      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		    </fieldset>
+		  </form>
+		</div>
+		 
+		<!-- Dialog box for upload tracks -->
+		<div id="dialog-uploadTrack" title="Upload track" style="display: none;">
+		  <p class="validateTips"> </p>
+		  <form>
+		  	Upload your current track to train-hub.org
+		    <fieldset>
+		      <label for="trackname">Track name</label>
+		      <input type="text" name="trackname" id="trackname" value="" class="text ui-widget-content ui-corner-all">
+		      <label for="trackdescription">Track description</label>
+		      <textarea name="trackdescription" id="trackdescription" value="" class="text ui-widget-content ui-corner-all" cols="35" rows="6"></textarea>
+		      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+		      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+		    </fieldset>
+		  </form>
+		</div>
+
+
         <!--Train is open source on <a href="https://github.com/smegason/train/">github</a> -->
         
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
