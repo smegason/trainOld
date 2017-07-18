@@ -96,11 +96,11 @@ $(document).ready(function(){
         	//console.log('l pressed');
         	loadTracks();
  		}
-    	else if(event.keyCode == 87) {
+ */   	else if(event.keyCode == 87) {
         	//console.log('w pressed');
         	writeTracks();
  		}
-     	else if(event.keyCode == 78) {
+  /*   	else if(event.keyCode == 78) {
         	//console.log('n pressed');
         	newUserDialog();
  		}
