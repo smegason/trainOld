@@ -27,6 +27,8 @@ Cache-Control:public;
         <h1>Browse Tracks</h1>
 		<?php
 		include 'php/connect.php';
+		include 'php/fullescape.php';
+		
 		$con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 		if (!$con) {
 		    echo "fail-connect";
@@ -40,7 +42,7 @@ Cache-Control:public;
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
 				$trainusername = $row['userName'];
-				$encodedTrx = urlencode($row['track']);
+				$encodedTrx = fullescape($row['track']);
 				echo "<table>";
 				echo "<tr><td>";
 				echo "<h2>".$trackName."</h2>";
