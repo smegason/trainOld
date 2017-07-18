@@ -44,7 +44,7 @@ Cache-Control:public;
 				echo "<p>".$trackDescription."</p>";
 				echo "</td><td>";
 		     	echo "<div id='container'; width:300px; height:200px;>
-		            <canvas id='canvas' width=300 height=200 > </canvas>
+		            <iframe src="train.html" width=300 height=200 > </iframe>
 			        </div>";
 				echo "</td>";
 				echo "</table>";

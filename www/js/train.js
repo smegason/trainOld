@@ -134,21 +134,59 @@ $(document).ready(function(){
 	//globals
 	//Canvas stuff
     var canvas = $("#canvas")[0];
-    
+ 
+ 	//passed params
+ 	// options:
+ 	// resize=boolean  Allow automatic resizing?
+ 	// toolbar=boolean    Show toolbar?
+ 	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position
+ 	console.log ("href=" + location.href);
+ 	var params, data;
+ 	if (location.href.split('?')[1]) {
+ 		console.log ("INSIDE");
+		params = location.href.split('?')[1].split('&');
+		data = {};
+		for (x in params) {
+			data[params[x].split('=')[0]] = params[x].split('=')[1];
+		}
+	}
+	console.log("Data=");
+	console.log (data);
+
+	var resizeCanvas = true;
+	var showToolbar = true;
+	var passedTrx;
+	if (data) {
+		if (data["resize"]) {
+			if (data["resize"]==0) {
+				resizeCanvas = false;
+			}
+		}
+		passedStrTrx = data["trx"];
+		passedTrx = decodeURIComponent(passedStrTrx);
+		if (data["toolbar"]) {
+			if (data["toolbar"]==0) {
+				showToolbar = false;
+			}
+		}
+	}
+	console.log ("resize="+resizeCanvas);
+	console.log("trx="+passedTrx);
+   
     var windowWidth = 100;
     var windowHeight = 100;
     var pixelRatio = 1; /// get pixel ratio of device
     console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
-    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
-    canvas.height = windowHeight;// * pixelRatio;
-    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
-    canvas.style.height = windowHeight + 'px';
+//    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+//    canvas.height = windowHeight;// * pixelRatio;
+//    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+//    canvas.style.height = windowHeight + 'px';
 
 	var ctx = canvas.getContext("2d");
     var canvasWidth;
     var canvasHeight;
-	var numTilesX = 3;
-	var numTilesY = 3; //recalcultated in calculateLayout()
+	var numTilesX = 5;
+	var numTilesY = 4; //recalcultated in calculateLayout()
 	var buttonWidth = 76;
 	var buttonPadding = 10;
 	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
@@ -1021,7 +1059,10 @@ $(document).ready(function(){
 	var trxName = [];
 //	trx[0] = '[[[{"gridx":0,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":0,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":3,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":0,"gridy":4,"type":"TrackStraight","orientation":0,"state":"left","subtype":"supply","cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":0,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":6,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},null,null,null],[{"gridx":1,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":1,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":2,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":"decrement"},null,null,null,null,null,null],[{"gridx":3,"gridy":0,"type":"TrackWyeRight","orientation":2,"state":"right","subtype":"compareLess","cargo":{"value":2,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":4,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[{"gridx":5,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":0,"type":"EngineBasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017}],[{"gridx":1,"gridy":0,"type":"CarBasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017,"cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
 	trxName[1] = 'for loop';
+	//set trx{1] to passedTrx if defined
 	trx[1] = '[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,{"gridx":6,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":0,"state":"left","subtype":"supply"},{"gridx":6,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":6,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":"increment"},{"gridx":7,"gridy":4,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},null,{"gridx":7,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":4,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":8,"gridy":2,"type":"TrackWyeRight","orientation":2,"state":"left","subtype":"compareGreater"},{"gridx":8,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,{"gridx":8,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":9,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":10,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":6,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":6,"gridy":5,"type":"EngineBasic","orientation":0,"state":"","speed":20,"position":0.5}],[{"gridx":6,"gridy":6,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5}]]';
+	if (passedTrx) trx[1] = passedTrx;
+	
 	//Hello World
 	trx[2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":1,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":1,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"slingshot"},{"gridx":1,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":"slingshot"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":3,"gridy":4,"type":"EngineBasic","orientation":6,"state":"","speed":20,"position":0.5},{"gridx":5,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":1,"gridy":2,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":2,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":3,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":4,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":4,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":7,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":4,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":3,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":5,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":6,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":17,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":7,"gridy":3,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":22,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":7,"gridy":4,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}}]]';
 	//Hello World with alternate switch
@@ -2802,40 +2843,50 @@ $(document).ready(function(){
     }
         
     function calculateLayout() {
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
-        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
-        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
-        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
-        canvas.height = windowHeight;// * pixelRatio;
-        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
-        canvas.style.height = windowHeight + 'px';
+    	if (resizeCanvas) {
+	        windowWidth = window.innerWidth;
+	        windowHeight = window.innerHeight;
+	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
+	        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+	        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
+	        canvas.height = windowHeight;// * pixelRatio;
+	        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
+	        canvas.style.height = windowHeight + 'px';
+	    }
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
         toolBarHeight = canvasHeight; //height of toolbar in pixels
+        if (!showToolbar) {
+        	toolBarHeight = 0;
+        	toolBarWidth = 0;
+        }
         tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
         tracksHeight = canvasHeight; //height of the tracks area in pixels
         numTilesX = Math.floor(tracksWidth/tileWidth);
         numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
-    
     }
+    
 	//////////////////////
 	function draw() {
         
 		//add background texture
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
         
-		drawToolBar();
-		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
-		drawSquares();
+		if (showToolbar) {
+			drawToolBar();
+			if (getButton("Track").down || getButton("Cargo").down) drawGrid();
+			drawSquares();
+		}
 		drawAllTracks();
 		drawAllEnginesAndCars();
-		drawCaption();
-		drawSecondaryCaption();
-		drawButtonCaption();
-		drawSelection();
-		drawPathEC();
-		drawPathTrack();
+		if (showToolbar) {
+			drawCaption();
+			drawSecondaryCaption();
+			drawButtonCaption();
+			drawSelection();
+			drawPathEC();
+			drawPathTrack();
+		}
 	}
 	
 	function interpretAndDraw() {
