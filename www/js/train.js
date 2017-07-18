@@ -45,6 +45,7 @@ $(document).ready(function(){
 */	console.log("up = upload current track");
 	console.log("down = download track by trackID");
 
+	console.log ("Document="+ document.URL);
 	var newUserLink = document.getElementById('newuserlink');
 	//console.log(newUserLink);
 	newUserLink.style.cursor = 'pointer';
