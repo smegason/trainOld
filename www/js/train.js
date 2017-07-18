@@ -44,14 +44,7 @@ $(document).ready(function(){
 	console.log("right = increment trx array");
 */	console.log("up = upload current track");
 	console.log("down = download track by trackID");
-	
-	var strTest='Asnsdfnjwongnosfno:::,,,"""';
-	console.log("str="+strTest);
-	var compressedStrTest = LZString.compress(strTest);
-	console.log("com="+compressedStrTest);
-	var urlStr = encodeURI(compressedStrTest);
-	console.log("uri="+urlStr);
-	
+		
 	//console.log ("Document="+ document.URL);
 	var newUserLink = document.getElementById('newuserlink');
 	//console.log(newUserLink);
