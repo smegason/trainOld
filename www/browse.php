@@ -49,7 +49,9 @@ Cache-Control:public;
 				$encodedTrx = ($row['track']);
 				$encodedTrx = str_replace(",", "%2C", $encodedTrx);  // ,
 				$encodedTrx = str_replace(":", "%3A", $encodedTrx); // :
-				
+				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx;
+				//echo "url=".$url;
+								
 				echo "<table>";
 				echo "<tr><td>";
 				echo "<h2>".$trackName."</h2>";
@@ -58,8 +60,6 @@ Cache-Control:public;
 //				echo "<p>Trx=".$row['track']."</p>";
 //				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td><td>";
-				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx;
-				echo "url=".$url;
 
 				echo '<td class="style24" style="width: 400px">';
 				echo '<div id="outerdiv" style="width:400px; overflow-x:hidden;">';
