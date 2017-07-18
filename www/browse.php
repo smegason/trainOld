@@ -47,7 +47,7 @@ Cache-Control:public;
 
 				echo '<td class="style24" style="width: 400px">';
 				echo '<div id="outerdiv" style="width:400px; overflow-x:hidden;">';
-				echo '<iframe src="www.google.com" width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
+				echo '<iframe src="train.html" width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
 				echo '</div>';
 				echo '</td>';
 
