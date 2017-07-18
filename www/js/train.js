@@ -138,6 +138,7 @@ $(document).ready(function(){
  
  	//passed params
  	// options:
+ 	//e.g. train.html?resize=0&toolbar=0&trx=[[[null%2Cn...
  	// resize=boolean  Allow automatic resizing?
  	// toolbar=boolean    Show toolbar?
  	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position

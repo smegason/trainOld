@@ -40,6 +40,7 @@ Cache-Control:public;
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
 				$trainusername = $row['userName'];
+				$encodedTrx = urlencode($row['track']);
 				echo "<table>";
 				echo "<tr><td>";
 				echo "<h2>".$trackName."</h2>";
@@ -49,7 +50,7 @@ Cache-Control:public;
 
 				echo '<td class="style24" style="width: 400px">';
 				echo '<div id="outerdiv" style="width:400px; overflow-x:hidden;">';
-				echo '<iframe src="train.html" width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
+				echo '<iframe src="train.html?resize=0&toolbar=0&trx='.$encodedTrx.' width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
 				echo '</div>';
 				echo '</td>';
 
