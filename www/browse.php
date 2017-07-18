@@ -64,10 +64,10 @@ Cache-Control:public;
 //				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td>";
 
-				echo '\n<td class="style24" style="width: 400px">';
+				echo "\n<td class='style24' style='width: 400px'>";
 				echo "row=".$i;
 				//echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
-				echo '\n<iframe src="'.$url.'" width="400" frameborder="0" id="inneriframe'.$i.'" scrolling=no >< /iframe>';
+				echo "\n<iframe src='".$url."' width='400' frameborder='0' id='inneriframe".$i."' scrolling=no >< /iframe>";
 				//echo '</div>';
 				echo "\n</td>";
 				echo "</tr>";
