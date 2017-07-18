@@ -147,7 +147,6 @@ $(document).ready(function(){
  	//console.log ("href=" + location.href);
  	var params, data;
  	if (location.href.split('?')[1]) {
- 		console.log ("INSIDE");
 		params = location.href.split('?')[1].split('&');
 		data = {};
 		for (x in params) {
@@ -3930,10 +3929,10 @@ $(document).ready(function(){
                 var trackName = retArray[2];
                 var trackDescription = retArray[3];
                 var strTrxD = strTrx.replace(/&quot;/g,'"')
-                console.log("strTrx="+strTrx);
-                console.log("strTrxD="+strTrxD);
-                console.log("trackName="+trackName);
-                console.log("trackDescription="+trackDescription);
+//                console.log("strTrx="+strTrx);
+//                console.log("strTrxD="+strTrxD);
+//                console.log("trackName="+trackName);
+//                console.log("trackDescription="+trackDescription);
 				openTrxJSON(strTrxD);
 				buildTrains();
 				draw();
