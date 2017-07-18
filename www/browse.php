@@ -56,12 +56,14 @@ Cache-Control:public;
 				echo "<h3> by ".$trainusername."</h3>";
 				echo "<p>".$trackDescription."</p>";
 //				echo "<p>Trx=".$row['track']."</p>";
-				echo "<p>encTrx=".$encodedTrx."</p>";
+//				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td><td>";
+				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx
+				echo "url=".$url;
 
 				echo '<td class="style24" style="width: 400px">';
 				echo '<div id="outerdiv" style="width:400px; overflow-x:hidden;">';
-				echo '<iframe src="train.html?resize=0&toolbar=0&trx='.$encodedTrx.' width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
+				echo '<iframe src='.$url.' width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
 				echo '</div>';
 				echo '</td>';
 

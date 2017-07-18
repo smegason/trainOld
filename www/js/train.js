@@ -172,8 +172,8 @@ $(document).ready(function(){
 			}
 		}
 	}
-	console.log ("resize="+resizeCanvas);
-	console.log("trx="+passedTrx);
+	//console.log ("resize="+resizeCanvas);
+	//console.log("trx="+passedTrx);
    
     var windowWidth = 100;
     var windowHeight = 100;
