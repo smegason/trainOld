@@ -3710,7 +3710,7 @@ $(document).ready(function(){
 	        xmlhttp = new XMLHttpRequest();
 	        xmlhttp.onreadystatechange = function() {
 	            if (this.readyState == 4 && this.status == 200) {
-	                //console.log("Response="+this.responseText);
+	                console.log("Response="+this.responseText);
 	                if (this.responseText.length>3) {
 	                	alert("Track upload successful!");
  	                } else {
@@ -3719,7 +3719,7 @@ $(document).ready(function(){
 	            }
 	        };
 	        var url = "php/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
-	        //console.log("url="+url);
+	        console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
  			dialogUploadTrack.dialog( "close" );
