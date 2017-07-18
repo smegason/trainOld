@@ -50,7 +50,7 @@ Cache-Control:public;
 				$encodedTrx = str_replace(",", "%2C", $encodedTrx);  // ,
 				$encodedTrx = str_replace(":", "%3A", $encodedTrx); // :
 				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx;
-				//echo "url=".$url;
+				echo "url=".$url;
 								
 				echo "<table>";
 				echo "<tr><td>";
