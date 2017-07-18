@@ -49,7 +49,9 @@ $(document).ready(function(){
 	console.log("str="+strTest);
 	var compressedStrTest = LZString.compress(strTest);
 	console.log("com="+compressedStrTest);
-
+	var urlStr = URIencoded(compressedStrTest);
+	console.log("uri="+urlStr);
+	
 	//console.log ("Document="+ document.URL);
 	var newUserLink = document.getElementById('newuserlink');
 	//console.log(newUserLink);
