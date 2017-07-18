@@ -141,7 +141,9 @@ $(document).ready(function(){
  	//e.g. train.html?resize=0&toolbar=0&trx=[[[null%2Cn...
  	// resize=boolean  Allow automatic resizing?
  	// toolbar=boolean    Show toolbar?
- 	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position
+ 	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position. Can't be too long for URL though...
+ 	// trackID=111  Display trx with the given trackID
+ 	
  	//console.log ("href=" + location.href);
  	var params, data;
  	if (location.href.split('?')[1]) {
@@ -152,12 +154,13 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-	console.log("Data=");
-	console.log (data);
+//	console.log("Data=");
+//	console.log (data);
 
 	var resizeCanvas = true;
 	var showToolbar = true;
 	var passedTrx;
+	var passedTrackID;
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -173,6 +176,7 @@ $(document).ready(function(){
 				showToolbar = false;
 			}
 		}
+		passedTrackID = data["trackID"];
 	}
 	//console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
@@ -180,7 +184,7 @@ $(document).ready(function(){
     var windowWidth = 100;
     var windowHeight = 100;
     var pixelRatio = 1; /// get pixel ratio of device
-    console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+//    console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
 //    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
 //    canvas.height = windowHeight;// * pixelRatio;
 //    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
@@ -1067,6 +1071,10 @@ $(document).ready(function(){
 	trx[1] = '[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,{"gridx":6,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":0,"state":"left","subtype":"supply"},{"gridx":6,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":6,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":"increment"},{"gridx":7,"gridy":4,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},null,{"gridx":7,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":4,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":8,"gridy":2,"type":"TrackWyeRight","orientation":2,"state":"left","subtype":"compareGreater"},{"gridx":8,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,{"gridx":8,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":9,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":10,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":6,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":6,"gridy":5,"type":"EngineBasic","orientation":0,"state":"","speed":20,"position":0.5}],[{"gridx":6,"gridy":6,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5}]]';
 	if (passedTrx) trx[1] = passedTrx;
 	
+	if (passedTrackID) {
+		
+	}
+	
 	//Hello World
 	trx[2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":1,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":1,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"slingshot"},{"gridx":1,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":"slingshot"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":3,"gridy":4,"type":"EngineBasic","orientation":6,"state":"","speed":20,"position":0.5},{"gridx":5,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":1,"gridy":2,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":2,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":3,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":4,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":4,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":7,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":4,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":3,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":5,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":6,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":17,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":7,"gridy":3,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":22,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":7,"gridy":4,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}}]]';
 	//Hello World with alternate switch
@@ -1252,6 +1260,9 @@ $(document).ready(function(){
 	new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload", 2);
 	
 	getButton("Track").down = true;
+	
+	//download trx for a trackID passed through URL
+	if (passedTrackID) downloadTrackID(passedTrackID);
 	
 	////// extend builtin methods
     ctx.dashedLine = function(x, y, x2, y2, da) {
@@ -3903,9 +3914,12 @@ $(document).ready(function(){
 	}
 	
 	function downloadTrack() {
-		console.log ("Download track from server");
 		var trackID = prompt("Please enter the trackID to load", "1");
-
+		dowloadTrackID(trackID);
+	}
+	
+	function downloadTrackID(trackID) {
+		console.log ("Download track from server. TrackID="+trackID);
 		var url = "php/downloadTrack.php?trackID="+trackID;
         xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
