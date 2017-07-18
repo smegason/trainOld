@@ -165,7 +165,9 @@ $(document).ready(function(){
 			}
 		}
 		passedStrTrx = data["trx"];
-		passedTrx = decodeURIComponent(passedStrTrx);
+		if (passedStrTrx) {
+			passedTrx = decodeURIComponent(passedStrTrx);
+		}
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
 				showToolbar = false;
