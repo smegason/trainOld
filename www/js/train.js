@@ -142,7 +142,7 @@ $(document).ready(function(){
  	// resize=boolean  Allow automatic resizing?
  	// toolbar=boolean    Show toolbar?
  	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position
- 	console.log ("href=" + location.href);
+ 	//console.log ("href=" + location.href);
  	var params, data;
  	if (location.href.split('?')[1]) {
  		console.log ("INSIDE");

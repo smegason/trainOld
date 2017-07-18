@@ -64,10 +64,10 @@ Cache-Control:public;
 				echo "</td>";
 
 				echo '<td class="style24" style="width: 400px">';
-				echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
-				echo '<iframe src='.$url.' width="400" frameborder="0" id="inneriframe'.$i.'" scrolling=no >< /iframe>';
-				echo '</div>';
 				echo "row=".$i;
+				//echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
+				echo '<iframe src='.$url.' width="400" frameborder="0" id="inneriframe'.$i.'" scrolling=no >< /iframe>';
+				//echo '</div>';
 				echo "</td>";
 				echo "</tr>";
 				echo "</table>";
