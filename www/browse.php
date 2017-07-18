@@ -7,7 +7,8 @@ Cache-Control:public;
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     <head>
-        <meta charset="utf-8">
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">        <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Train- Browse Tracks</title>
   		<link rel="stylesheet" href="css/normalize.css">
@@ -43,9 +44,13 @@ Cache-Control:public;
 				echo "<h3> by ".$trainusername."</h3>";
 				echo "<p>".$trackDescription."</p>";
 				echo "</td><td>";
-		     	echo "<div id='container'; width:300px; height:200px;>
-		            <iframe src="train.html" width=300 height=200 > </iframe>
-			        </div>";
+
+				echo '<td class="style24" style="width: 400px">';
+				echo '<div id="outerdiv" style="width:400px; overflow-x:hidden;">';
+				echo '<iframe src="www.google.com" width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
+				echo '</div>';
+				echo '</td>';
+
 				echo "</td>";
 				echo "</table>";
 			}
