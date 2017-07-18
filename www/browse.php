@@ -16,11 +16,13 @@ Cache-Control:public;
 
     <body>
         		
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<!--
+	    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="js/train.js" type="text/javascript"></script>
+-->
 		<img src=img/trainLogo.png>
         <h1>Browse Tracks</h1>
 		<?php
