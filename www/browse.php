@@ -41,6 +41,7 @@ Cache-Control:public;
 		$result = mysqli_query($con,$sql);
 		$i=0;
 		if ($result) {
+			echo "<table>";
 			while($row = mysqli_fetch_array($result)) {   //Creates a loop to loop through results
 				$userID = $row['userID'];
 				$trackID = $row['trackID'];
@@ -54,8 +55,8 @@ Cache-Control:public;
 				//echo "url=".$url;
 				//$url='train.html?resize=0&toolbar=0&trx=[[[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A1%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A2%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2C{"gridx"%3A2%2C"gridy"%3A4%2C"type"%3A"Track90"%2C"orientation"%3A6%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A2%2C"gridy"%3A5%2C"type"%3A"Track90"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A3%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2C{"gridx"%3A3%2C"gridy"%3A4%2C"type"%3A"Track90"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A3%2C"gridy"%3A5%2C"type"%3A"TrackWyeLeft"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A"sprung"}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A4%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2C{"gridx"%3A4%2C"gridy"%3A5%2C"type"%3A"TrackStraight"%2C"orientation"%3A6%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A5%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2C{"gridx"%3A5%2C"gridy"%3A5%2C"type"%3A"TrackStraight"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A"pickDrop"}%2C{"gridx"%3A5%2C"gridy"%3A6%2C"type"%3A"TrackCargo"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""%2C"cargo"%3A{"value"%3A12%2C"type"%3A["dinosaurs"%2C"archaeopteryx"%2C"ankylosaurus"%2C"brachiosaurus"%2C"elasmosaurus"%2C"hadrosaurus"%2C"iguanodon"%2C"megalosaurus"%2C"microraptor"%2C"ornithomimus"%2C"pteranodon"%2C"quetzalcoatlus"%2C"stegosaurus"%2C"triceratops"%2C"troodon"%2C"tyranosaurus"%2C"velociraptor"]}}%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A6%2C"gridy"%3A1%2C"type"%3A"Track90"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A6%2C"gridy"%3A2%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A6%2C"gridy"%3A3%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A"greentunnel"}%2C{"gridx"%3A6%2C"gridy"%3A4%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A6%2C"gridy"%3A5%2C"type"%3A"Track90"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A9%2C"gridy"%3A1%2C"type"%3A"Track90"%2C"orientation"%3A6%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A9%2C"gridy"%3A2%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A9%2C"gridy"%3A3%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A"greentunnel"}%2C{"gridx"%3A9%2C"gridy"%3A4%2C"type"%3A"TrackStraight"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A"pickDrop"}%2C{"gridx"%3A9%2C"gridy"%3A5%2C"type"%3A"Track90"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A10%2C"gridy"%3A1%2C"type"%3A"TrackStraight"%2C"orientation"%3A6%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2C{"gridx"%3A10%2C"gridy"%3A4%2C"type"%3A"TrackCargo"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A10%2C"gridy"%3A5%2C"type"%3A"TrackStraight"%2C"orientation"%3A6%2C"state"%3A"left"%2C"subtype"%3A"pickDrop"}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A11%2C"gridy"%3A1%2C"type"%3A"Track90"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A11%2C"gridy"%3A2%2C"type"%3A"TrackStraight"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A11%2C"gridy"%3A3%2C"type"%3A"TrackStraight"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A11%2C"gridy"%3A4%2C"type"%3A"TrackStraight"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A"pickDrop"}%2C{"gridx"%3A11%2C"gridy"%3A5%2C"type"%3A"Track90"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]]%2C[{"gridx"%3A4%2C"gridy"%3A1%2C"type"%3A"EngineBasic"%2C"orientation"%3A2%2C"state"%3A""%2C"speed"%3A20%2C"position"%3A0.5}]%2C[{"gridx"%3A1%2C"gridy"%3A1%2C"type"%3A"CarBasic"%2C"orientation"%3A2%2C"state"%3A""%2C"speed"%3A20%2C"position"%3A0.5}%2C{"gridx"%3A2%2C"gridy"%3A1%2C"type"%3A"CarBasic"%2C"orientation"%3A2%2C"state"%3A""%2C"speed"%3A20%2C"position"%3A0.5}%2C{"gridx"%3A3%2C"gridy"%3A1%2C"type"%3A"CarBasic"%2C"orientation"%3A2%2C"state"%3A""%2C"speed"%3A20%2C"position"%3A0.5%2C"cargo"%3A{"value"%3A0%2C"type"%3A["stuffedAnimals"%2C"bunny"]}}]]';
 								
-				echo "<table>";
-				echo "<tr><td>";
+				echo "\n<tr>";
+				echo "\n<td>";
 				echo "<h2>".$trackName."</h2>";
 				echo "<h3> by ".$trainusername."</h3>";
 				echo "<p>".$trackDescription."</p>";
@@ -63,17 +64,17 @@ Cache-Control:public;
 //				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td>";
 
-				echo '<td class="style24" style="width: 400px">';
+				echo '\n<td class="style24" style="width: 400px">';
 				echo "row=".$i;
 				//echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
-				echo '<iframe src='.$url.' width="400" frameborder="0" id="inneriframe'.$i.'" scrolling=no >< /iframe>';
+				echo '<iframe src="'.$url.'" width="400" frameborder="0" id="inneriframe'.$i.'" scrolling=no >< /iframe>';
 				//echo '</div>';
 				echo "</td>";
 				echo "</tr>";
-				echo "</table>";
 				
 				$i++;
 			}
+			echo "</table>";
 		} else {
 			echo "fail-login";
 		}
