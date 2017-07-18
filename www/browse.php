@@ -61,15 +61,14 @@ Cache-Control:public;
 				echo "<p>".$trackDescription."</p>";
 //				echo "<p>Trx=".$row['track']."</p>";
 //				echo "<p>encTrx=".$encodedTrx."</p>";
-				echo "</td><td>";
+				echo "</td>";
 
 				echo '<td class="style24" style="width: 400px">';
 				echo '<div id="outerdiv"'.$i.' style="width:400px; overflow-x:hidden;">';
 				echo '<iframe src='.$url.' width="400" frameborder="0" id="inneriframe" scrolling=no >< /iframe>';
 				echo '</div>';
-				echo '</td>';
-
 				echo "</td>";
+				echo "</tr>";
 				echo "</table>";
 				
 				$i++;
