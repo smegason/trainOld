@@ -46,6 +46,7 @@ Cache-Control:public;
 				echo "<h2>".$trackName."</h2>";
 				echo "<h3> by ".$trainusername."</h3>";
 				echo "<p>".$trackDescription."</p>";
+				echo "<p>Trx=".$row['track']."</p>";
 				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td><td>";
 
