@@ -49,7 +49,7 @@ $(document).ready(function(){
 	console.log("str="+strTest);
 	var compressedStrTest = LZString.compress(strTest);
 	console.log("com="+compressedStrTest);
-	var urlStr = URIencoded(compressedStrTest);
+	var urlStr = encodeURI(compressedStrTest);
 	console.log("uri="+urlStr);
 	
 	//console.log ("Document="+ document.URL);
