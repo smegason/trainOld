@@ -98,7 +98,7 @@ $(document).ready(function(){
  		}
  */   	else if(event.keyCode == 87) {
         	//console.log('w pressed');
-        	writeTracks();
+        	writeTrx();
  		}
   /*   	else if(event.keyCode == 78) {
         	//console.log('n pressed');
@@ -2097,7 +2097,7 @@ $(document).ready(function(){
 	    		draw();
 	    	}
 	    }
-	    	console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
+	    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
   			startXPoint = mouseX;
   			startYPoint = mouseYWorld;
@@ -3890,7 +3890,7 @@ $(document).ready(function(){
 	
 //// END code for dialog boxes
  	
-	function writeTrack() { //write out trx to console so can be manually cut and paste to save
+	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
 		console.log("    trx[]=\'"+JSON.stringify(trx)+"\'\;");
 	}
