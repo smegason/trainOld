@@ -79,20 +79,17 @@ $(document).ready(function(){
 			buildTrains();
 			draw();
     	}
-/*    	else if(event.keyCode == 38) {
+    	else if(event.keyCode == 38) {
         	console.log('Up was pressed. CurrentUserID='+currentUserID);
-        	if (currentUserID == 1) {
-	        	uploadTrackDialog()
-        		signinUserDialog();
-        	} else {
-        		uploadTrackDialog();
-        	}
+        	zoomScale = zoomScale * zoomMultiplier;
+        	draw();
  		}
     	else if(event.keyCode == 40) {
-        	//console.log('Down was pressed');
-        	downloadTracks();
+        	console.log('Down was pressed');
+        	zoomScale = zoomScale / zoomMultiplier;
+        	draw();
  		}
-    	else if(event.keyCode == 76) {
+/*    	else if(event.keyCode == 76) {
         	//console.log('l pressed');
         	loadTracks();
  		}
@@ -191,8 +188,7 @@ $(document).ready(function(){
 
 	var ctx = canvas.getContext("2d");
 	var zoomScale = 0.5;
-	ctx.scale(zoomScale, zoomScale);
-	
+	var zoomMultiplier = 0.8;	
     var canvasWidth;
     var canvasHeight;
 	var numTilesX = 5;
@@ -1309,7 +1305,6 @@ $(document).ready(function(){
 		if (!useSprites) drawTileBorder(track.gridx, track.gridy);
 
 		ctx.save();
-		ctx.scale(zoomScale, zoomScale);
 		ctx.translate((0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
 			
 		//rotate tile
@@ -2887,14 +2882,23 @@ $(document).ready(function(){
 	//////////////////////
 	function draw() {
         
+
 		//add background texture
+        ctx.save();
+		ctx.scale(zoomScale, zoomScale);
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
+        ctx.restore();
         
 		if (showToolbar) {
 			drawToolBar();
 			if (getButton("Track").down || getButton("Cargo").down) drawGrid();
+	        ctx.save();
+			ctx.scale(zoomScale, zoomScale);
 			drawSquares();
+	        ctx.restore();
 		}
+        ctx.save();
+		ctx.scale(zoomScale, zoomScale);
 		drawAllTracks();
 		drawAllEnginesAndCars();
 		if (showToolbar) {
@@ -2905,6 +2909,7 @@ $(document).ready(function(){
 			drawPathEC();
 			drawPathTrack();
 		}
+        ctx.restore();
 	}
 	
 	function interpretAndDraw() {
