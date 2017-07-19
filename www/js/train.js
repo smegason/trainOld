@@ -190,6 +190,9 @@ $(document).ready(function(){
 //    canvas.style.height = windowHeight + 'px';
 
 	var ctx = canvas.getContext("2d");
+	var zoomScale = 0.5;
+	ctx.scale(zoomScale, zoomScale);
+	
     var canvasWidth;
     var canvasHeight;
 	var numTilesX = 5;
@@ -3719,7 +3722,7 @@ $(document).ready(function(){
 	            }
 	        };
 	        var url = "php/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
-	        console.log("url="+url);
+	        //console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
  			dialogUploadTrack.dialog( "close" );
