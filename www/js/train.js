@@ -1309,6 +1309,7 @@ $(document).ready(function(){
 		if (!useSprites) drawTileBorder(track.gridx, track.gridy);
 
 		ctx.save();
+		ctx.scale(zoomScale, zoomScale);
 		ctx.translate((0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
 			
 		//rotate tile
