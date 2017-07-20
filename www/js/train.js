@@ -2313,7 +2313,7 @@ $(document).ready(function(){
 	
 				draw();
 			}
-		} else
+		} else {
         	console.log("Push play button");
         	pushPlayButton();
         }
