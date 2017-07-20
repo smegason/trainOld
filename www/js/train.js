@@ -789,7 +789,6 @@ $(document).ready(function(){
 		name += '.png';
 		imgTrackWyeSprungR[i].src = name;
 	}
-
 //
 	var imgTrackCargo = [];
 	for (var i=0; i<2; i++) { //one for each orientation
@@ -802,6 +801,7 @@ $(document).ready(function(){
 	}
 
 //stations
+	console.log("Loading stations");
 	var imgStationIncrement = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationIncrement[i] = new Image();
@@ -937,6 +937,7 @@ $(document).ready(function(){
 		}
 	}
 
+	console.log ("Loading cargo images");
 	var imgCargoNumbers = [];
 	for (var j=0; j<10; j++) {
 		imgCargoNumbers[j] = [];
@@ -965,6 +966,7 @@ $(document).ready(function(){
 			imgCargoColors[j][i].src = name;
 		}
 	}
+	console.log ("Loading cargo lower");
 
 	lowercase = "abcdefghijklmnopqrstuvwxyz";
 	uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -981,6 +983,7 @@ $(document).ready(function(){
 		}
 	}
 
+	console.log ("Loading cargo Upper");
 	var imgCargoUppercase = []; ///need to render uppercase and switch this from lower to upper
 	for (var j=0; j<26; j++) {
 		imgCargoUppercase[j] = [];
@@ -995,6 +998,7 @@ $(document).ready(function(){
 		}
 	}
 
+	console.log ("Loading cargo dino");
 	var imgCargoDinosaurs = [];
 	for (var j=0; j<5; j++) {
 		imgCargoDinosaurs[j] = [];
@@ -2913,7 +2917,7 @@ $(document).ready(function(){
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
  //       ctx.restore();
         
-		if (showToolbar) {
+		if (showToolBar) {
 			drawToolBar();
 	        ctx.save();
 			ctx.scale(zoomScale, zoomScale);
@@ -2925,7 +2929,7 @@ $(document).ready(function(){
 		drawAllTracks();
 		drawSquares();
 		drawAllEnginesAndCars();
-		if (showToolbar) {
+		if (showToolBar) {
 			drawCaption();
 			drawSecondaryCaption();
 			drawButtonCaption();
