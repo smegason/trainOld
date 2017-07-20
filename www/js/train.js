@@ -2893,7 +2893,7 @@ $(document).ready(function(){
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
         toolBarHeight = canvasHeight; //height of toolbar in pixels
-        if (!showToolbar) {
+        if (!showToolBar) {
         	toolBarHeight = 0;
         	toolBarWidth = 0;
         }
