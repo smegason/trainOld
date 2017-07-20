@@ -3790,7 +3790,7 @@ $(document).ready(function(){
 
       	if ( valid ) {
 			var http = new XMLHttpRequest();
-			var url = "php/uploadTrack.php";
+			var url = "php/uploadTrackPost.php";
 			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
 			console.log("params="+params);
 			http.open("POST", url, true);
@@ -3800,7 +3800,13 @@ $(document).ready(function(){
 			
 			http.onreadystatechange = function() {//Call a function when the state changes.
 			    if(http.readyState == 4 && http.status == 200) {
+			    	console.log("response="+http.responseText);
 			        alert(http.responseText);
+	                if (this.responseText.length>3) {
+	                	alert("Track upload successful!");
+ 	                } else {
+	                	alert("Track upload failed.")
+	                }
 			    }
 			}
 			http.send(params);		
