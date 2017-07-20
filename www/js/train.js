@@ -3968,7 +3968,7 @@ $(document).ready(function(){
 	      width: 350,
 	      modal: true,
 	      buttons: {
-	        "Upload Track": uploadTrackPost(),
+	        "Upload Track": uploadTrackPost,
 	        Cancel: function() {
 	          dialog.dialog( "close" );
 	        }
