@@ -996,7 +996,7 @@ $(document).ready(function(){
 			name += (i+1);
 			name += '.png';
 			imgCargoNumbers[j][i].src = name;
-			console.log ("name="+name);
+			//console.log ("name="+name);
 		}
 	}
 
@@ -1010,7 +1010,7 @@ $(document).ready(function(){
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
-			console.log("name="+name);
+			//console.log("name="+name);
 			imgCargoColors[j][i].src = name;
 		}
 	}
@@ -2101,6 +2101,8 @@ $(document).ready(function(){
         if (!showToolBar) { //if toolbar hidden then toggle play trains for any click
         	pushPlayButton();
         } else {
+        	mouseX = mouseX * zoomScale;
+        	mouseY = mouseY * zoomScale;
 		    var mouseYWorld = mouseY*tileRatio; //world coordinates
 			
 			//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
@@ -2333,6 +2335,8 @@ $(document).ready(function(){
         //console.log("onClickMove");
         if (!showToolBar) return; //if toolbar hidden then ignore events
         
+    	mouseX = mouseX * zoomScale;
+    	mouseY = mouseY * zoomScale;
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 	    
 /*	    //change mouse cursor
@@ -2402,6 +2406,8 @@ $(document).ready(function(){
         //console.log ("onClickUp");
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
+    	mouseX = mouseX * zoomScale;
+    	mouseY = mouseY * zoomScale;
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
