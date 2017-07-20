@@ -3780,7 +3780,7 @@ $(document).ready(function(){
 	}
 	
 	function uploadTrackPost() { //uses POST to upload longer tracks
-		console.log ("Function Upload track");
+		console.log ("Function Upload track POST");
  		var trx = [tracks, engines, cars];
 		var strTrx = JSON.stringify(trx);
 
