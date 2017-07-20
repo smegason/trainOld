@@ -3748,7 +3748,7 @@ $(document).ready(function(){
     	console.log("Function browse tracks");
     }
 
-	function uploadTrack() { // uses GET
+	function uploadTrackGet() { // uses GET
 		console.log ("Function Upload track");
  		var trx = [tracks, engines, cars];
 		var strTrx = JSON.stringify(trx);
@@ -3968,7 +3968,7 @@ $(document).ready(function(){
 	      width: 350,
 	      modal: true,
 	      buttons: {
-	        "Upload Track": uploadTrack,
+	        "Upload Track": uploadTrackPost(),
 	        Cancel: function() {
 	          dialog.dialog( "close" );
 	        }
