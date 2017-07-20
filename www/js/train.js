@@ -949,7 +949,7 @@ $(document).ready(function(){
 			name += (i+1);
 			name += '.png';
 			imgCargoNumbers[j][i].src = name;
-//			console.log ("name="+name);
+			console.log ("name="+name);
 		}
 	}
 
@@ -963,7 +963,7 @@ $(document).ready(function(){
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
-			//console.log("name="+name);
+			console.log("name="+name);
 			imgCargoColors[j][i].src = name;
 		}
 	}
