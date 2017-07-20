@@ -2101,8 +2101,8 @@ $(document).ready(function(){
         if (!showToolBar) { //if toolbar hidden then toggle play trains for any click
         	pushPlayButton();
         } else {
-        	mouseX = mouseX * zoomScale;
-        	mouseY = mouseY * zoomScale;
+        	mouseX = mouseX / zoomScale;
+        	mouseY = mouseY / zoomScale;
 		    var mouseYWorld = mouseY*tileRatio; //world coordinates
 			
 			//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
@@ -2130,7 +2130,8 @@ $(document).ready(function(){
 		    	}
 		    }
 		    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
-		    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
+		    if (mouseX*zoomScale < tracksWidth && mouseY*zoomScale < tracksHeight) { //in track space
+		    	console.log ("Click in track space");
 	  			startXPoint = mouseX;
 	  			startYPoint = mouseYWorld;
 		    	
@@ -2191,6 +2192,7 @@ $(document).ready(function(){
 		    		isErasing = true;
 		    		var gridx = Math.floor(mouseX/tileWidth);
 		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+		    		//console.log("gridx="+gridx+" gridy="+gridy);
 					var train;
 					
 					//delete clicked engine
@@ -2243,10 +2245,13 @@ $(document).ready(function(){
 		    		
 		    	}
 		    } else { // in toolBar
+		    	console.log("Clicked in toolbar");
 		    	//deselect track area captions
 		    	currentCaptionedObject = undefined;
 		    	secondaryCaption = undefined;
 		    	
+		    	mouseX = mouseX*zoomScale;
+		    	mouseY = mouseY*zoomScale;
 			    //check if buttons clicked
 			    var pushedButton;
 			    for (var i=0; i<toolButtons.length && pushedButton == undefined; i++) {
@@ -2335,8 +2340,8 @@ $(document).ready(function(){
         //console.log("onClickMove");
         if (!showToolBar) return; //if toolbar hidden then ignore events
         
-    	mouseX = mouseX * zoomScale;
-    	mouseY = mouseY * zoomScale;
+    	mouseX = mouseX / zoomScale;
+    	mouseY = mouseY / zoomScale;
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 	    
 /*	    //change mouse cursor
@@ -2406,8 +2411,8 @@ $(document).ready(function(){
         //console.log ("onClickUp");
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
-    	mouseX = mouseX * zoomScale;
-    	mouseY = mouseY * zoomScale;
+    	mouseX = mouseX / zoomScale;
+    	mouseY = mouseY / zoomScale;
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
@@ -2925,15 +2930,9 @@ $(document).ready(function(){
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
  //       ctx.restore();
         
-		if (showToolBar) {
-			drawToolBar();
-	        ctx.save();
-			ctx.scale(zoomScale, zoomScale);
-			if (getButton("Track").down || getButton("Cargo").down) drawGrid();
-	        ctx.restore();
-		}
         ctx.save();
 		ctx.scale(zoomScale, zoomScale);
+		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 		drawAllTracks();
 		drawSquares();
 		drawAllEnginesAndCars();
@@ -2946,6 +2945,10 @@ $(document).ready(function(){
 			drawPathTrack();
 		}
         ctx.restore();
+
+		if (showToolBar) { //toolbar doesn't zoom
+			drawToolBar();
+		}
 	}
 	
 	function interpretAndDraw() {
@@ -4786,7 +4789,10 @@ $(document).ready(function(){
 				
 				if (type != "Track135") { // 135 not allowed because too sharp
 					new Track(currentXTile, currentYTile, type, orientation, state, subtype);
+					ctx.save();
+					ctx.scale(zoomScale, zoomScale);
 					drawTrack(tracks[currentXTile][currentYTile]);
+					ctx.restore();
 				}
 			}
 			
@@ -4804,6 +4810,8 @@ $(document).ready(function(){
 	    ctx.strokeStyle = "yellow";
 	    ctx.lineJoin = "round";
 	    ctx.lineWidth = 4;
+	    ctx.save();
+	    ctx.scale(zoomScale,zoomScale);
 				
         ctx.beginPath();
         ctx.moveTo(drawingPointsTrackX[0], drawingPointsTrackY[0]/tileRatio);
@@ -4812,6 +4820,7 @@ $(document).ready(function(){
         	
         }
 	    ctx.stroke();
+	    ctx.restore();
 	}	
 
 	function addPointEC(x,y) { //for drawing mouse movements when manually placing engines or cars
@@ -4830,6 +4839,8 @@ $(document).ready(function(){
 	    
 	    ctx.lineJoin = "round";
 	    ctx.lineWidth = 4;
+	    ctx.save();
+	    ctx.scale(zoomScale,zoomScale);
 				
         ctx.beginPath();
         ctx.moveTo(drawingPointsECX[0], drawingPointsECY[0]/tileRatio);
@@ -4837,6 +4848,7 @@ $(document).ready(function(){
 	        ctx.lineTo(drawingPointsECX[i], drawingPointsECY[i]/tileRatio);
         }
 	    ctx.stroke();
+	    ctx.restore();
 	}	
 
 	///////// convenience functions ////////////////////
