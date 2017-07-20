@@ -71,6 +71,8 @@ $(document).ready(function(){
  
  	window.addEventListener('keydown', function(event) {
  		//console.log ("Key="+event.keyCode);
+        if (!showToolBar) return; //if toolbar hidden then ignore events
+
     	if(event.keyCode == 37) {
         	//console.log('Left was pressed');
         	nCurrentTrx--;
@@ -158,8 +160,8 @@ $(document).ready(function(){
 	var showToolbar = true;
 	var passedTrx;
 	var passedTrackID;
-	var zoomScale = 0.5;
-	var zoomMultiplier = 0.8;	
+	var zoomScale = 1;
+	var zoomMultiplier = 1.1;	
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -2084,221 +2086,229 @@ $(document).ready(function(){
 
     function onClickDown (mouseX, mouseY) { //for handling both mouse and touch events
         //console.log("onClickDown");
-	    var mouseYWorld = mouseY*tileRatio; //world coordinates
-		
-		//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
-		if (currentCaptionedButton != undefined) {	
-	    	if (mouseX > buttonCaptionX && mouseX < (buttonCaptionX+3*tileWidth) && mouseYWorld > buttonCaptionY && mouseYWorld < (buttonCaptionY+3*tileWidth)) {
-	    		//inside caption
-	    		var nBin = 3*Math.floor((mouseYWorld-buttonCaptionY)/tileWidth) + Math.floor((mouseX-buttonCaptionX)/tileWidth);
-	    		//console.log ("Clicked in button caption. bin=" + nBin);
-	    		if (getButton("Save").down) {
-	    			console.log("Save");
-		  			//getButton("Save").down = false;
-			  		saveTrx(nBin);
-	    		} else {
-	    			console.log("Open");
-		  			//getButton("Open").down = false;
-			  		openTrx(nBin);
-			  		draw();
-	    		}
-    		return
-	    	} else { //outside button caption
-	    		currentCaptionedButton = undefined;
-	  			getButton("Open").down = false;
-	  			getButton("Save").down = false;
-	    		draw();
-	    	}
-	    }
-	    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
-	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
-  			startXPoint = mouseX;
-  			startYPoint = mouseYWorld;
-	    	
-	    	//check if track button down
-	    	if (getButton("Track").down) {
-	    		isDrawingTrack = true;
-	    		addPointTrack(mouseX, mouseYWorld);
-	    	}
-	    	
-	    	//check if engine button down
-	    	if (getButton("Engine").down) {
-	    		isDrawingEngine = true;
-	    		addPointEC(mouseX, mouseYWorld);
-	    	}
-	    	
-	    	//check if select button down
-	    	/*if (getButton("Select").down) {
-	    		//console.log("Select button down");
-	   			if (mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
-	   			   && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
-	   				//move current selection
-		    		isMoving = true;
-		    		startMoveX = mouseX;
-		    		startMoveY = mouseY;'[]';
-	   				
-	   			} else { 
-	   				//start new selection
-		    		isSelecting = true;
-		    		startSelectX = tileWidth*Math.round(mouseX/tileWidth);
-		    		startSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
-	    		}
-	    	} */
-	    	
-	    	//check if car button down
-	    	if (getButton("Car").down) {
-	    		isDrawingCar = true;
-	    		addPointEC(mouseX, mouseYWorld);
-	    	}
-	    	
-	    	//check if cargo button down
-	    	if (getButton("Cargo").down && currentCaptionedObject == undefined) {
-	    		var gridx = Math.floor(mouseX/tileWidth);
-	    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-                console.log("gridx="+gridx+"tracks length="+tracks.length);
-	    		if (tracks[gridx] == undefined || tracks[gridx][gridy] == undefined || tracks[gridx][gridy] == null) {
-		    		//if no track at that location then add TrackBlank with "A"
-	    			console.log("Empty grid, add blank Track");
-	    			new Track(gridx, gridy, "TrackBlank");
-	    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
-                    draw();
-                }
-	    		
-	    		
-	    	}
-	    	
-	    	//check if erase button down
-	    	if (getButton("Eraser").down) {
-	    		isErasing = true;
-	    		var gridx = Math.floor(mouseX/tileWidth);
-	    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-				var train;
-				
-				//delete clicked engine
-	    		for (var i=0; i<engines.length; i++) {
-	    			if (engines[i].gridx == gridx && engines[i].gridy == gridy) {
-	    				//console.log("Delete engine i=" + i);
-	    				train = trains[i];
-	    				var oldEngine = engines.splice(i,1); //delete engine
-	    				if (currentCaptionedObject == oldEngine) currentCaptionObject = undefined;
-	    				delete oldEngine;
-	    				i = engines.length;
-	    				draw();
-	    			}
-	    		}
-
-				//delete clicked car
-	    		for (var i=0; i<cars.length; i++) {
-	    			if (cars[i].gridx == gridx && cars[i].gridy == gridy) {
-	    				if (cars[i].cargo == null) {
-		    				console.log("Delete car i=" + i);
-		    				train = getTrain(cars[i]);
-		    				console.log("Deleted car is in train of length="+train.length);
-		    				var oldCar = cars.splice(i,1); //delete car
-		    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
-		    				delete oldCar;
-		    				i = cars.length;
-	    				} else {
-	    					console.log ("Car has cargo. Delete cargo");
-	    					cars[i].cargo = null;
-	    					draw();
+        if (!showToolBar) { //if toolbar hidden then toggle play trains for any click
+        	pushPlayButton();
+        } else {
+		    var mouseYWorld = mouseY*tileRatio; //world coordinates
+			
+			//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
+			if (currentCaptionedButton != undefined) {	
+		    	if (mouseX > buttonCaptionX && mouseX < (buttonCaptionX+3*tileWidth) && mouseYWorld > buttonCaptionY && mouseYWorld < (buttonCaptionY+3*tileWidth)) {
+		    		//inside caption
+		    		var nBin = 3*Math.floor((mouseYWorld-buttonCaptionY)/tileWidth) + Math.floor((mouseX-buttonCaptionX)/tileWidth);
+		    		//console.log ("Clicked in button caption. bin=" + nBin);
+		    		if (getButton("Save").down) {
+		    			console.log("Save");
+			  			//getButton("Save").down = false;
+				  		saveTrx(nBin);
+		    		} else {
+		    			console.log("Open");
+			  			//getButton("Open").down = false;
+				  		openTrx(nBin);
+				  		draw();
+		    		}
+	    		return
+		    	} else { //outside button caption
+		    		currentCaptionedButton = undefined;
+		  			getButton("Open").down = false;
+		  			getButton("Save").down = false;
+		    		draw();
+		    	}
+		    }
+		    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
+		    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
+	  			startXPoint = mouseX;
+	  			startYPoint = mouseYWorld;
+		    	
+		    	//check if track button down
+		    	if (getButton("Track").down) {
+		    		isDrawingTrack = true;
+		    		addPointTrack(mouseX, mouseYWorld);
+		    	}
+		    	
+		    	//check if engine button down
+		    	if (getButton("Engine").down) {
+		    		isDrawingEngine = true;
+		    		addPointEC(mouseX, mouseYWorld);
+		    	}
+		    	
+		    	//check if select button down
+		    	/*if (getButton("Select").down) {
+		    		//console.log("Select button down");
+		   			if (mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
+		   			   && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
+		   				//move current selection
+			    		isMoving = true;
+			    		startMoveX = mouseX;
+			    		startMoveY = mouseY;'[]';
+		   				
+		   			} else { 
+		   				//start new selection
+			    		isSelecting = true;
+			    		startSelectX = tileWidth*Math.round(mouseX/tileWidth);
+			    		startSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
+		    		}
+		    	} */
+		    	
+		    	//check if car button down
+		    	if (getButton("Car").down) {
+		    		isDrawingCar = true;
+		    		addPointEC(mouseX, mouseYWorld);
+		    	}
+		    	
+		    	//check if cargo button down
+		    	if (getButton("Cargo").down && currentCaptionedObject == undefined) {
+		    		var gridx = Math.floor(mouseX/tileWidth);
+		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+	                console.log("gridx="+gridx+"tracks length="+tracks.length);
+		    		if (tracks[gridx] == undefined || tracks[gridx][gridy] == undefined || tracks[gridx][gridy] == null) {
+			    		//if no track at that location then add TrackBlank with "A"
+		    			console.log("Empty grid, add blank Track");
+		    			new Track(gridx, gridy, "TrackBlank");
+		    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
+	                    draw();
+	                }
+		    		
+		    		
+		    	}
+		    	
+		    	//check if erase button down
+		    	if (getButton("Eraser").down) {
+		    		isErasing = true;
+		    		var gridx = Math.floor(mouseX/tileWidth);
+		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+					var train;
+					
+					//delete clicked engine
+		    		for (var i=0; i<engines.length; i++) {
+		    			if (engines[i].gridx == gridx && engines[i].gridy == gridy) {
+		    				//console.log("Delete engine i=" + i);
+		    				train = trains[i];
+		    				var oldEngine = engines.splice(i,1); //delete engine
+		    				if (currentCaptionedObject == oldEngine) currentCaptionObject = undefined;
+		    				delete oldEngine;
+		    				i = engines.length;
+		    				draw();
+		    			}
+		    		}
+	
+					//delete clicked car
+		    		for (var i=0; i<cars.length; i++) {
+		    			if (cars[i].gridx == gridx && cars[i].gridy == gridy) {
+		    				if (cars[i].cargo == null) {
+			    				console.log("Delete car i=" + i);
+			    				train = getTrain(cars[i]);
+			    				console.log("Deleted car is in train of length="+train.length);
+			    				var oldCar = cars.splice(i,1); //delete car
+			    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
+			    				delete oldCar;
+			    				i = cars.length;
+		    				} else {
+		    					console.log ("Car has cargo. Delete cargo");
+		    					cars[i].cargo = null;
+		    					draw();
+		    				}
+		    				
+		    			}
+		    		}
+		    		
+		    		//if deleted engine or car then rebuild train
+		    		if (train) {
+		    			console.log ("Rebuild train after delete");
+	    				//set cars in this train to speed 0 and rebuild train to account for disconnecting a car from an engine or deleting an engine
+	    				for (var t=0; t<train.length; t++) {
+	    					if (train[t].type != "EngineBasic") {
+		    					if (train[t].speed < 0) reverseSpeed(train[t]);
+		    					train[t].speed = 0;
+	    					}
 	    				}
 	    				
+	    				buildTrains(); //todo- this could be made more efficient by just working on this train rather than all trains
+	    				draw();
 	    			}
-	    		}
-	    		
-	    		//if deleted engine or car then rebuild train
-	    		if (train) {
-	    			console.log ("Rebuild train after delete");
-    				//set cars in this train to speed 0 and rebuild train to account for disconnecting a car from an engine or deleting an engine
-    				for (var t=0; t<train.length; t++) {
-    					if (train[t].type != "EngineBasic") {
-	    					if (train[t].speed < 0) reverseSpeed(train[t]);
-	    					train[t].speed = 0;
-    					}
-    				}
-    				
-    				buildTrains(); //todo- this could be made more efficient by just working on this train rather than all trains
-    				draw();
-    			}
-	    		
-	    	}
-	    } else { // in toolBar
-	    	//deselect track area captions
-	    	currentCaptionedObject = undefined;
-	    	secondaryCaption = undefined;
-	    	
-		    //check if buttons clicked
-		    var pushedButton;
-		    for (var i=0; i<toolButtons.length && pushedButton == undefined; i++) {
-		  	    if (mouseX > toolButtons[i].x+tracksWidth && mouseY > toolButtons[i].y && mouseX < toolButtons[i].x+toolButtons[i].width+tracksWidth && mouseY < toolButtons[i].y + toolButtons[i].height) {
-		  		    pushedButton = i;
-		  	    } 
-		    }
-		  	
-		  	if (pushedButton == undefined) return;
-		  	
-		  	switch (toolButtons[pushedButton].name) {
-		  		case "Play":
-                    //console.debugger("Testttttt");
-		  			if (toolButtons[pushedButton].down ) {
-		  				playSound("stop");
-		  				clearInterval(interval);
-					} else {
-						playSound("choochoo");
-						skip = 10;
-						nIterations = 0;
-						interval = setInterval(interpretAndDraw, 20);
-		  			}
-		  			break;
-		  		case "Track":
-		  			break;
-		  		case "Engine":
-		  			break;
-		  		case "Eraser":
-		  			break;
-		  		case "Select":
-		  			break;
-		  		case "Save":
-		  			currentCaptionedButton = getButton("Save");
-		  			getButton("Save").down = true;
-		  			getButton("Open").down = false;
-		  			break;
-		  		case "Open":
-		  			currentCaptionedButton = getButton("Open");
-		  			getButton("Open").down = true;
-		  			getButton("Save").down = false;
-		  			break;
-		  		case "Upload":
-		        	if (currentUserID == 1) {
-			        	uploadTrackDialog()
-		        		signinUserDialog();
-		        	} else {
-		        		uploadTrackDialog();
-		        	}
-		  			break;
-		  		case "Download":
-		  			downloadTrackDialog();
-		  			break;
-		  		case "Clear":
-		  			//tracks.length=0;
-                    tracks = createArray(trackArrayWidth, trackArrayHeight);
-		  			engines.length = 0;
-		  			cars.length = 0;
-		  			trains.length = 0;
-		  			draw();
-		  			break;
-		  	}
-
-			//toggle up/down if button is in a group
-			if (toolButtons[pushedButton].group != undefined) toolButtons[pushedButton].down = !toolButtons[pushedButton].down;
-			for (var i=0; i<toolButtons.length; i++) {  //set other buttons in same group to up
-				if (i != pushedButton && toolButtons[i].group == toolButtons[pushedButton].group ) toolButtons[i].down = false;
-  			}
-
-			draw();
+		    		
+		    	}
+		    } else { // in toolBar
+		    	//deselect track area captions
+		    	currentCaptionedObject = undefined;
+		    	secondaryCaption = undefined;
+		    	
+			    //check if buttons clicked
+			    var pushedButton;
+			    for (var i=0; i<toolButtons.length && pushedButton == undefined; i++) {
+			  	    if (mouseX > toolButtons[i].x+tracksWidth && mouseY > toolButtons[i].y && mouseX < toolButtons[i].x+toolButtons[i].width+tracksWidth && mouseY < toolButtons[i].y + toolButtons[i].height) {
+			  		    pushedButton = i;
+			  	    } 
+			    }
+			  	
+			  	if (pushedButton == undefined) return;
+			  	
+			  	switch (toolButtons[pushedButton].name) {
+			  		case "Play":
+	                    //console.debugger("Testttttt");
+	                    pushPlayButton();
+			  			break;
+			  		case "Track":
+			  			break;
+			  		case "Engine":
+			  			break;
+			  		case "Eraser":
+			  			break;
+			  		case "Select":
+			  			break;
+			  		case "Save":
+			  			currentCaptionedButton = getButton("Save");
+			  			getButton("Save").down = true;
+			  			getButton("Open").down = false;
+			  			break;
+			  		case "Open":
+			  			currentCaptionedButton = getButton("Open");
+			  			getButton("Open").down = true;
+			  			getButton("Save").down = false;
+			  			break;
+			  		case "Upload":
+			        	if (currentUserID == 1) {
+				        	uploadTrackDialog()
+			        		signinUserDialog();
+			        	} else {
+			        		uploadTrackDialog();
+			        	}
+			  			break;
+			  		case "Download":
+			  			downloadTrackDialog();
+			  			break;
+			  		case "Clear":
+			  			//tracks.length=0;
+	                    tracks = createArray(trackArrayWidth, trackArrayHeight);
+			  			engines.length = 0;
+			  			cars.length = 0;
+			  			trains.length = 0;
+			  			draw();
+			  			break;
+			  	}
+	
+				//toggle up/down if button is in a group
+				if (toolButtons[pushedButton].group != undefined) toolButtons[pushedButton].down = !toolButtons[pushedButton].down;
+				for (var i=0; i<toolButtons.length; i++) {  //set other buttons in same group to up
+					if (i != pushedButton && toolButtons[i].group == toolButtons[pushedButton].group ) toolButtons[i].down = false;
+	  			}
+	
+				draw();
+			}
 		}
 	}
+	
+	function pushPlayButton() {
+		if (getButton("Play").down) {
+			playSound("stop");
+			clearInterval(interval);
+		} else {
+			playSound("choochoo");
+			skip = 10;
+			nIterations = 0;
+			interval = setInterval(interpretAndDraw, 20);
+		}
+	}		
 	
 	$('#canvas').mousemove(function(e){
     //console.log("Mousemove");
@@ -2307,8 +2317,10 @@ $(document).ready(function(){
         onClickMove(mouseX,mouseY);
 	});
         
-    function onClickMove(mouseX,mouseY) {
+    function onClickMove(mouseX,mouseY) { //for mouse move or touch move events
         //console.log("onClickMove");
+        if (!showToolBar) return; //if toolbar hidden then ignore events
+        
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 	    
 /*	    //change mouse cursor
@@ -2376,6 +2388,8 @@ $(document).ready(function(){
     
     function onClickUp(mouseX, mouseY) {
         //console.log ("onClickUp");
+        if (!showToolBar) return; //if toolbar hidden then ignore events
+
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
@@ -2888,22 +2902,22 @@ $(document).ready(function(){
         
 
 		//add background texture
-        ctx.save();
-		ctx.scale(zoomScale, zoomScale);
+//        ctx.save();
+//		ctx.scale(zoomScale, zoomScale);
 		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
-        ctx.restore();
+ //       ctx.restore();
         
 		if (showToolbar) {
 			drawToolBar();
-			if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 	        ctx.save();
 			ctx.scale(zoomScale, zoomScale);
-			drawSquares();
+			if (getButton("Track").down || getButton("Cargo").down) drawGrid();
 	        ctx.restore();
 		}
         ctx.save();
 		ctx.scale(zoomScale, zoomScale);
 		drawAllTracks();
+		drawSquares();
 		drawAllEnginesAndCars();
 		if (showToolbar) {
 			drawCaption();
