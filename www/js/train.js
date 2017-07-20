@@ -937,7 +937,7 @@ $(document).ready(function(){
 		}
 	}
 
-	console.log ("Loading cargo images");
+	console.log ("Loading cargo numbers");
 	var imgCargoNumbers = [];
 	for (var j=0; j<10; j++) {
 		imgCargoNumbers[j] = [];
@@ -953,6 +953,7 @@ $(document).ready(function(){
 		}
 	}
 
+	console.log ("Loading cargo color");
 	var imgCargoColors = [];
 	for (var j=0; j<10; j++) {
 		imgCargoColors[j] = [];
