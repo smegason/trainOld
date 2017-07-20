@@ -3748,7 +3748,7 @@ $(document).ready(function(){
     	console.log("Function browse tracks");
     }
 
-	function uploadTrack() {
+	function uploadTrack() { // uses GET
 		console.log ("Function Upload track");
  		var trx = [tracks, engines, cars];
 		var strTrx = JSON.stringify(trx);
@@ -3778,6 +3778,37 @@ $(document).ready(function(){
      	}
       	return valid;
 	}
+	
+	function uploadTrackPost() { //uses POST to upload longer tracks
+		console.log ("Function Upload track");
+ 		var trx = [tracks, engines, cars];
+		var strTrx = JSON.stringify(trx);
+
+      	var valid = true;
+      	valid = valid && checkLength( trackname, "trackname", 3, 25 );
+     	valid = valid && checkLength( trackdescription, "trackdescription", 6, 300 );
+
+      	if ( valid ) {
+			var http = new XMLHttpRequest();
+			var url = "php/uploadTrack.php";
+			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
+			console.log("params="+params);
+			http.open("POST", url, true);
+			
+			//Send the proper header information along with the request
+			http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			
+			http.onreadystatechange = function() {//Call a function when the state changes.
+			    if(http.readyState == 4 && http.status == 200) {
+			        alert(http.responseText);
+			    }
+			}
+			http.send(params);		
+  			dialogUploadTrack.dialog( "close" );
+    	}
+      	return valid;
+	}
+	
 	
     function updateTips( t ) {
       tips
@@ -3944,7 +3975,8 @@ $(document).ready(function(){
 	 
 	    form = dialogUploadTrack.find( "form" ).on( "submit", function( event ) {
 	      event.preventDefault();
-	      uploadTrack();
+	      //uploadTrack();
+	      uploadTrackPost();
 	    });
 	 
 	    dialogUploadTrack.dialog( "open" );
