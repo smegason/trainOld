@@ -174,7 +174,7 @@ $(document).ready(function(){
 		}
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
-				showTooBbar = false;
+				showTooBar = false;
 			}
 		}
 		passedTrackID = data["trackID"];
@@ -2098,10 +2098,7 @@ $(document).ready(function(){
 
     function onClickDown (mouseX, mouseY) { //for handling both mouse and touch events
         console.log("onClickDown");
-        if (!showToolBar) { //if toolbar hidden then toggle play trains for any click
-        	console.log("Push play button");
-        	pushPlayButton();
-        } else {
+        if (showToolBar) { //if toolbar hidden then toggle play trains for any click
         	console.log("Click down herereere");
         	mouseX = mouseX / zoomScale;
         	mouseY = mouseY / zoomScale;
@@ -2316,7 +2313,10 @@ $(document).ready(function(){
 	
 				draw();
 			}
-		}
+		} else
+        	console.log("Push play button");
+        	pushPlayButton();
+        }
 	}
 	
 	function pushPlayButton() {
