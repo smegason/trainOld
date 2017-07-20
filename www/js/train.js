@@ -3771,7 +3771,7 @@ $(document).ready(function(){
 	            }
 	        };
 	        var url = "php/uploadTrack.php?userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
-	        //console.log("url="+url);
+	        console.log("url="+url);
 	        xmlhttp.open("GET",url,true);
 	        xmlhttp.send();
  			dialogUploadTrack.dialog( "close" );
@@ -3966,7 +3966,7 @@ $(document).ready(function(){
 	
 	function downloadTrack() {
 		var trackID = prompt("Please enter the trackID to load", "1");
-		dowloadTrackID(trackID);
+		downloadTrackID(trackID);
 	}
 	
 	function downloadTrackID(trackID) {
