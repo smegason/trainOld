@@ -57,7 +57,7 @@ Cache-Control:public;
 				$encodedTrx = str_replace(",", "%2C", $encodedTrx);  // ,
 				$encodedTrx = str_replace(":", "%3A", $encodedTrx); // :
 //				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx;
-				$url= "train.html?resize=0&toolbar=0&scale=50&trackID=".$trackID;
+				$url= "train.html?resize=0&toolbar=0&scale=35&trackID=".$trackID;
 				//echo "url=".$url;
 //				$url= 'train.html?resize=0&toolbar=0&trx=[[[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A1%2C"gridy"%3A1%2C"type":"Track90"%2C"orientation":6%2C"state":"left"%2C"subtype":""}%2C{"gridx":1%2C"gridy"%3A2%2C"type"%3A"Track90"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A2%2C"gridy"%3A1%2C"type"%3A"Track90"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A2%2C"gridy"%3A2%2C"type"%3A"Track90"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]]%2C[]%2C[]]';
 								
@@ -72,9 +72,9 @@ Cache-Control:public;
 
 				echo "\n<td class='style24' style='width: 400px'>";
 //				echo "row=".$i;
-				//echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
+				echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
 				echo "\n<iframe src='".$url."' width='400' height='250' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
-				//echo '</div>';
+				echo '</div>';
 				echo "\n</td>";
 				echo "</tr>";
 				
