@@ -937,36 +937,6 @@ $(document).ready(function(){
 		}
 	}
 
-	console.log ("Loading cargo numbers");
-	var imgCargoNumbers = [];
-	for (var j=0; j<10; j++) {
-		imgCargoNumbers[j] = [];
-		for (var i=0; i<64; i++) { //one for each orientation
-			imgCargoNumbers[j][i] = new Image();
-			var name = 'img/renders/CargoNumbers/Cargo-' + j + '/00';
-//			var name = 'img/renders/Cargo-' + j + '/00';
-			if (i<9) name += '0';
-			name += (i+1);
-			name += '.png';
-			imgCargoNumbers[j][i].src = name;
-			console.log ("name="+name);
-		}
-	}
-
-	console.log ("Loading cargo color");
-	var imgCargoColors = [];
-	for (var j=0; j<10; j++) {
-		imgCargoColors[j] = [];
-		for (var i=0; i<64; i++) { //one for each orientation
-			imgCargoColors[j][i] = new Image();
-			var name = 'img/renders/CargoColors/Cargo-' + gColors[j] + '/00';
-			if (i<9) name += '0';
-			name += (i+1);
-			name += '.png';
-			console.log("name="+name);
-			imgCargoColors[j][i].src = name;
-		}
-	}
 	console.log ("Loading cargo lower");
 
 	lowercase = "abcdefghijklmnopqrstuvwxyz";
@@ -1011,6 +981,37 @@ $(document).ready(function(){
 			name += '.png';
 			imgCargoDinosaurs[j][i].src = name;
 			//console.log("file="+name);
+		}
+	}
+
+	console.log ("Loading cargo numbers");
+	var imgCargoNumbers = [];
+	for (var j=0; j<10; j++) {
+		imgCargoNumbers[j] = [];
+		for (var i=0; i<64; i++) { //one for each orientation
+			imgCargoNumbers[j][i] = new Image();
+			var name = 'img/renders/CargoNumbers/Cargo-' + j + '/00';
+//			var name = 'img/renders/Cargo-' + j + '/00';
+			if (i<9) name += '0';
+			name += (i+1);
+			name += '.png';
+			imgCargoNumbers[j][i].src = name;
+			console.log ("name="+name);
+		}
+	}
+
+	console.log ("Loading cargo color");
+	var imgCargoColors = [];
+	for (var j=0; j<10; j++) {
+		imgCargoColors[j] = [];
+		for (var i=0; i<64; i++) { //one for each orientation
+			imgCargoColors[j][i] = new Image();
+			var name = 'img/renders/CargoColors/Cargo-' + gColors[j] + '/00';
+			if (i<9) name += '0';
+			name += (i+1);
+			name += '.png';
+			console.log("name="+name);
+			imgCargoColors[j][i].src = name;
 		}
 	}
 
