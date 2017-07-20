@@ -3801,7 +3801,6 @@ $(document).ready(function(){
 			http.onreadystatechange = function() {//Call a function when the state changes.
 			    if(http.readyState == 4 && http.status == 200) {
 			    	console.log("response="+http.responseText);
-			        alert(http.responseText);
 	                if (this.responseText.length>3) {
 	                	alert("Track upload successful!");
  	                } else {
