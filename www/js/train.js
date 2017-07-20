@@ -174,7 +174,7 @@ $(document).ready(function(){
 		}
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
-				showTooBar = false;
+				showToolBar = false;
 			}
 		}
 		passedTrackID = data["trackID"];
