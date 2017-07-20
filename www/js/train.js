@@ -2097,9 +2097,8 @@ $(document).ready(function(){
 	});	
 
     function onClickDown (mouseX, mouseY) { //for handling both mouse and touch events
-        console.log("onClickDown");
+//        console.log("onClickDown");
         if (showToolBar) { //if toolbar hidden then toggle play trains for any click
-        	console.log("Click down herereere");
         	mouseX = mouseX / zoomScale;
         	mouseY = mouseY / zoomScale;
 		    var mouseYWorld = mouseY*tileRatio; //world coordinates
@@ -2306,12 +2305,14 @@ $(document).ready(function(){
 			  	}
 	
 				//toggle up/down if button is in a group
-				if (toolButtons[pushedButton].group != undefined) toolButtons[pushedButton].down = !toolButtons[pushedButton].down;
-				for (var i=0; i<toolButtons.length; i++) {  //set other buttons in same group to up
-					if (i != pushedButton && toolButtons[i].group == toolButtons[pushedButton].group ) toolButtons[i].down = false;
-	  			}
-	
-				draw();
+				if (toolButtons[pushedButton].name != "Play") {
+					if (toolButtons[pushedButton].group != undefined) toolButtons[pushedButton].down = !toolButtons[pushedButton].down;
+					for (var i=0; i<toolButtons.length; i++) {  //set other buttons in same group to up
+						if (i != pushedButton && toolButtons[i].group == toolButtons[pushedButton].group ) toolButtons[i].down = false;
+		  			}
+		
+					draw();
+				}
 			}
 		} else {
         	console.log("Push play button");
@@ -2329,6 +2330,7 @@ $(document).ready(function(){
 			nIterations = 0;
 			interval = setInterval(interpretAndDraw, 20);
 		}
+		getButton("Play").down = !getButton("Play").down; // toggle state
 	}		
 	
 	$('#canvas').mousemove(function(e){
