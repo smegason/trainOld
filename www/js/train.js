@@ -157,7 +157,7 @@ $(document).ready(function(){
 //	console.log (data);
 
 	var resizeCanvas = true;
-	var showToolbar = true;
+	var showToolBar = true;
 	var passedTrx;
 	var passedTrackID;
 	var zoomScale = 1;
@@ -174,7 +174,7 @@ $(document).ready(function(){
 		}
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
-				showToolbar = false;
+				showTooBbar = false;
 			}
 		}
 		passedTrackID = data["trackID"];
@@ -182,7 +182,7 @@ $(document).ready(function(){
 			zoomScale = data["scale"]/100;
 		}
 	}
-	//console.log ("resize="+resizeCanvas);
+	console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
    
     var windowWidth = 100;
@@ -288,6 +288,7 @@ $(document).ready(function(){
  	var buttonsCargoTypes = [["numbers","uppercase","lowercase"],["colors","dinosaurs","stuffedAnimals"]] //needs to match the 0th element of each cargo subarray
 
 	//images
+	console.log("load images");
     var imgTerrain = new Image();
 	imgTerrain.onload = function() {
     	//ctx.drawImage(imgTerrain, 0, 0);
@@ -545,6 +546,8 @@ $(document).ready(function(){
 		name += '.png';
 		imgTrackWyeLeftSprungR[i].src = name;
 	}
+	console.log("Loading wyes");
+	
 // WyeRight
 	var imgTrackWyeRightAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
@@ -1019,6 +1022,8 @@ $(document).ready(function(){
 		}
 	}
 */
+	console.log ("Done loading images");
+	
 	//colors
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
@@ -1066,6 +1071,7 @@ $(document).ready(function(){
 	sounds["home"] = new Audio("sound/tada.wav");
 	sounds["tunnel"] = new Audio("sound/Tunnel.wav");
 	
+	console.log("Load trx");
 	var nCurrentTrx =1;
 	var trx = [];
 	var trxName = [];
@@ -1243,9 +1249,9 @@ $(document).ready(function(){
     trx[78]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,{"gridx":1,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":3,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":4,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null],[null,null,{"gridx":4,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":"increment"},{"gridx":4,"gridy":4,"type":"TrackWyeLeft","orientation":2,"state":"right","subtype":"prompt"},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":5,"gridy":2,"type":"Track90","orientation":4,"state":"left","subtype":""},null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["stuffedAnimals","bunny"]}},{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":6,"state":"left","subtype":"supply"},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackWyeLeft","orientation":0,"state":"right","subtype":"sprung"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"catapult"},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,{"gridx":11,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":12,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":12,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop"},{"gridx":12,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":13,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":13,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null]],[{"gridx":2,"gridy":4,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":4,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":1,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
     
     openTrxJSON(trx[nCurrentTrx]);
-	
+	console.log("Done loading trx");
 	buildTrains();
-	
+	console.log("Done building trains");
 //	currentCaptionedObject = undefined;
 	new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0);
 
@@ -1264,10 +1270,10 @@ $(document).ready(function(){
 	new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload", 2);
 	
 	getButton("Track").down = true;
-	
+	console.log ("Done making buttons");
 	//download trx for a trackID passed through URL
 	if (passedTrackID) downloadTrackID(passedTrackID);
-	
+	console.log("Done download tracks");
 	////// extend builtin methods
     ctx.dashedLine = function(x, y, x2, y2, da) {
         if (!da) da = [10,5];
