@@ -80,7 +80,7 @@ $(document).ready(function(){
 			draw();
     	}
     	else if(event.keyCode == 38) {
-        	console.log('Up was pressed. CurrentUserID='+currentUserID);
+        	console.log('Up was pressed');
         	zoomScale = zoomScale * zoomMultiplier;
         	draw();
  		}
@@ -93,11 +93,11 @@ $(document).ready(function(){
         	//console.log('l pressed');
         	loadTracks();
  		}
- */   	else if(event.keyCode == 87) {
+    	else if(event.keyCode == 87) {
         	//console.log('w pressed');
         	writeTrx();
  		}
-  /*   	else if(event.keyCode == 78) {
+     	else if(event.keyCode == 78) {
         	//console.log('n pressed');
         	newUserDialog();
  		}
@@ -138,6 +138,7 @@ $(document).ready(function(){
  	//e.g. train.html?resize=0&toolbar=0&trx=[[[null%2Cn...
  	// resize=boolean  Allow automatic resizing?
  	// toolbar=boolean    Show toolbar?
+ 	// scale=percent Zoom level of canvas. 100%=normal
  	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position. Can't be too long for URL though...
  	// trackID=111  Display trx with the given trackID
  	
@@ -157,6 +158,8 @@ $(document).ready(function(){
 	var showToolbar = true;
 	var passedTrx;
 	var passedTrackID;
+	var zoomScale = 0.5;
+	var zoomMultiplier = 0.8;	
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -173,6 +176,9 @@ $(document).ready(function(){
 			}
 		}
 		passedTrackID = data["trackID"];
+		if (data["scale"]) {
+			zoomScale = data["scale"]/100;
+		}
 	}
 	//console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
@@ -187,8 +193,6 @@ $(document).ready(function(){
 //    canvas.style.height = windowHeight + 'px';
 
 	var ctx = canvas.getContext("2d");
-	var zoomScale = 0.5;
-	var zoomMultiplier = 0.8;	
     var canvasWidth;
     var canvasHeight;
 	var numTilesX = 5;
