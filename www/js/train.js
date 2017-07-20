@@ -2097,11 +2097,12 @@ $(document).ready(function(){
 	});	
 
     function onClickDown (mouseX, mouseY) { //for handling both mouse and touch events
-        //console.log("onClickDown");
+        console.log("onClickDown");
         if (!showToolBar) { //if toolbar hidden then toggle play trains for any click
         	console.log("Push play button");
         	pushPlayButton();
         } else {
+        	console.log("Click down herereere");
         	mouseX = mouseX / zoomScale;
         	mouseY = mouseY / zoomScale;
 		    var mouseYWorld = mouseY*tileRatio; //world coordinates
