@@ -125,8 +125,6 @@ $(document).ready(function(){
 		}
 	});   
           
-    var useSprites = true;
- 
 	// "constants"
 	var oct1 = Math.SQRT2/(2+2*Math.SQRT2);
 	var oct2 = (Math.SQRT2 + 2)/(2+2*Math.SQRT2);
@@ -205,14 +203,10 @@ $(document).ready(function(){
 	var toolBarHeight; //height of toolbar in pixels
 	var tracksWidth; //width of the tracks area in pixels
 	var tracksHeight; //height of the tracks area in pixels
-    var tileRatio = 1.00; //aspect ratio of tiles
+    var tileRatio = 57/63; //aspect ratio of tiles
 	var tileWidth=60;
 	calculateLayout();
-    var globalAlpha = 0.5;
-    if (useSprites) {
-        tileRatio = 57/63;
-        globalAlpha = 1;
-    }
+    var globalAlpha = 1;
 	var insetWidth = 0.35*tileWidth;
 	//var numTilesX = Math.floor(tracksWidth/tileWidth);
 	//var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
@@ -1320,22 +1314,12 @@ $(document).ready(function(){
 	function drawTrack(track) {  //draws this track
 		if (!track) return;
 		
-		if (!useSprites) drawTileBorder(track.gridx, track.gridy);
-
 		ctx.save();
 		ctx.translate((0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
 			
 		//rotate tile
 		ctx.rotate(track.orientation * Math.PI/4);
-			
-		//make orientation line at North
-		if (!useSprites) {
-			ctx.beginPath();
-			ctx.moveTo(0, -0.5*tileWidth);
-			ctx.lineTo(0, -0.25*tileWidth); //  -
-			ctx.stroke();
-		}
-			
+						
 		//draw tile interior specific to type of track
 		switch (track.type) {
 			case "Track90":
@@ -1385,109 +1369,10 @@ $(document).ready(function(){
 //				console.log("name="+name);
 				drawSprite(name, track.orientation);
 				break; 
-/*				if (useSprites) { //see above
-				} else {
-					if (track.state == "left") {
-						ctx.globalAlpha = globalAlpha;
-						drawSprite("TrackStraight", track.orientation);
-						if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-						else ctx.globalAlpha = 1.0;
-						drawSprite("Track90", track.orientation);
-						ctx.globalAlpha = 1.0;
-					} else {
-						ctx.globalAlpha = globalAlpha;
-						drawSprite("Track90", track.orientation);
-						if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-						else ctx.globalAlpha = 1.0;
-						drawSprite("TrackStraight", track.orientation);
-						ctx.globalAlpha = 1.0;
-					}
-				}
-				break;
-			case "TrackWyeRight":
-				if (track.state == "left") {
-					ctx.globalAlpha = globalAlpha;
-					ctx.rotate(-Math.PI/2);
-					drawSprite("Track90", track.orientation);
-					if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-					else ctx.globalAlpha = 1.0;
-					ctx.rotate(Math.PI/2);
-					drawSprite("TrackStraight", track.orientation);
-					ctx.globalAlpha = 1.0;
-				} else {
-					ctx.globalAlpha = globalAlpha;
-					drawSprite("TrackStraight", track.orientation);
-					ctx.rotate(-Math.PI/2);
-					if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-					else ctx.globalAlpha = 1.0;
-					drawSprite("Track90", track.orientation);
-					ctx.globalAlpha = 1.0;
-				}
-				break;
-			case "TrackWye":
-				if (track.state == "left") {
-					ctx.globalAlpha = globalAlpha;
-					ctx.rotate(-Math.PI/2);
-					drawSprite("Track90", track.orientation);
-					if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-					else ctx.globalAlpha = 1.0;
-					ctx.rotate(Math.PI/2);
-					drawSprite("Track90", track.orientation);
-					ctx.globalAlpha = 1.0;
-				} else {
-					ctx.globalAlpha = globalAlpha;
-					drawSprite("Track90", track.orientation);
-					ctx.rotate(-Math.PI/2);
-					if (track.subtype == "prompt") ctx.globalAlpha = globalAlpha;
-					else ctx.globalAlpha = 1.0;
-						drawSprite("Track90", track.orientation);
-					ctx.globalAlpha = 1.0;
-				}
-				break;
-*/		}
+		}
 		
 		drawCargo(track, Math.PI/4*track.orientation);
-		
-		//draw insets for wyes and stations
-		if (!useSprites) {
-			if (track.subtype != "" && track.subtype != "sprung") {	
-				//console.log("Type="+track.type+" subtype="+track.subtype);
-			switch (track.subtype) {
-				case "increment":
-				case "supply":
-					drawSprite(track.subtype, track.orientation); //XXXX
-					break;
-				default:
-					ctx.restore();
-					ctx.save();
-					ctx.translate((0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
-					ctx.rotate(track.orientation * Math.PI/4);
-		
-					switch (track.type) {
-						case "TrackWyeLeft":
-							ctx.translate( 0.45*tileWidth-insetWidth, -0.2*tileWidth);
-							break;
-						case "TrackWyeRight":
-							ctx.translate( -0.45*tileWidth, -0.2*tileWidth);
-							break;
-						case "TrackWye":
-							ctx.translate(-0.2*tileWidth, -0.45*tileWidth);
-							break;
-						case "TrackStraight":
-							ctx.translate(0.1*tileWidth, -insetWidth/2); //center origin on tile
-							break;
-					}
-					// rotate around inset center so label is always upright
-					ctx.translate(insetWidth/2, insetWidth/2*tileRatio);
-					ctx.rotate(-track.orientation * Math.PI/4);
-					ctx.translate(-insetWidth/2, -insetWidth/2*tileRatio);
-		
-				    drawTrackInset();
-					drawSprite(track.subtype, track.orientation); //XXXX
-				}
-			}
-		}
-			
+					
 		ctx.restore();
 	
 	}		
@@ -1500,350 +1385,348 @@ $(document).ready(function(){
 	}		    
 
 	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles. Value for choosing from array of values for cargo type
-	//	if (useSprites) {
-			ctx.rotate(-ori * Math.PI/4);
-			//console.log("drawSprite="+name); //kkk
-            var cargoOffsetX = -37;
-            var cargoOffsetY = -26;
-			switch (name) {
-				case "Captionuppercase":
-                    ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "CaptionA":
-                    ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionlowercase":
-					ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captiona":
-					ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captioncolors":
-					ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionwhite":
-					ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionraptor":
-					ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionbunny":
-					ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionnumbers":
-					ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "CaptionstuffedAnimals":
-					ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Caption0":
-					ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captiondinosaurs":
-					ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
-					break;
-				case "CaptionsafariAnimals":
-					//ctx.drawImage(imgCargoSafariAnimals[0][16], cargoOffsetX, cargoOffsetY);
-					break;
-				case "Captionnone":
-					ctx.drawImage(imgCaptionNone, 0, -11);
-					break;
-				case "Captionalternate":
-					ctx.drawImage(imgCaptionAlternate, 0, -11);
-					break;
-				case "CaptioncompareGreater":
-					ctx.drawImage(imgCaptionGreater, 0, -11);
-					break;
-				case "Captionlazy":
-					ctx.drawImage(imgCaptionLazy, 0, -11);
-					break;
-				case "CaptioncompareLess":
-					ctx.drawImage(imgCaptionLesser, 0, -11);
-					break;
-				case "Captionprompt":
-					ctx.drawImage(imgCaptionPrompt, 0, -11);
-					break;
-				case "Captionsprung":
-					ctx.drawImage(imgCaptionSprung, 0, -11);
-					break;
-				case "Captionadd":
-					ctx.drawImage(imgCaptionAdd, 0, -11);
-					break;
-				case "Captioncatapult":
-					ctx.drawImage(imgCaptionCatapult, 0, -11);
-					break;
-				case "Captiondecrement":
-					ctx.drawImage(imgCaptionDecrement, 0, -11);
-					break;
-				case "Captiondivide":
-					ctx.drawImage(imgCaptionDivide, 0, -11);
-					break;
-				case "Captiondump":
-					ctx.drawImage(imgCaptionDump, 0, -11);
-					break;
-				case "Captionincrement":
-					ctx.drawImage(imgCaptionIncrement, 0, -11);
-					break;
-				case "Captionmultiply":
-					ctx.drawImage(imgCaptionMultiply, 0, -11);
-					break;
-				case "Captionhome":
-					ctx.drawImage(imgCaptionHome, 0, -11);
-					break;
-				case "Captionredtunnel":
-					ctx.drawImage(imgCaptionRedTunnel, -4, -5);
-					break;
-				case "Captiongreentunnel":
-					ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
-					break;
-				case "Captionbluetunnel":
-					ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
-					break;
-				case "CaptionpickDrop":
-					ctx.drawImage(imgCaptionPickDrop, 0, -11);
-					break;
-				case "Captionslingshot":
-					ctx.drawImage(imgCaptionSlingshot, 0, -11);
-					break;
-				case "Captionsubtract":
-					ctx.drawImage(imgCaptionSubtract, 0, -11);
-					break;
-				case "Captionsupply":
-					ctx.drawImage(imgCaptionSupply, 0, -11);
-					break;
-				case "Track90":
-					ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "Track45":
-					ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackStraight":
-					var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-					ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Alternate-L":
-					ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Alternate-R":
-					ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Lazy-L":
-					ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Lazy-R":
-					ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Less-L":
-					ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Less-R":
-					ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Greater-L":
-					ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Greater-R":
-					ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Sprung-L":
-					ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Sprung-R":
-					ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Prompt-L":
-					ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeRight-Prompt-R":
-					ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Alternate-L":
-					ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Alternate-R":
-					ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Lazy-L":
-					ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Lazy-R":
-					ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Less-L":
-					ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Less-R":
-					ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Greater-L":
-					ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Greater-R":
-					ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Prompt-L":
-					ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Prompt-R":
-					ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Sprung-L":
-					ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWyeLeft-Sprung-R":
-					ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Alternate-L":
-					ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Alternate-R":
-					ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Less-L":
-					ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Less-R":
-					ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Lazy-L":
-					ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Lazy-R":
-					ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Greater-L":
-					console.log("GREATER-L");
-					ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Greater-R":
-					console.log ("GREATER-R");
-					ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Sprung-L":
-					ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Sprung-R":
-					ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Prompt-L":
-					ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackWye-Prompt-R":
-					ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackCross":
-					var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-					ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "TrackBlank":
-					break;
-				case "TrackCargo":
-					var oriRot = ori%2;
-					ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "increment":
-					ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "decrement":
-					ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "add":
-					ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "subtract":
-					ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "multiply":
-					ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "divide":
-					ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "catapult":
-					ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "slingshot":
-					ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "supply":
-					ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "pickDrop":
-					console.log ("PickDrop ori=" + ori);
-					ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "dump":
-					ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "home":
-					ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "redtunnel":
-					ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "greentunnel":
-					ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "bluetunnel":
-					ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
-					break;
-				case "speedController":
-				 	//draw engine speed controller
-				 	ctx.save();
-				 	ctx.translate((captionX+1)*tileWidth, (captionY+1.6)*tileWidth*tileRatio); //move origin to center of dial
-				 	ctx.beginPath();
-				 	ctx.lineWidth = 15;
-				 	ctx.strokeStyle = "red";
-				 	ctx.arc (0,0, 0.7*tileWidth, 0, Math.PI, true);
-					var linearGradient = ctx.createLinearGradient(-tileWidth, 0, tileWidth, 0);
-					linearGradient.addColorStop(0, "red");
-					linearGradient.addColorStop(0.5, "black");
-					linearGradient.addColorStop(1, "green");
-					ctx.strokeStyle = linearGradient;
-				 	ctx.stroke(); //speed indicator strip
-				 	ctx.lineWidth = 1;
-				 	ctx.fillStyle = "silver";
-				 	ctx.beginPath();
-				 	ctx.arc (0,0, 0.12*tileWidth, 0, 2*Math.PI, true);
-				 	ctx.fill(); //small circle at base of dial
-				 	
-				 	//make tick marks
-				 	var r=0.7; //short radius
-				 	for (var theta=0; theta<= Math.PI; theta+=Math.PI/nNumSpeeds) {
-				 		ctx.beginPath();
-				 		ctx.moveTo(Math.cos(theta)*r*tileWidth, -Math.sin(theta)*r*tileWidth);
-				 		ctx.lineTo(Math.cos(theta)*0.9*tileWidth, -Math.sin(theta)*0.9*tileWidth);
-				 		ctx.stroke();
-				 		if (r==0.7) r=0.85;
-				 		else r=0.7;
-				 	}
-				 	ctx.beginPath();
-				 	ctx.lineWidth= 7;
-				 	ctx.strokeStyle = "silver";
-				 	ctx.moveTo(0,0);
-				 	var angle = (1-currentCaptionedObject.speed/maxEngineSpeed)/2*Math.PI;
-				 	ctx.lineTo (0.7*tileWidth*Math.cos(angle), -0.7*tileWidth*Math.sin(angle));
-				 	ctx.stroke();
-				 	ctx.beginPath();
-				 	ctx.lineWidth =1
-				 	ctx.moveTo (0.85*tileWidth*Math.cos(angle), -0.85*tileWidth*Math.sin(angle));
-				 	ctx.lineTo (0.65*tileWidth*Math.cos(angle+0.25), -0.65*tileWidth*Math.sin(angle+0.25));
-				 	ctx.lineTo (0.65*tileWidth*Math.cos(angle-0.25), -0.65*tileWidth*Math.sin(angle-0.25));
-				 	ctx.fill();
-				 	
-				 	ctx.restore();
-				 	break;
-				default:
-					ctx.beginPath();
-				    ctx.fillStyle    = tieColor;
-				    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
-				    ctx.textBaseline = 'Top';
-				    ctx.textAlign    = 'Center';
-					ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
-					break;
-					console.log("ERROR-unhandled case for drawSprite name="+name);
-			}
-			ctx.rotate(ori * Math.PI/4);
+		ctx.rotate(-ori * Math.PI/4);
+		//console.log("drawSprite="+name); //kkk
+        var cargoOffsetX = -37;
+        var cargoOffsetY = -26;
+		switch (name) {
+			case "Captionuppercase":
+                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "CaptionA":
+                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionlowercase":
+				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captiona":
+				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captioncolors":
+				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionwhite":
+				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionraptor":
+				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionbunny":
+				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionnumbers":
+				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "CaptionstuffedAnimals":
+				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Caption0":
+				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captiondinosaurs":
+				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
+				break;
+			case "CaptionsafariAnimals":
+				//ctx.drawImage(imgCargoSafariAnimals[0][16], cargoOffsetX, cargoOffsetY);
+				break;
+			case "Captionnone":
+				ctx.drawImage(imgCaptionNone, 0, -11);
+				break;
+			case "Captionalternate":
+				ctx.drawImage(imgCaptionAlternate, 0, -11);
+				break;
+			case "CaptioncompareGreater":
+				ctx.drawImage(imgCaptionGreater, 0, -11);
+				break;
+			case "Captionlazy":
+				ctx.drawImage(imgCaptionLazy, 0, -11);
+				break;
+			case "CaptioncompareLess":
+				ctx.drawImage(imgCaptionLesser, 0, -11);
+				break;
+			case "Captionprompt":
+				ctx.drawImage(imgCaptionPrompt, 0, -11);
+				break;
+			case "Captionsprung":
+				ctx.drawImage(imgCaptionSprung, 0, -11);
+				break;
+			case "Captionadd":
+				ctx.drawImage(imgCaptionAdd, 0, -11);
+				break;
+			case "Captioncatapult":
+				ctx.drawImage(imgCaptionCatapult, 0, -11);
+				break;
+			case "Captiondecrement":
+				ctx.drawImage(imgCaptionDecrement, 0, -11);
+				break;
+			case "Captiondivide":
+				ctx.drawImage(imgCaptionDivide, 0, -11);
+				break;
+			case "Captiondump":
+				ctx.drawImage(imgCaptionDump, 0, -11);
+				break;
+			case "Captionincrement":
+				ctx.drawImage(imgCaptionIncrement, 0, -11);
+				break;
+			case "Captionmultiply":
+				ctx.drawImage(imgCaptionMultiply, 0, -11);
+				break;
+			case "Captionhome":
+				ctx.drawImage(imgCaptionHome, 0, -11);
+				break;
+			case "Captionredtunnel":
+				ctx.drawImage(imgCaptionRedTunnel, -4, -5);
+				break;
+			case "Captiongreentunnel":
+				ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
+				break;
+			case "Captionbluetunnel":
+				ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
+				break;
+			case "CaptionpickDrop":
+				ctx.drawImage(imgCaptionPickDrop, 0, -11);
+				break;
+			case "Captionslingshot":
+				ctx.drawImage(imgCaptionSlingshot, 0, -11);
+				break;
+			case "Captionsubtract":
+				ctx.drawImage(imgCaptionSubtract, 0, -11);
+				break;
+			case "Captionsupply":
+				ctx.drawImage(imgCaptionSupply, 0, -11);
+				break;
+			case "Track90":
+				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "Track45":
+				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackStraight":
+				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
+				ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Alternate-L":
+				ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Alternate-R":
+				ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Lazy-L":
+				ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Lazy-R":
+				ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Less-L":
+				ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Less-R":
+				ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Greater-L":
+				ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Greater-R":
+				ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Sprung-L":
+				ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Sprung-R":
+				ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Prompt-L":
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeRight-Prompt-R":
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Alternate-L":
+				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Alternate-R":
+				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Lazy-L":
+				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Lazy-R":
+				ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Less-L":
+				ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Less-R":
+				ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Greater-L":
+				ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Greater-R":
+				ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Prompt-L":
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Prompt-R":
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Sprung-L":
+				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWyeLeft-Sprung-R":
+				ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Alternate-L":
+				ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Alternate-R":
+				ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Less-L":
+				ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Less-R":
+				ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Lazy-L":
+				ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Lazy-R":
+				ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Greater-L":
+				console.log("GREATER-L");
+				ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Greater-R":
+				console.log ("GREATER-R");
+				ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Sprung-L":
+				ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Sprung-R":
+				ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Prompt-L":
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackWye-Prompt-R":
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackCross":
+				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
+				ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "TrackBlank":
+				break;
+			case "TrackCargo":
+				var oriRot = ori%2;
+				ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "increment":
+				ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "decrement":
+				ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "add":
+				ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "subtract":
+				ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "multiply":
+				ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "divide":
+				ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "catapult":
+				ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "slingshot":
+				ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "supply":
+				ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "pickDrop":
+				ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "dump":
+				ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "home":
+				ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "redtunnel":
+				ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "greentunnel":
+				ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "bluetunnel":
+				ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "speedController":
+			 	//draw engine speed controller
+			 	ctx.save();
+			 	ctx.translate((captionX+1)*tileWidth, (captionY+1.6)*tileWidth*tileRatio); //move origin to center of dial
+			 	ctx.beginPath();
+			 	ctx.lineWidth = 15;
+			 	ctx.strokeStyle = "red";
+			 	ctx.arc (0,0, 0.7*tileWidth, 0, Math.PI, true);
+				var linearGradient = ctx.createLinearGradient(-tileWidth, 0, tileWidth, 0);
+				linearGradient.addColorStop(0, "red");
+				linearGradient.addColorStop(0.5, "black");
+				linearGradient.addColorStop(1, "green");
+				ctx.strokeStyle = linearGradient;
+			 	ctx.stroke(); //speed indicator strip
+			 	ctx.lineWidth = 1;
+			 	ctx.fillStyle = "silver";
+			 	ctx.beginPath();
+			 	ctx.arc (0,0, 0.12*tileWidth, 0, 2*Math.PI, true);
+			 	ctx.fill(); //small circle at base of dial
+			 	
+			 	//make tick marks
+			 	var r=0.7; //short radius
+			 	for (var theta=0; theta<= Math.PI; theta+=Math.PI/nNumSpeeds) {
+			 		ctx.beginPath();
+			 		ctx.moveTo(Math.cos(theta)*r*tileWidth, -Math.sin(theta)*r*tileWidth);
+			 		ctx.lineTo(Math.cos(theta)*0.9*tileWidth, -Math.sin(theta)*0.9*tileWidth);
+			 		ctx.stroke();
+			 		if (r==0.7) r=0.85;
+			 		else r=0.7;
+			 	}
+			 	ctx.beginPath();
+			 	ctx.lineWidth= 7;
+			 	ctx.strokeStyle = "silver";
+			 	ctx.moveTo(0,0);
+			 	var angle = (1-currentCaptionedObject.speed/maxEngineSpeed)/2*Math.PI;
+			 	ctx.lineTo (0.7*tileWidth*Math.cos(angle), -0.7*tileWidth*Math.sin(angle));
+			 	ctx.stroke();
+			 	ctx.beginPath();
+			 	ctx.lineWidth =1
+			 	ctx.moveTo (0.85*tileWidth*Math.cos(angle), -0.85*tileWidth*Math.sin(angle));
+			 	ctx.lineTo (0.65*tileWidth*Math.cos(angle+0.25), -0.65*tileWidth*Math.sin(angle+0.25));
+			 	ctx.lineTo (0.65*tileWidth*Math.cos(angle-0.25), -0.65*tileWidth*Math.sin(angle-0.25));
+			 	ctx.fill();
+			 	
+			 	ctx.restore();
+			 	break;
+			default:
+				ctx.beginPath();
+			    ctx.fillStyle    = tieColor;
+			    ctx.font         = 'Bold ' + 0.25*tileWidth + 'px Sans-Serif';
+			    ctx.textBaseline = 'Top';
+			    ctx.textAlign    = 'Center';
+				ctx.fillText  (name, 0.04*tileWidth, 0.225*tileWidth);
+				break;
+				console.log("ERROR-unhandled case for drawSprite name="+name);
+		}
+		ctx.rotate(ori * Math.PI/4);
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
@@ -1952,41 +1835,15 @@ $(document).ready(function(){
 		}
 
 		if (ec.type == "EngineBasic") {
-			if (useSprites) {
-				ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
-				var frame = (ec.orientation/8*imgEngine.length  + Math.round(rotation/(2*Math.PI/imgEngine.length)) +imgEngine.length)%imgEngine.length;
-				ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2);
-				//console.log("Draw engine frame="+frame);
-			} else {
-				//draw triangle
-				ctx.rotate(rotation);
-				ctx.fillStyle = engineColor;
-				ctx.lineWidth = 1;
-				ctx.beginPath();
-				ctx.moveTo(0.25*tileWidth - 0.5*tileWidth, 0.9*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.75*tileWidth - 0.5*tileWidth, 0.9*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.5*tileWidth - 0.5*tileWidth, 0.1*tileWidth - 0.5*tileWidth);
-				ctx.fill();
-			}
+			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
+			var frame = (ec.orientation/8*imgEngine.length  + Math.round(rotation/(2*Math.PI/imgEngine.length)) +imgEngine.length)%imgEngine.length;
+			ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2);
+			//console.log("Draw engine frame="+frame);
 					
 		} else	if (ec.type == "CarBasic") {
-			if (useSprites) {
-				ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
-				var frame = (ec.orientation/8*imgCar.length*2  + Math.round(rotation/(2*Math.PI/imgCar.length/2)) +imgCar.length)%imgCar.length;
-				ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2);
-			} else {
-				//draw rectangle
-				ctx.rotate(rotation);
-				ctx.fillStyle = carColor;
-				ctx.lineWidth = 1;
-				ctx.beginPath();
-				ctx.moveTo(0.75*tileWidth - 0.5*tileWidth, 0.9*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.75*tileWidth - 0.5*tileWidth, 0.2*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.5*tileWidth - 0.5*tileWidth, 0.1*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.25*tileWidth - 0.5*tileWidth, 0.2*tileWidth - 0.5*tileWidth);
-				ctx.lineTo(0.25*tileWidth - 0.5*tileWidth, 0.9*tileWidth - 0.5*tileWidth);
-				ctx.fill();
-			}
+			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
+			var frame = (ec.orientation/8*imgCar.length*2  + Math.round(rotation/(2*Math.PI/imgCar.length/2)) +imgCar.length)%imgCar.length;
+			ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2);
 		} else {
 			console.log ("EC is not an instance of anything");
 		}
@@ -2010,64 +1867,41 @@ $(document).ready(function(){
 		if (obj == undefined || obj.cargo == undefined) return;
 		
 		//draws relative to current tile so after ctx has been translated and rotated to draw ec or tile
-		//ctx.rotate(-Math.PI/2);
+		var imgCargo = imgCargoNumbers;
+		switch (obj.cargo.type[0]) {
+			case "numbers":
+				imgCargo = imgCargoNumbers;
+				break;
+			case "uppercase":
+				imgCargo = imgCargoUppercase;
+				break;
+			case "lowercase":
+				imgCargo = imgCargoLowercase;
+				break;
+			case "colors":
+				imgCargo = imgCargoColors;
+				break;
+			case "safariAnimals":
+				imgCargo = imgCargoSafariAnimals;
+				break;
+			case "dinosaurs":
+				imgCargo = imgCargoDinosaurs;
+				break;
+			case "stuffedAnimals":
+				imgCargo = imgCargoStuffedAnimals;
+				break;
+		}
 		
-		if (useSprites) {
-			//ctx.rotate(-obj.orientation * Math.PI/4); //rotate context back to normal
-			var imgCargo = imgCargoNumbers;
-			switch (obj.cargo.type[0]) {
-				case "numbers":
-					imgCargo = imgCargoNumbers;
-					break;
-				case "uppercase":
-					imgCargo = imgCargoUppercase;
-					break;
-				case "lowercase":
-					imgCargo = imgCargoLowercase;
-					break;
-				case "colors":
-					imgCargo = imgCargoColors;
-					break;
-				case "safariAnimals":
-					imgCargo = imgCargoSafariAnimals;
-					break;
-				case "dinosaurs":
-					imgCargo = imgCargoDinosaurs;
-					break;
-				case "stuffedAnimals":
-					imgCargo = imgCargoStuffedAnimals;
-					break;
-			}
-			
-			var value = obj.cargo.value;
-			var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
-			if (obj.cargo.type[0] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
-			if (obj.type == "TrackCargo" || obj.type == "TrackBlank") frame = 16;
-			//console.log("type="+obj.cargo.type[0]+" value="+obj.cargo.value);
-			try {
-				ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
-			} catch (err) {
-				console.log("ERROR image not loaded. type="+obj.cargo.type[0]+" value="+value+" frame="+frame);
-			}
-		} else {
-		    ctx.fillStyle    = cargoColor;
-		    ctx.font         = 'bold ' + 0.35*tileWidth + 'px Sans-Serif';
-		    ctx.textBaseline = 'middle';
-		    ctx.textAlign	 = 'center';
-			switch (obj.cargo.type[0]) {
-				case "numbers":
-				case "uppercase":
-				case "lowercase":
-					ctx.fillText  (obj.cargo.type[obj.cargo.value+1], 0,0.1*tileWidth);
-					break;
-				case "colors":
-				case "safariAnimals":
-				case "dinosaurs":
-				    ctx.font = 'bold ' + 0.15*tileWidth + 'px Sans-Serif';
-					ctx.fillText  (obj.cargo.type[obj.cargo.value+1], 0,0);
-					break;
-			}
-		}		
+		var value = obj.cargo.value;
+		var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
+		if (obj.cargo.type[0] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
+		if (obj.type == "TrackCargo" || obj.type == "TrackBlank") frame = 16;
+		//console.log("type="+obj.cargo.type[0]+" value="+obj.cargo.value);
+		try {
+			ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
+		} catch (err) {
+			console.log("ERROR image not loaded. type="+obj.cargo.type[0]+" value="+value+" frame="+frame);
+		}
 	}
 	
 ///////////////////////////////////////	
@@ -2243,7 +2077,6 @@ $(document).ready(function(){
 		    		
 		    	}
 		    } else { // in toolBar
-		    	console.log("Clicked in toolbar");
 		    	//deselect track area captions
 		    	currentCaptionedObject = undefined;
 		    	secondaryCaption = undefined;
