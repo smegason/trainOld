@@ -2,18 +2,7 @@ To Do:
 -browse: add launch, and up down votes, and voting	
 
 Game plan for development
--change how track direction chosen
--change cursor to active icon
 -add yes/no data type
--potential data types
---yes/no: emoji, traffic light
---ponies
---match box cars
---stuffed animals (beanie babies)
---dinosaurs
---safari animals
---lego minifigures
---robots
 
 
 
@@ -24,7 +13,6 @@ Bug-
 New features:
 High prioirty-
 -pagiate browse.php
--change how tracks are drawn-octagon vs square tracks
 -should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
 -add stop, reverse, decouple stations
 -make all stations only work for matching type. 
@@ -64,4 +52,14 @@ db tables: users, trx files, user types, courses
 -needs to convince parents that it is teaching programing or math or spelling/reading
 -needs to fun at wide range of levels and amount of time invested
 
+
+-potential data types
+--yes/no: emoji, traffic light
+--ponies
+--match box cars
+--stuffed animals (beanie babies)
+--dinosaurs
+--safari animals
+--lego minifigures
+--robots
 
