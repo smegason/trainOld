@@ -206,7 +206,7 @@ $(document).ready(function(){
     var tileRatio = 57/63; //aspect ratio of tiles
 	var tileWidth=60;
 	calculateLayout();
-    var globalAlpha = 1;
+//    var globalAlpha = 1;
 	var insetWidth = 0.35*tileWidth;
 	//var numTilesX = Math.floor(tracksWidth/tileWidth);
 	//var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
@@ -218,6 +218,7 @@ $(document).ready(function(){
 	var cars = [];
 	var trains = []
 	
+	var useOctagons = false; //use square or octagon shaped tiles for drawing
 	var interval = 0;	
 	var skip = 10; // only interpret and draw every skip steps so as to allow acceleration of train
 	var nIterations = 0;
@@ -1022,12 +1023,11 @@ $(document).ready(function(){
 		}
 	}
 */
-	console.log ("Done loading images");
 	
 	//colors
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
-	var gridColor = "rgba(122,106,49,0.2)";
+	var gridColor = "rgba(122,106,49,0.4)";
 //	var gridColor = "rgba(220,255,220,0.4)";
 	var tieColor = "#2A1506";
 	var railColor = "Gray";
@@ -1071,7 +1071,6 @@ $(document).ready(function(){
 	sounds["home"] = new Audio("sound/tada.wav");
 	sounds["tunnel"] = new Audio("sound/Tunnel.wav");
 	
-	console.log("Load trx");
 	var nCurrentTrx =1;
 	var trx = [];
 	var trxName = [];
@@ -1080,10 +1079,6 @@ $(document).ready(function(){
 	//set trx{1] to passedTrx if defined
 	trx[1] = '[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,{"gridx":6,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":0,"state":"left","subtype":"supply"},{"gridx":6,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":6,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":"increment"},{"gridx":7,"gridy":4,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},null,{"gridx":7,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":4,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":8,"gridy":2,"type":"TrackWyeRight","orientation":2,"state":"left","subtype":"compareGreater"},{"gridx":8,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,{"gridx":8,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":9,"gridy":6,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null],[null,null,{"gridx":10,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":6,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":6,"gridy":5,"type":"EngineBasic","orientation":0,"state":"","speed":20,"position":0.5}],[{"gridx":6,"gridy":6,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5}]]';
 	if (passedTrx) trx[1] = passedTrx;
-	
-	if (passedTrackID) {
-		
-	}
 	
 	//Hello World
 	trx[2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":1,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":1,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"slingshot"},{"gridx":1,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":"slingshot"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":3,"gridy":4,"type":"EngineBasic","orientation":6,"state":"","speed":20,"position":0.5},{"gridx":5,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":1,"gridy":2,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":2,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":3,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":4,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":4,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":7,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":4,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":3,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":5,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":6,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":17,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":7,"gridy":3,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":22,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":7,"gridy":4,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":14,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}}]]';
@@ -1249,9 +1244,7 @@ $(document).ready(function(){
     trx[78]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,{"gridx":1,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":3,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":4,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null],[null,null,{"gridx":4,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":"increment"},{"gridx":4,"gridy":4,"type":"TrackWyeLeft","orientation":2,"state":"right","subtype":"prompt"},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":5,"gridy":2,"type":"Track90","orientation":4,"state":"left","subtype":""},null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["stuffedAnimals","bunny"]}},{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":6,"state":"left","subtype":"supply"},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackWyeLeft","orientation":0,"state":"right","subtype":"sprung"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"catapult"},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,{"gridx":11,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":12,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":12,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop"},{"gridx":12,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":13,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":13,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null]],[{"gridx":2,"gridy":4,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":4,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":1,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
     
     openTrxJSON(trx[nCurrentTrx]);
-	console.log("Done loading trx");
 	buildTrains();
-	console.log("Done building trains");
 //	currentCaptionedObject = undefined;
 	new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0);
 
@@ -1270,10 +1263,9 @@ $(document).ready(function(){
 	new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload", 2);
 	
 	getButton("Track").down = true;
-	console.log ("Done making buttons");
 	//download trx for a trackID passed through URL
 	if (passedTrackID) downloadTrackID(passedTrackID);
-	console.log("Done download tracks");
+	console.log("Ready!!");
 	////// extend builtin methods
     ctx.dashedLine = function(x, y, x2, y2, da) {
         if (!da) da = [10,5];
@@ -3413,16 +3405,20 @@ $(document).ready(function(){
 		ctx.save();
 		ctx.translate((gridx+0.5)*tileWidth, (gridy+0.5)*tileWidth*tileRatio);
 		ctx.beginPath();
-		ctx.moveTo( Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio);
 		ctx.lineWidth = 1;
-		ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, -0.5*tileWidth*tileRatio); //  -
-		ctx.lineTo(tileWidth - 0.5*tileWidth, 										 	Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   \
-		ctx.lineTo(tileWidth - 0.5*tileWidth,											Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   |
-		ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0.5*tileWidth*tileRatio); //   /
-		ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				0.5*tileWidth*tileRatio); //  -
-		ctx.lineTo(0 - 0.5*tileWidth, 									 			  	Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // \
-		ctx.lineTo(0 - 0.5*tileWidth,													Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // |
-		ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio); // /
+		if (useOctagons) { //draw octagon boundary
+			ctx.moveTo( Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio);
+			ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, -0.5*tileWidth*tileRatio); //  -
+			ctx.lineTo(tileWidth - 0.5*tileWidth, 										 	Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   \
+			ctx.lineTo(tileWidth - 0.5*tileWidth,											Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   |
+			ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0.5*tileWidth*tileRatio); //   /
+			ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				0.5*tileWidth*tileRatio); //  -
+			ctx.lineTo(0 - 0.5*tileWidth, 									 			  	Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // \
+			ctx.lineTo(0 - 0.5*tileWidth,													Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // |
+			ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio); // /
+		} else { //draw square boundary
+			ctx.rect(-0.5*tileWidth, -0.5*tileWidth*tileRatio, tileWidth, tileWidth*tileRatio)
+		}
 		ctx.stroke();
 		ctx.restore();
 	}
@@ -4504,38 +4500,56 @@ $(document).ready(function(){
 		var yFraction = ((y/tileRatio)%(tileWidth*tileRatio))/(tileWidth*tileRatio) * (2+2*Math.SQRT2);
 		var tileOrientation;
 
-		//if in the box (the space between octagons) then return
-		if (xFraction + yFraction < Math.SQRT2) return;
-		if ((2+2*Math.SQRT2)-xFraction + yFraction < Math.SQRT2) return;
-		if (xFraction + (2+2*Math.SQRT2)-yFraction < Math.SQRT2) return;
-		if ((2+2*Math.SQRT2)-xFraction + (2+2*Math.SQRT2)-yFraction < Math.SQRT2) return;
-
-		//figure out orientation
-		if (xFraction < Math.SQRT2) {
-			if (yFraction < Math.SQRT2) {
-				tileOrientation = 7;
-			} else if (yFraction < Math.SQRT2+2) {
-				tileOrientation = 6;
+		if (useOctagons) {
+			//if in the box (the space between octagons) then return
+			if (xFraction + yFraction < Math.SQRT2) return;
+			if ((2+2*Math.SQRT2)-xFraction + yFraction < Math.SQRT2) return;
+			if (xFraction + (2+2*Math.SQRT2)-yFraction < Math.SQRT2) return;
+			if ((2+2*Math.SQRT2)-xFraction + (2+2*Math.SQRT2)-yFraction < Math.SQRT2) return;
+	
+			//figure out orientation
+			if (xFraction < Math.SQRT2) {
+				if (yFraction < Math.SQRT2) {
+					tileOrientation = 7;
+				} else if (yFraction < Math.SQRT2+2) {
+					tileOrientation = 6;
+				} else {
+					tileOrientation = 5;
+				}
+			} else if (xFraction < Math.SQRT2+2) {
+				if (yFraction < Math.SQRT2) {
+					tileOrientation = 0;
+				} else if (yFraction < Math.SQRT2+2) {
+					tileOrientation = 8;
+				} else {
+					tileOrientation = 4;
+				}
 			} else {
-				tileOrientation = 5;
-			}
-		} else if (xFraction < Math.SQRT2+2) {
-			if (yFraction < Math.SQRT2) {
-				tileOrientation = 0;
-			} else if (yFraction < Math.SQRT2+2) {
-				tileOrientation = 8;
+				if (yFraction < Math.SQRT2) {
+					tileOrientation = 1;
+				} else if (yFraction < Math.SQRT2+2) {
+					tileOrientation = 2;
+				} else {
+					tileOrientation = 3;
+				}
+			} 
+		} else { //use squares
+			//divide square with an X to make 4 triangle shaped quadrants
+			if (xFraction > yFraction) {
+				if (xFraction > (2+2*Math.SQRT2)-yFraction) {
+					tileOrientation = 2;
+				} else {
+					tileOrientation = 0;
+				}
 			} else {
-				tileOrientation = 4;
+				if (xFraction > (2+2*Math.SQRT2)-yFraction) {
+					tileOrientation = 4;
+				} else {
+					tileOrientation = 6;
+				}
 			}
-		} else {
-			if (yFraction < Math.SQRT2) {
-				tileOrientation = 1;
-			} else if (yFraction < Math.SQRT2+2) {
-				tileOrientation = 2;
-			} else {
-				tileOrientation = 3;
-			}
-		} 
+		}
+//		console.log ("ori="+tileOrientation);
 		
 		//if new tile position, then make tile for last position based on quadrant entered and exited
 		if (currentXTile == undefined) {

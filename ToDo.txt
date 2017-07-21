@@ -5,7 +5,6 @@ Game plan for development
 -change how track direction chosen
 -change cursor to active icon
 -add yes/no data type
--remove nonsprite code
 -potential data types
 --yes/no: emoji, traffic light
 --ponies
@@ -25,7 +24,7 @@ Bug-
 New features:
 High prioirty-
 -pagiate browse.php
--change how tracks are drawn
+-change how tracks are drawn-octagon vs square tracks
 -should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
 -add stop, reverse, decouple stations
 -make all stations only work for matching type. 
