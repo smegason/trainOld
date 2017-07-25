@@ -1,5 +1,7 @@
 To Do:
 -browse: add launch, and up down votes, and voting	
+-track sets game play. Badges or levels. Track sets should be hard code (not db). Just use trx[] to store trx, and serialize which ones user has completed.
+ Need music/animation when bunney is rescued
 
 Game plan for development
 -add yes/no data type
@@ -14,9 +16,9 @@ New features:
 High prioirty-
 -pagiate browse.php
 -should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
+
 -add stop, reverse, decouple stations
 -make all stations only work for matching type. 
--add immutable property to tracks, ecs, and cargo so can distinguish level base trx from user drawn, render in different color or different color octagon underneath
 -add user types, and show/hide functionality based on user types- trainee=no toolbar locked on draw tracks, etc.
 -add pan and zoom using multifinger gester
 -need to script rendering
@@ -29,7 +31,7 @@ Low priority-
 -optimize draw(). It currently redraws everything rather than just what has changed
 
 -SERVER
--server- keep track of progress of user (trainee, conductor, engineer, etc.)
+-server- keep track of progress of user (hobo, trainee, caboose captain, conductor, engineer)
 db tables: users, trx files, user types, courses
 
 -APPS
