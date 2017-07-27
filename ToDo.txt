@@ -1,7 +1,11 @@
 To Do:
--browse: add launch, and up down votes, and voting	
--track sets game play. Badges or levels. Track sets should be hard code (not db). Just use trx[] to store trx, and serialize which ones user has completed.
- Need music/animation when bunney is rescued
+-browse: add launch from thumbnail, and up down votes, and voting for online version	
+-track sets game play-
+--toggle lock icon based on completed
+--only allow play for one ahead of completed
+--Need music/animation when bunney is rescued or fail slpash when fail, replay
+--finalize trx for each level
+--serialize which trx completed
 
 Game plan for development
 -add yes/no data type

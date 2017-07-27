@@ -31,6 +31,7 @@ $(document).ready(function(){
         Licenses for art:
         Bear- made by Oriole from http://www.blendswap.com/blends/view/76070 is CC-BY
 	 */
+	var debugMode = true; 
 	
 	console.debug("readyXXXXX");
 	console.log("READY");
@@ -207,7 +208,8 @@ $(document).ready(function(){
 	var numTilesY = 4; //recalcultated in calculateLayout()
 	var buttonWidth = 76;
 	var buttonPadding = 10;
-	var toolBarWidth = buttonWidth+2*buttonPadding; //width of toolbar in pixels
+	var toolBarWidthLevels = buttonWidth+2*buttonPadding; //width of toolbar in pixels
+	var toolBarWidthFreeplay = 2*buttonWidth+3*buttonPadding; //width of toolbar in pixels
 	var toolBarHeight; //height of toolbar in pixels
 	var tracksWidth; //width of the tracks area in pixels
 	var tracksHeight; //height of the tracks area in pixels
@@ -270,10 +272,15 @@ $(document).ready(function(){
 	var currentUsername = "X"; // username for uploading tracks to database
 		
 	var trainerLevelNames = ['Hobo', 'Trainee', 'Caboose captain', 'Breakman', 'Switchman', 'Conductor', 'Engineer', 'Yard Master', 'Train Master'];
-	var trainerLevelLocked = [];
+	var trainerLevelLocked = []; //show lock icon on levels page for each trainer level
+	var unlockedTrx = []; // e.g. unlockedTrx['Trainee-1'] = true if unlocked, in not unlocked then undefined or false
 	for (i=0; i<trainerLevelNames.length; i++) {
-		trainerLevelLocked[trainerLevelNames[i]] = false;	
+		trainerLevelLocked[trainerLevelNames[i]] = true;	
+		text= trainerLevelNames[i] + "-1"; //unlocked first trx of each level so place to start
+		unlockedTrx[text] = true;
 	}
+	trainerLevelLocked['Trainee'] = false; //unlock first level so somewhere to start
+	
 	var currentTrackSet; // text name of current track set. Must be one of above trainerLevelNames
 	
 	//cargo
@@ -303,6 +310,10 @@ $(document).ready(function(){
 
 	var imgLockedIcon = new Image(); imgLockedIcon.src = 'img/lockedIcon.png';
 	var imgUnlockedIcon = new Image(); imgUnlockedIcon.src = 'img/unlockedIcon.png';
+	var imgLoadIcon = new Image(); imgLoadIcon.src = 'img/loadicon.png';
+	var imgSaveIcon = new Image(); imgSaveIcon.src = 'img/saveicon.png';
+	var imgDownloadIcon = new Image(); imgDownloadIcon.src = 'img/downloadicon.png';
+	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
     var imgTitleScreen = new Image();
     imgTitleScreen.onload = function() { console.log("Height: " + this.height); }
     imgTitleScreen.src = 'img/titlePage.png';
@@ -316,7 +327,9 @@ $(document).ready(function(){
 //  	imgTerrain.src = 'img/grass2.jpg';
 //  	imgTerrain.src = 'img/cracked.png';
 //  	imgTerrain.src = 'img/dirt.jpg';
-	
+
+	var imgButtonHome = new Image(); imgButtonHome.src = 'img/homeicon.png';
+		
 	//load images for buttons in captions for choosing station type
 	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
 	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/renders/CaptionButtons/add.png';
@@ -1075,7 +1088,8 @@ $(document).ready(function(){
 	saveButtonColors[7] = "brown";
 	saveButtonColors[8] = "black";
 	
-	var toolButtons = [];
+	var toolButtonsLevels = [];
+	var toolButtonsFreeplay = [];
 
 	//Sounds
 	var sounds = [];
@@ -1115,9 +1129,7 @@ $(document).ready(function(){
 	trxLevels['Trainee'][7]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":2,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":2,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":4,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":4,"gridy":1,"type":"TrackCross","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":5,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":5,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":7,"gridy":0,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":8,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":8,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":8,"gridy":2,"type":"Track90","orientation":2,"state":"left","subtype":""},{"gridx":8,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":8,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},{"gridx":9,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":10,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":10,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":11,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":11,"gridy":1,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[{"gridx":12,"gridy":0,"type":"TrackWyeLeft","orientation":6,"state":"left","subtype":"sprung"},{"gridx":12,"gridy":1,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[{"gridx":13,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":1,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
 	//large gaps free draw
 	trxLevels['Trainee'][8]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":3,"gridy":5,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop"},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,{"gridx":13,"gridy":6,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":7,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
-	
-	
-	
+		
 	var nCurrentTrx =1;
 	var trx = [];
 	var trxName = [];
@@ -1292,28 +1304,40 @@ $(document).ready(function(){
 	buildTrains();
 	for (var i=0; i< numTilesX; i+=2) {
 	    for (var j=0; j<numTilesY; j+=2) {
-	    	if (tracks[i][j]) tracks[i][j].immutable = true;  // TODO make color change for immutable tracks. Test immutable proprty for EC and make color change for them 
+//	    	if (tracks[i][j]) tracks[i][j].immutable = true;  // TODO make color change for immutable tracks. Test immutable proprty for EC and make color change for them 
 		}
 	}
 
 //	currentCaptionedObject = undefined;
-	new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0);
 
-	new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1);
-	new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1);
-	new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1);
-	new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1);
-	new ToolButton(buttonPadding, 14+2*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1);
-//	new ToolButton(padding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1);
+	// make Toolbar for Levels
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
 
-//	new ToolButton(padding, 4*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear");
-//	new ToolButton(padding, 4*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save");
-//	new ToolButton(padding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open");
-//	new ToolButton(padding, 4*buttonPadding+8*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload");
-	new ToolButton(buttonPadding, 20+3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download", 2);
-	new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload", 2);
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
+
+	toolButtonsLevels.push(new ToolButton(buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home", 2));
 	
-	getButton("Track").down = true;
+	// make Toolbar for Freeplay
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
+
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
+
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear"));
+	if (debugMode) toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Write"));
+	
 	//download trx for a trackID passed through URL
 	if (passedTrackID) downloadTrackID(passedTrackID);
 	console.log("Ready!!");
@@ -1398,16 +1422,26 @@ $(document).ready(function(){
 		for (x=0; x<2; x++) {
 			for (y=0; y<maxY; y++) {
 				//console.log ("x="+x+" y="+y);
-				var text;
+				var text, unlocked;
 				index = x*maxY + y +1;
-				if (interactionState == 'Levels') text = trainerLevelNames[x*maxY+y+1];
-				else text = "track "+ index;
-				drawTextButton((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight, text, trainerLevelLocked[text], !trainerLevelLocked[text], buttonColor, buttonBorderColor);
+				if (interactionState == 'Levels') {
+					text = trainerLevelNames[x*maxY+y+1];
+					unlocked = !trainerLevelLocked[text];
+				} else {
+					text = currentTrackSet + "-" + index;
+					unlocked = unlockedTrx[text];
+					text = "track "+index;
+				}
+				//console.log("text="+text+" unlcoked="+unlocked);
+				drawTextButton((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight, text, !unlocked, unlocked, buttonColor, buttonBorderColor);
 				buttonDimLevels[text] = new box((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight);
 			}
 		}
 		
 		drawTextButton(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight, "Back", false, false, "lightGray", "gray");
+		text= interactionState + "-back";
+		buttonDimLevels[text] = new box(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight,);
+		console.log ("Back text="+text);
 		
 	}
 		
@@ -1550,8 +1584,10 @@ $(document).ready(function(){
 	
 	function drawTrackInset() {
 		ctx.lineWidth = 1;
-		roundRect (ctx, 0,0, insetWidth, insetWidth, insetWidth/8, insetFillColor, insetStrokeColor);	
-//		roundRect (ctx, 0.1*tileWidth, -0.125*tileWidth, 0.35*tileWidth, 0.35*tileWidth, 0.05*tileWidth, insetFillColor, insetStrokeColor);	
+		ctx.fillStyle = insetFillColor;
+		ctx.strokeStyle = insetStrokeColor;
+
+		roundRect (0,0, insetWidth, insetWidth, insetWidth/8, true, true);	
 		
 	}		    
 
@@ -2078,12 +2114,14 @@ $(document).ready(function(){
 	
 ///////////////////////////////////////	
 	function getButton(name) { //returns button in toolbar with text name
+		var toolButtons = getCurrentToolButtons();
+	    
 	    for (var i=0; i<toolButtons.length; i++) {
 	  	    if (toolButtons[i].name == name) {
 	  		    return toolButtons[i];
 	  	    } 
 	    }
-	    
+	 	
 	    console.log ("Button not found");
 	    return undefined;
 	}
@@ -2106,13 +2144,12 @@ $(document).ready(function(){
 //        console.log("onClickDown");
 		if (interactionState == 'TitleScreen') {
 			if (buttonDims['Levels'].inside(mouseX, mouseY)) {
-				console.log ("Clicked button Levels");
 				interactionState = 'Levels';
 				draw();
 			}	
 			if (buttonDims['Freeplay'].inside(mouseX, mouseY)) {
-				console.log ("Clicked button Freeplay");
 				interactionState = 'Freeplay';
+				calculateLayout();
 				draw();
 			}	
 			if (buttonDims['About'].inside(mouseX, mouseY)) {
@@ -2135,27 +2172,34 @@ $(document).ready(function(){
 			for (i=1; i<trainerLevelNames.length; i++) {
 				index = trainerLevelNames[i];
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
-					console.log("Clicked button "+index);
 					currentTrackSet = index;
 					interactionState = 'Choose track';
 					draw();
 				}
 			}
+			if(buttonDimLevels['Levels-back'].inside(mouseX, mouseY)) {
+				interactionState = 'TitleScreen';
+				draw();
+			}
 		} else if (interactionState == 'Choose track') {
-			console.log("CHOOSE track click");
 			// loop through button positions to see if clicked in button
 			for (i=1; i<9; i++) {
 				index = "track "+ i;
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
-					console.log("Clicked button "+index);
 					currentTrackNumber = i;
 					interactionState = 'Try level';
+					calculateLayout();
 					openTrxJSON(trxLevels[currentTrackSet][i]);
 					buildTrains();
 					draw();
+					pushPlayButton();
 				}
 			}
-        } else if (showToolBar) { //if toolbar hidden then toggle play trains for any click
+			if(buttonDimLevels['Levels-back'].inside(mouseX, mouseY)) {
+				interactionState = 'Levels';
+				draw();
+			}
+        } else if (showToolBar) { 
         	mouseX = mouseX / zoomScale;
         	mouseY = mouseY / zoomScale;
 		    var mouseYWorld = mouseY*tileRatio; //world coordinates
@@ -2243,7 +2287,7 @@ $(document).ready(function(){
 		    	}
 		    	
 		    	//check if erase button down
-		    	if (getButton("Eraser").down) {
+		    	if (getButton("Eraser")) if (getButton("Eraser").down) {
 		    		isErasing = true;
 		    		var gridx = Math.floor(mouseX/tileWidth);
 		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
@@ -2308,12 +2352,14 @@ $(document).ready(function(){
 		    	mouseY = mouseY*zoomScale;
 			    //check if buttons clicked
 			    var pushedButton;
+				var toolButtons = getCurrentToolButtons();
+
 			    for (var i=0; i<toolButtons.length && pushedButton == undefined; i++) {
 			  	    if (mouseX > toolButtons[i].x+tracksWidth && mouseY > toolButtons[i].y && mouseX < toolButtons[i].x+toolButtons[i].width+tracksWidth && mouseY < toolButtons[i].y + toolButtons[i].height) {
 			  		    pushedButton = i;
 			  	    } 
 			    }
-			  	
+												  	
 			  	if (pushedButton == undefined) return;
 			  	
 			  	switch (toolButtons[pushedButton].name) {
@@ -2358,6 +2404,14 @@ $(document).ready(function(){
 			  			trains.length = 0;
 			  			draw();
 			  			break;
+			  		case "Home":
+			  			getButton("Play").down = false;
+						clearInterval(interval);
+			  			interactionState = 'TitleScreen';
+			  			draw();
+			  			break;
+			  		case "Write":
+			  			writeTrx();
 			  	}
 	
 				//toggle up/down if button is in a group
@@ -2370,7 +2424,7 @@ $(document).ready(function(){
 					draw();
 				}
 			}
-		} else {
+		} else { //if toolbar hidden then toggle play trains for any click
         	console.log("Push play button");
         	pushPlayButton();
         }
@@ -2387,7 +2441,15 @@ $(document).ready(function(){
 			interval = setInterval(interpretAndDraw, 20);
 		}
 		getButton("Play").down = !getButton("Play").down; // toggle state
-	}		
+	}	
+	
+	function getCurrentToolButtons() {
+		var retValue;
+	    if (interactionState == 'Freeplay') retValue = toolButtonsFreeplay;
+	    else retValue = toolButtonsLevels;
+	    
+	    return retValue;
+	}	
 	
 	$('#canvas').mousemove(function(e){
     //console.log("Mousemove");
@@ -2972,12 +3034,18 @@ $(document).ready(function(){
         toolBarHeight = canvasHeight; //height of toolbar in pixels
         if (!showToolBar) {
         	toolBarHeight = 0;
-        	toolBarWidth = 0;
         }
-        tracksWidth = canvasWidth-toolBarWidth; //width of the tracks area in pixels
+        tracksWidth = canvasWidth-getToolBarWidth(); //width of the tracks area in pixels
         tracksHeight = canvasHeight; //height of the tracks area in pixels
         numTilesX = Math.floor(tracksWidth/tileWidth);
         numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
+    }
+    
+    function getToolBarWidth () {
+    	if (!showToolBar) return 0;
+    	if (interactionState == "Freeplay") return toolBarWidthFreeplay
+    	
+    	return toolBarWidthLevels;
     }
     
 	//////////////////////
@@ -3012,7 +3080,6 @@ $(document).ready(function(){
 		if (showToolBar) {
 			drawCaption();
 			drawSecondaryCaption();
-			drawButtonCaption();
 			drawSelection();
 			drawPathEC();
 			drawPathTrack();
@@ -3021,7 +3088,9 @@ $(document).ready(function(){
 
 		if (showToolBar) { //toolbar doesn't zoom
 			drawToolBar();
+			drawButtonCaption();
 		}
+		
 	}
 	
 	function interpretAndDraw() {
@@ -3545,7 +3614,7 @@ $(document).ready(function(){
 	
 	function drawCaptionBubble (capX, capY, captionWidth, captionHeight, objX, objY, isSecondary) { //capX, capY is upperleft corner of caption, objX, objY is location of where pointer goes
 		//draw caption bubble
-		//console.log("Cap bubble at capX="+capX+" capY="+capY);
+		console.log("Cap bubble at capX="+capX+" capY="+capY+" width="+captionWidth+" height="+captionHeight);
 		var angle = Math.atan2(objY-(capY+0.5*captionHeight)*tileWidth, objX-(capX+0.5*captionWidth)*tileWidth);
 		ctx.beginPath();
 		ctx.moveTo ((capX+0.5*captionWidth)*tileWidth+Math.cos(angle+Math.PI/2)*0.2*tileWidth, (capY+0.5*captionHeight)*tileWidth+Math.sin(angle+Math.PI/2)*0.2*tileWidth);
@@ -3555,11 +3624,11 @@ $(document).ready(function(){
 		if (isSecondary) {
 			ctx.fillStyle = secondaryCaptionColor;
 			ctx.fill();
-		 	roundRect(ctx, (capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, secondaryCaptionColor, false);
+		 	roundRect((capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, true, false);
 		} else { 
 			ctx.fillStyle = captionColor;
 			ctx.fill();
-		 	roundRect(ctx, (capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, captionColor, false);
+		 	roundRect((capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, true, false);
 		}
 		
 	}
@@ -3636,7 +3705,9 @@ $(document).ready(function(){
 
 	function drawToolBar () {
 		ctx.fillStyle = toolBarBackColor;
-		ctx.fillRect(tracksWidth, 0, toolBarWidth, toolBarHeight);
+		ctx.fillRect(tracksWidth, 0, getToolBarWidth(), toolBarHeight);
+		
+		var toolButtons = getCurrentToolButtons();
 		
 		for (var i=0; i<toolButtons.length; i++) {
 			toolButtons[i].draw();
@@ -4180,7 +4251,8 @@ $(document).ready(function(){
 				if (tracks[ec.gridx][ec.gridy].subtype == "prompt" && oriDif == 0 && isFirstCarInTrain(ec)) {
 					console.log("Interpret prompt");
 					ctx.lineWidth = 3;
-					roundRect(ctx, tracks[ec.gridx][ec.gridy].gridx*tileWidth, tracks[ec.gridx][ec.gridy].gridy*tileWidth, tileWidth, tileWidth,3, false, highlightColor);
+					ctx.strokeStyle = highlightColor;
+					roundRect(tracks[ec.gridx][ec.gridy].gridx*tileWidth, tracks[ec.gridx][ec.gridy].gridy*tileWidth, tileWidth, tileWidth,3, false, true);
 					var retVal = confirm("Go left ?");
 					if (retVal)	tracks[ec.gridx][ec.gridy].state = "left";
 					else tracks[ec.gridx][ec.gridy].state = "right";	
@@ -4399,7 +4471,16 @@ $(document).ready(function(){
 						}
 						//if car has cargo and station doesn't, then swap car cargo to station
 						else if (ec.cargo != undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo == undefined) {
-							playSound("pickdropReverse");
+							//check for bunny
+							if (ec.cargo.type[1] == "bunny") {
+								playSound("home");
+								console.log("Bunny delivered");
+								index = currentTrackSet + "-" + (currentTrackNumber+1);
+								console.log("trx unlocked for index=" + index);
+								unlockedTrx[index] = true;
+							} else {
+								playSound("pickdropReverse");
+							}
 							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
@@ -5001,8 +5082,8 @@ $(document).ready(function(){
 	    return a;
 	}
 	
-	function ToolButton(x, y, width, height, name, group) {
-		toolButtons.push(this);
+	function ToolButton(x, y, width, height, name, group, down) {
+//		toolButtons.push(this);
 		
 		this.x = x || 10;
 		this.y = y || 10;
@@ -5010,7 +5091,7 @@ $(document).ready(function(){
 		this.height = height || 50;
 		this.name = name || "default";
 		this.group = group; //an integer. All buttons within same group act as radios
-		this.down = false; 
+		this.down = down || false; 
 		
 		this.draw = draw;
 		
@@ -5062,35 +5143,19 @@ $(document).ready(function(){
 					break;
 				case "Track":
 					ctx.drawImage(imgTrackStraight[1], -10,-10);
-/*
-					//draw ties
-					ctx.strokeStyle = tieColor;
-					ctx.lineWidth = 3;
-					for (var i=0.35; i<=0.75; i+=0.4/3) {
-						ctx.beginPath();
-						ctx.moveTo(Math.round(1.04*width/(2+Math.SQRT2)), i*height);
-						ctx.lineTo(Math.round(1.25*width*(1+Math.SQRT2)/(2+Math.SQRT2)), i*height);
-						ctx.stroke();
-					}
-	
-					//draw rails
-					ctx.strokeStyle = railColor;
-					ctx.beginPath();
-					ctx.lineWidth = 3;
-					ctx.moveTo(Math.round(1.4*width/(2+Math.SQRT2)), 0.2*height);
-					ctx.lineTo(Math.round(1.4*width/(2+Math.SQRT2)), 0.9*height);
-					ctx.stroke();
-					ctx.moveTo(Math.round(1.1*width*(1+Math.SQRT2)/(2+Math.SQRT2)), 0.2*height);
-					ctx.lineTo(Math.round(1.1*width*(1+Math.SQRT2)/(2+Math.SQRT2)), 0.9*height);
-					ctx.stroke();
-
-					drawCrosshair(width,height);
-					*/
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
 					    ctx.strokeRect(0, 0, width, height);        
 					}
+					break;
+				case "Home":
+					ctx.drawImage(imgButtonHome, 6, 5);
+					break;
+				case "Write":
+					ctx.fillStyle = fontColor;
+					ctx.font = "20px Arial";
+					ctx.fillText("Write",11,45);
 					break;
 				case "Cargo":
 					ctx.drawImage(imgCargoUppercase[0][14], -8,3);
@@ -5228,92 +5293,16 @@ $(document).ready(function(){
 					ctx.stroke();
 					break;
 				case "Save":
-					ctx.beginPath();
-					ctx.strokeStyle = "cornflowerblue";
-				    ctx.lineWidth = 3;
-					ctx.strokeRect(0.2*width, 0.2*height, 0.6*width, 0.6*height);
-					//ctx.stroke();
-					//arrow
-					ctx.beginPath();
-					ctx.moveTo(0.05*width,0.4*height);
-					ctx.lineTo(0.35*width,0.4*height);
-					ctx.lineTo(0.35*width,0.3*height);
-					ctx.lineTo(0.6*width,0.5*height);
-					ctx.lineTo(0.35*width,0.7*height);
-					ctx.lineTo(0.35*width,0.6*height);
-					ctx.lineTo(0.05*width,0.6*height);
-					ctx.closePath();
-					ctx.fillStyle = "goldenrod";
-					ctx.fill();
-					ctx.lineWidth = 1;
-					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.drawImage(imgSaveIcon,5,8);
 					break;
 				case "Open":
-					ctx.fillStyle = "cornflowerblue";
-					ctx.fillRect(0.2*width, 0.2*height, 0.6*width, 0.6*height);
-					//arrow
-					ctx.beginPath();
-					ctx.moveTo(0.6*width,0.4*height);
-					ctx.lineTo(0.3*width,0.4*height);
-					ctx.lineTo(0.3*width,0.3*height);
-					ctx.lineTo(0.05*width,0.5*height);
-					ctx.lineTo(0.3*width,0.7*height);
-					ctx.lineTo(0.3*width,0.6*height);
-					ctx.lineTo(0.6*width,0.6*height);
-					ctx.closePath();
-					ctx.fillStyle = "goldenrod";
-					ctx.fill();
-					ctx.lineWidth = 1;
-					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.drawImage(imgLoadIcon,5,8);
 					break;
 				case "Download":
-					ctx.translate(0.5*width, 0.5*height);
-					ctx.rotate(Math.PI/2);
-					ctx.translate(-0.5*width, -0.5*height);
-					ctx.beginPath();
-					ctx.strokeStyle = "cornflowerblue";
-				    ctx.lineWidth = 3;
-					ctx.strokeRect(0.2*width, 0.2*height, 0.6*width, 0.6*height);
-					//ctx.stroke();
-					//arrow
-					ctx.beginPath();
-					ctx.moveTo(0.05*width,0.4*height);
-					ctx.lineTo(0.35*width,0.4*height);
-					ctx.lineTo(0.35*width,0.3*height);
-					ctx.lineTo(0.6*width,0.5*height);
-					ctx.lineTo(0.35*width,0.7*height);
-					ctx.lineTo(0.35*width,0.6*height);
-					ctx.lineTo(0.05*width,0.6*height);
-					ctx.closePath();
-					ctx.fillStyle = "goldenrod";
-					ctx.fill();
-					ctx.lineWidth = 1;
-					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.drawImage(imgDownloadIcon,5,7);
 					break;
 				case "Upload":
-					ctx.translate(0.5*width, 0.5*height);
-					ctx.rotate(Math.PI/2);
-					ctx.translate(-0.5*width, -0.5*height);
-					ctx.fillStyle = "cornflowerblue";
-					ctx.fillRect(0.2*width, 0.2*height, 0.6*width, 0.6*height);
-					//arrow
-					ctx.beginPath();
-					ctx.moveTo(0.6*width,0.4*height);
-					ctx.lineTo(0.3*width,0.4*height);
-					ctx.lineTo(0.3*width,0.3*height);
-					ctx.lineTo(0.05*width,0.5*height);
-					ctx.lineTo(0.3*width,0.7*height);
-					ctx.lineTo(0.3*width,0.6*height);
-					ctx.lineTo(0.6*width,0.6*height);
-					ctx.closePath();
-					ctx.fillStyle = "goldenrod";
-					ctx.fill();
-					ctx.lineWidth = 1;
-					ctx.strokeStyle = "black";
-					ctx.stroke();
+					ctx.drawImage(imgUploadIcon,5,7);
 					break;
 	
 			}
