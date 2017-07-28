@@ -1380,7 +1380,6 @@ $(document).ready(function(){
 	}	
 
 	function drawTitleScreen() {
-		console.log("Draw title screen");
 		ctx.save();
 		xScale = canvasWidth/imgTitleScreen.width;
 		yScale = canvasHeight/imgTitleScreen.height;
@@ -2247,8 +2246,8 @@ $(document).ready(function(){
 		    	}
 		    	
 		    	//check if select button down
-		    	/*if (getButton("Select").down) {
-		    		//console.log("Select button down");
+		    	if (getButton("Select").down) {
+		    		console.log("Select button down----");
 		   			if (mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
 		   			   && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
 		   				//move current selection
@@ -2262,7 +2261,7 @@ $(document).ready(function(){
 			    		startSelectX = tileWidth*Math.round(mouseX/tileWidth);
 			    		startSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
 		    		}
-		    	} */
+		    	} 
 		    	
 		    	//check if car button down
 		    	if (getButton("Car").down) {
@@ -2347,6 +2346,8 @@ $(document).ready(function(){
 		    	//deselect track area captions
 		    	currentCaptionedObject = undefined;
 		    	secondaryCaption = undefined;
+		    	endSelectX = startSelectX;
+		    	endSelectY = startSelectY;
 		    	
 		    	mouseX = mouseX*zoomScale;
 		    	mouseY = mouseY*zoomScale;
@@ -2455,10 +2456,10 @@ $(document).ready(function(){
     //console.log("Mousemove");
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop;
-        onClickMove(mouseX,mouseY);
+        onClickMove(mouseX,mouseY, e);
 	});
         
-    function onClickMove(mouseX,mouseY) { //for mouse move or touch move events
+    function onClickMove(mouseX,mouseY, e) { //for mouse move or touch move events
         //console.log("onClickMove");
         if (!showToolBar) return; //if toolbar hidden then ignore events
         
@@ -2466,8 +2467,8 @@ $(document).ready(function(){
     	mouseY = mouseY / zoomScale;
 	    var mouseYWorld = mouseY*tileRatio; //world coordinates
 	    
-/*	    //change mouse cursor
-        if (mouseX<tracksWidth) { // in track area
+	    //change mouse cursor
+        if (e) if (mouseX<tracksWidth)  { // in track area
 	    	if (getButton("Engine").down || getButton("Track").down) {
 	   			e.target.style.cursor = 'crosshair';
 			} else if (getButton("Eraser").down) {
@@ -2483,7 +2484,7 @@ $(document).ready(function(){
 	    } else {
    			e.target.style.cursor = 'default';
 	    }
-*/
+
 	    if (mouseX < canvasWidth && mouseY < canvasHeight) {
 	    	if (isDrawingTrack) {
 	    		addPointTrack(mouseX, mouseYWorld);
@@ -2526,10 +2527,10 @@ $(document).ready(function(){
 	$('#canvas').mouseup(function(e){
 	    var mouseX = e.pageX - this.offsetLeft;
 	    var mouseY = e.pageY - this.offsetTop;
-        onClickUp(mouseX, mouseY);
+        onClickUp(mouseX, mouseY, e);
 	});
     
-    function onClickUp(mouseX, mouseY) {
+    function onClickUp(mouseX, mouseY, e) {
         //console.log ("onClickUp");
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
@@ -2746,7 +2747,7 @@ $(document).ready(function(){
     		endSelectX = tileWidth*Math.round(mouseX/tileWidth);
     		endSelectY = tileWidth*tileRatio*Math.round(mouseY/(tileWidth*tileRatio));
     		draw();
-   			if (mouseX>Math.min(startSelectX, endSelectX) 
+   			if (e) if (mouseX>Math.min(startSelectX, endSelectX) 
    			 && mouseYWorld>Math.min(startSelectY, endSelectY)
    			 && mouseX<Math.max(startSelectX, endSelectX)
    			 && mouseYWorld<Math.max(startSelectY, endSelectY))
@@ -2769,7 +2770,9 @@ $(document).ready(function(){
 		    		if (track) {
 		    			console.log("endMoveX="+endMoveX+ " stMvX="+startMoveX);
 		    			console.log("New track at "+ gridx+Math.round((endMoveX-startMoveX)/tileWidth)+", "+gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
-		    			new Track ( gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), track.type, track.orientation, track.state, track.subtype);
+		    			var newTrack = new Track ( gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), track.type, track.orientation, track.state, track.subtype);
+		    			newTrack.cargo = track.cargo;
+		    			buildTrains();
 		    		}
 		    		// delete any ECs for which new track is placed on top of
 		    		var ecOld =getEC(gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
@@ -3073,7 +3076,7 @@ $(document).ready(function(){
         
         ctx.save();
 		ctx.scale(zoomScale, zoomScale);
-		if (getButton("Track").down || getButton("Cargo").down) drawGrid();
+		if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
 		drawAllTracks();
 		drawSquares();
 		drawAllEnginesAndCars();
@@ -3219,6 +3222,8 @@ $(document).ready(function(){
 
 		if (startSelectX == endSelectX) return;
 		if (startSelectY == endSelectY) return;
+//		if (!(isSelecting || isMoving)) return;
+		
 		ctx.lineWidth = 2;
 	    ctx.strokeStyle = "red";
 	    ctx.beginPath();
