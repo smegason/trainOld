@@ -1,11 +1,8 @@
 To Do:
+-serialize unlocked tracks or recacl from high scores
 -browse: add launch from thumbnail, and up down votes, and voting for online version	
 -track sets game play-
---toggle lock icon based on completed
---only allow play for one ahead of completed
---Need music/animation when bunney is rescued or fail slpash when fail, replay
 --finalize trx for each level
---serialize which trx completed
 
 Game plan for development
 -add yes/no data type
@@ -60,7 +57,7 @@ db tables: users, trx files, user types, courses
 
 
 -potential data types
---yes/no: emoji, traffic light
+--yes/no: emoji happy/sad, traffic light
 --ponies
 --match box cars
 --stuffed animals (beanie babies)

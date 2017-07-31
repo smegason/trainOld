@@ -35,7 +35,7 @@ $(document).ready(function(){
 	
 	console.debug("readyXXXXX");
 	console.log("READY");
-	console.log("w = write tracks to console");
+//	console.log("w = write tracks to console");
 /*	console.log("l = load tracks from trx array");
 	console.log("n = new user");
 	console.log("s = sign in user");
@@ -43,8 +43,8 @@ $(document).ready(function(){
 	console.log("b = browse tracks to download");
 	console.log("left = decrement trx array");
 	console.log("right = increment trx array");
-*/	console.log("up = upload current track");
-	console.log("down = download track by trackID");
+*///	console.log("up = upload current track");
+	//console.log("down = download track by trackID");
 		
 	//console.log ("Document="+ document.URL);
 	var newUserLink = document.getElementById('newuserlink');
@@ -70,6 +70,7 @@ $(document).ready(function(){
         doTouchMove(e);
     }, false)
  
+ 	var shiftIsPressed = false;
  	window.addEventListener('keydown', function(event) {
  		//console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
@@ -95,6 +96,10 @@ $(document).ready(function(){
     	else if(event.keyCode == 87) {
         	//console.log('w pressed');
         	writeTrx();
+ 		}
+ 		else if (event.keyCode == 16) {
+ 			shiftIsPressed = true;
+ 			console.log("shift down");
  		}
 /*    	else if(event.keyCode == 76) {
         	//console.log('l pressed');
@@ -125,7 +130,10 @@ $(document).ready(function(){
 			draw();
 		}
 	});   
-          
+
+ 	window.addEventListener('keyup', function(event) {
+	    shiftIsPressed = false;
+	});          
 	// "constants"
 	var oct1 = Math.SQRT2/(2+2*Math.SQRT2);
 	var oct2 = (Math.SQRT2 + 2)/(2+2*Math.SQRT2);
@@ -168,6 +176,8 @@ $(document).ready(function(){
 	var passedTrackID;
 	var zoomScale = 1;
 	var zoomMultiplier = 1.1;	
+	var startTimePlay; //time when play pressed
+	var animationFrame = 0; //used for keeping track of frames for animation of star after successfully completing track
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -231,7 +241,6 @@ $(document).ready(function(){
 	var useOctagons = false; //use square or octagon shaped tiles for drawing
 	var interval = 0;	
 	var skip = 10; // only interpret and draw every skip steps so as to allow acceleration of train
-	var nIterations = 0;
 	var isDrawingTrack = false;
 	var isDrawingEngine = false;
 	var isDrawingCar = false;
@@ -274,6 +283,7 @@ $(document).ready(function(){
 	var trainerLevelNames = ['Hobo', 'Trainee', 'Caboose captain', 'Breakman', 'Switchman', 'Conductor', 'Engineer', 'Yard Master', 'Train Master'];
 	var trainerLevelLocked = []; //show lock icon on levels page for each trainer level
 	var unlockedTrx = []; // e.g. unlockedTrx['Trainee-1'] = true if unlocked, in not unlocked then undefined or false
+	var bestTrackTime = [];
 	for (i=0; i<trainerLevelNames.length; i++) {
 		trainerLevelLocked[trainerLevelNames[i]] = true;	
 		text= trainerLevelNames[i] + "-1"; //unlocked first trx of each level so place to start
@@ -315,8 +325,8 @@ $(document).ready(function(){
 	var imgDownloadIcon = new Image(); imgDownloadIcon.src = 'img/downloadicon.png';
 	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
     var imgTitleScreen = new Image();
-    imgTitleScreen.onload = function() { console.log("Height: " + this.height); }
-    imgTitleScreen.src = 'img/titlePage.png';
+    imgTitleScreen.onload = function() { console.log("Height: " + this.height); draw();}
+    imgTitleScreen.src = 'img/titlePage2.png';
     
     drawTitleScreen();
 
@@ -329,6 +339,7 @@ $(document).ready(function(){
 //  	imgTerrain.src = 'img/dirt.jpg';
 
 	var imgButtonHome = new Image(); imgButtonHome.src = 'img/homeicon.png';
+	var imgStar = new Image(); imgStar.src = 'img/star.png';
 		
 	//load images for buttons in captions for choosing station type
 	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
@@ -1061,14 +1072,18 @@ $(document).ready(function(){
 	var fontColor = "black";
 	var buttonColor = "rgba(205,92,92,0.9)";
 	var buttonBorderColor = "rgba(178,34,34,0.9)";
+	var buttonColorGreen = "rgba(92,205,92,0.9)";
+	var buttonBorderColorGreen = "rgba(34,178,34,0.9)";
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
 	var gridColor = "rgba(122,106,49,0.25)";
+	var gridColorDark = "rgba(122,106,49,1.0)";
 	var tieColor = "#2A1506";
 	var railColor = "Gray";
 	var engineColor = "FireBrick";
 	var captionColor = "lightyellow";
 	var aboutColor = "rgba(176,168,139,0.6)";;
+	var starColor = "rgba(176,168,139,0.8)";;
 	var secondaryCaptionColor = "#CCCCB3";
 	var insetStrokeColor = "lightslategray";
 	var insetFillColor = "gainsboro";
@@ -1078,6 +1093,8 @@ $(document).ready(function(){
 	var trackImmutableColorFill = "rgba(176,168,139,0.3)";
 	var trackImmutableColorBorder = "rgba(176,168,139,0.7)";
 	var saveButtonColors= [];
+	var currentTrackScore = 0;
+	var newHighScore = false;
 	saveButtonColors[0] = "red";
 	saveButtonColors[1] = "orange";
 	saveButtonColors[2] = "yellow";
@@ -1107,28 +1124,41 @@ $(document).ready(function(){
 	sounds["supply"] = new Audio("sound/supply.wav");
 	sounds["pickdrop"] = new Audio("sound/pickdrop.wav");
 	sounds["pickdropReverse"] = new Audio("sound/pickdrop-reverse.wav");
-	sounds["home"] = new Audio("sound/tada.wav");
+	sounds["home"] = new Audio("sound/success.wav");
 	sounds["tunnel"] = new Audio("sound/Tunnel.wav");
+	sounds["tada1"] = new Audio("sound/tada-f.wav");
+	sounds["tada2"] = new Audio("sound/tada-g.wav");
+	sounds["tada3"] = new Audio("sound/tada-a.wav");
+	sounds["failure"] = new Audio("sound/failure.wav");
+	sounds["open"] = new Audio("sound/open.wav");
 	
 	//////// trx for levels
 	var trxLevels = [];
 	trxLevels['Trainee'] = [];
 	//draw single gap straight
 	trxLevels['Trainee'][1] ='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-1'] = 10110;
 	//draw bigger gap straight
 	trxLevels['Trainee'][2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":2,"gridy":7,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":8,"type":"Track90","orientation":4,"state":"left","subtype":""},null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":3,"gridy":7,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":8,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":4,"gridy":8,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":5,"gridy":8,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":9,"type":"TrackCargo","orientation":0,"state":"left","subtype":""}],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,null,null,null,{"gridx":6,"gridy":7,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":8,"type":"Track90","orientation":2,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-2'] = 13106;
 	//draw single curve
 	trxLevels['Trainee'][3]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,null,{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,{"gridx":8,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":8,"gridy":4,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null,null],[null,null,{"gridx":10,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]},"immutable":false}]]';
+	bestTrackTime['Trainee-3'] = 9105;
 	//draw 2 curve fill gap
 	trxLevels['Trainee'][4]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":8,"gridy":2,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":9,"gridy":1,"type":"TrackWyeLeft","orientation":6,"state":"right","subtype":"sprung"},{"gridx":9,"gridy":2,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":10,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":2,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-4'] = 11108;
 	//draw cross to fill gap
 	trxLevels['Trainee'][5]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":2,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":5,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,{"gridx":8,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":9,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":10,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":10,"gridy":2,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null,null,null],[null,{"gridx":11,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":11,"gridy":2,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-5'] = 19108;
 	//draw multiple crosses to fill gap
 	trxLevels['Trainee'][6]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":2,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":5,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":8,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},{"gridx":8,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":9,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":9,"gridy":2,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":10,"gridy":1,"type":"TrackWyeLeft","orientation":6,"state":"left","subtype":"sprung"},{"gridx":10,"gridy":2,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,{"gridx":11,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":11,"gridy":2,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-6'] = 28110;
 	//multiple gaps and crosses
 	trxLevels['Trainee'][7]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":2,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":2,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":4,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":4,"gridy":1,"type":"TrackCross","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"Track90","orientation":4,"state":"left","subtype":""},{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":5,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":5,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":7,"gridy":0,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,{"gridx":7,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":7,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":8,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":8,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":8,"gridy":2,"type":"Track90","orientation":2,"state":"left","subtype":""},{"gridx":8,"gridy":3,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":8,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},{"gridx":9,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":10,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":10,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":11,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":11,"gridy":1,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[{"gridx":12,"gridy":0,"type":"TrackWyeLeft","orientation":6,"state":"left","subtype":"sprung"},{"gridx":12,"gridy":1,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[{"gridx":13,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":1,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-7'] = 45105;
 	//large gaps free draw
-	trxLevels['Trainee'][8]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":3,"gridy":5,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop"},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,{"gridx":13,"gridy":6,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":7,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	trxLevels['Trainee'][8]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":3,"gridy":5,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","immutable":true},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop","immutable":true},{"gridx":4,"gridy":6,"type":"TrackWyeRight","orientation":0,"state":"right","subtype":"sprung","immutable":false},{"gridx":4,"gridy":7,"type":"Track90","orientation":4,"state":"left","subtype":"","immutable":false},null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,{"gridx":5,"gridy":6,"type":"Track90","orientation":0,"state":"left","subtype":"","immutable":false},{"gridx":5,"gridy":7,"type":"Track90","orientation":2,"state":"left","subtype":"","immutable":false},null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,{"gridx":13,"gridy":6,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":7,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	bestTrackTime['Trainee-8'] = 11104;
 		
 	var nCurrentTrx =1;
 	var trx = [];
@@ -1331,6 +1361,7 @@ $(document).ready(function(){
 	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
 	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
 
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Octagon"));
 	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
 	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
 	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
@@ -1440,7 +1471,6 @@ $(document).ready(function(){
 		drawTextButton(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight, "Back", false, false, "lightGray", "gray");
 		text= interactionState + "-back";
 		buttonDimLevels[text] = new box(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight,);
-		console.log ("Back text="+text);
 		
 	}
 		
@@ -2121,7 +2151,7 @@ $(document).ready(function(){
 	  	    } 
 	    }
 	 	
-	    console.log ("Button not found");
+//	    console.log ("Button not found");
 	    return undefined;
 	}
 	
@@ -2171,9 +2201,11 @@ $(document).ready(function(){
 			for (i=1; i<trainerLevelNames.length; i++) {
 				index = trainerLevelNames[i];
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
-					currentTrackSet = index;
-					interactionState = 'Choose track';
-					draw();
+					if (!trainerLevelLocked[index] || debugMode) {
+						currentTrackSet = index;
+						interactionState = 'Choose track';
+						draw();
+					}
 				}
 			}
 			if(buttonDimLevels['Levels-back'].inside(mouseX, mouseY)) {
@@ -2185,16 +2217,46 @@ $(document).ready(function(){
 			for (i=1; i<9; i++) {
 				index = "track "+ i;
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
-					currentTrackNumber = i;
-					interactionState = 'Try level';
-					calculateLayout();
-					openTrxJSON(trxLevels[currentTrackSet][i]);
-					buildTrains();
-					draw();
-					pushPlayButton();
+					text = currentTrackSet + "-" + i; 
+					if (unlockedTrx[text] || debugMode) {
+						currentTrackNumber = i;
+						interactionState = 'Try level';
+						calculateLayout();
+						openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+						buildTrains();
+						draw();
+						pushPlayButton();
+					}
 				}
 			}
 			if(buttonDimLevels['Levels-back'].inside(mouseX, mouseY)) {
+				interactionState = 'Levels';
+				draw();
+			}
+		} else if (interactionState == 'StarScreen') {
+			if (buttonDims['Try again'].inside(mouseX, mouseY)) {
+				console.log ("Try again");
+				interactionState = "Try level";
+				openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+				buildTrains();
+				draw();
+				getButton("Play").down=false;	
+				pushPlayButton();
+			} else if (buttonDims['Next track'].inside(mouseX, mouseY)) {
+				console.log("Next track");
+				interactionState = "Try level";
+				currentTrackNumber++;
+				if (trxLevels[currentTrackSet][currentTrackNumber]) {
+					openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+					buildTrains();
+					draw();
+					getButton("Play").down = false;
+					pushPlayButton();
+				} else {
+					interactionState = 'Levels';
+					draw();
+				}
+			} else if (buttonDims['Back'].inside(mouseX, mouseY)) {
 				interactionState = 'Levels';
 				draw();
 			}
@@ -2246,7 +2308,7 @@ $(document).ready(function(){
 		    	}
 		    	
 		    	//check if select button down
-		    	if (getButton("Select").down) {
+		    	if (getButton("Select")) if (getButton("Select").down) {
 		    		console.log("Select button down----");
 		   			if (mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
 		   			   && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
@@ -2287,60 +2349,69 @@ $(document).ready(function(){
 		    	
 		    	//check if erase button down
 		    	if (getButton("Eraser")) if (getButton("Eraser").down) {
-		    		isErasing = true;
-		    		var gridx = Math.floor(mouseX/tileWidth);
-		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-		    		//console.log("gridx="+gridx+" gridy="+gridy);
-					var train;
-					
-					//delete clicked engine
-		    		for (var i=0; i<engines.length; i++) {
-		    			if (engines[i].gridx == gridx && engines[i].gridy == gridy && !engines[i].immutable) {
-		    				//console.log("Delete engine i=" + i);
-		    				train = trains[i];
-		    				var oldEngine = engines.splice(i,1); //delete engine
-		    				if (currentCaptionedObject == oldEngine) currentCaptionObject = undefined;
-		    				delete oldEngine;
-		    				i = engines.length;
-		    				draw();
-		    			}
-		    		}
-	
-					//delete clicked car
-		    		for (var i=0; i<cars.length; i++) {
-		    			if (cars[i].gridx == gridx && cars[i].gridy == gridy && !cars[i].immutable) {
-		    				if (cars[i].cargo == null) {
-			    				console.log("Delete car i=" + i);
-			    				train = getTrain(cars[i]);
-			    				console.log("Deleted car is in train of length="+train.length);
-			    				var oldCar = cars.splice(i,1); //delete car
-			    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
-			    				delete oldCar;
-			    				i = cars.length;
-		    				} else {
-		    					console.log ("Car has cargo. Delete cargo");
-		    					cars[i].cargo = null;
-		    					draw();
+		    		if (!shiftIsPressed) {
+			    		isErasing = true;
+			    		var gridx = Math.floor(mouseX/tileWidth);
+			    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+			    		//console.log("gridx="+gridx+" gridy="+gridy);
+						var train;
+						
+						//delete clicked engine
+			    		for (var i=0; i<engines.length; i++) {
+			    			if (engines[i].gridx == gridx && engines[i].gridy == gridy && !engines[i].immutable) {
+			    				//console.log("Delete engine i=" + i);
+			    				train = trains[i];
+			    				var oldEngine = engines.splice(i,1); //delete engine
+			    				if (currentCaptionedObject == oldEngine) currentCaptionObject = undefined;
+			    				delete oldEngine;
+			    				i = engines.length;
+			    				draw();
+			    			}
+			    		}
+		
+						//delete clicked car
+			    		for (var i=0; i<cars.length; i++) {
+			    			if (cars[i].gridx == gridx && cars[i].gridy == gridy && !cars[i].immutable) {
+			    				if (cars[i].cargo == null) {
+				    				console.log("Delete car i=" + i);
+				    				train = getTrain(cars[i]);
+				    				console.log("Deleted car is in train of length="+train.length);
+				    				var oldCar = cars.splice(i,1); //delete car
+				    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
+				    				delete oldCar;
+				    				i = cars.length;
+			    				} else {
+			    					console.log ("Car has cargo. Delete cargo");
+			    					cars[i].cargo = null;
+			    					draw();
+			    				}
+			    				
+			    			}
+			    		}
+			    		
+			    		//if deleted engine or car then rebuild train
+			    		if (train) {
+			    			console.log ("Rebuild train after delete");
+		    				//set cars in this train to speed 0 and rebuild train to account for disconnecting a car from an engine or deleting an engine
+		    				for (var t=0; t<train.length; t++) {
+		    					if (train[t].type != "EngineBasic") {
+			    					if (train[t].speed < 0) reverseSpeed(train[t]);
+			    					train[t].speed = 0;
+		    					}
 		    				}
 		    				
+		    				buildTrains(); //todo- this could be made more efficient by just working on this train rather than all trains
+		    				draw();
 		    			}
+		    		} else { //shift is click so toggle track immutable
+			    		var gridx = Math.floor(mouseX/tileWidth);
+			    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
+		    			if (tracks[gridx] != undefined) if (tracks[gridx][gridy] != undefined) {
+		    				console.log("Make immutable");
+		    				tracks[gridx][gridy].immutable = !tracks[gridx][gridy].immutable;
+		    			}
+		    			draw();
 		    		}
-		    		
-		    		//if deleted engine or car then rebuild train
-		    		if (train) {
-		    			console.log ("Rebuild train after delete");
-	    				//set cars in this train to speed 0 and rebuild train to account for disconnecting a car from an engine or deleting an engine
-	    				for (var t=0; t<train.length; t++) {
-	    					if (train[t].type != "EngineBasic") {
-		    					if (train[t].speed < 0) reverseSpeed(train[t]);
-		    					train[t].speed = 0;
-	    					}
-	    				}
-	    				
-	    				buildTrains(); //todo- this could be made more efficient by just working on this train rather than all trains
-	    				draw();
-	    			}
-		    		
 		    	}
 		    } else { // in toolBar
 		    	//deselect track area captions
@@ -2413,6 +2484,10 @@ $(document).ready(function(){
 			  			break;
 			  		case "Write":
 			  			writeTrx();
+			  			break;
+			  		case "Octagon":
+			  			getButton("Octagon").down = !getButton("Octagon").down;
+			  			useOctagons = getButton("Octagon").down;
 			  	}
 	
 				//toggle up/down if button is in a group
@@ -2436,9 +2511,11 @@ $(document).ready(function(){
 			playSound("stop");
 			clearInterval(interval);
 		} else {
+			clearInterval(interval);
 			playSound("choochoo");
 			skip = 10;
-			nIterations = 0;
+			var d = new Date();
+			startTimePlay = d.getTime();
 			interval = setInterval(interpretAndDraw, 20);
 		}
 		getButton("Play").down = !getButton("Play").down; // toggle state
@@ -2680,7 +2757,7 @@ $(document).ready(function(){
 
 	    			//see if clicked engine or car
 	    			var foundEC = false;
-	    			if (!getButton("Eraser").down) {
+	    			if (getButton("Eraser")) if (!getButton("Eraser").down) {
 			    		captionX = undefined;
 			    		currentCaptionedObject = getEC(gridx, gridy); 
 			    		if (currentCaptionedObject != undefined) foundEC = true;
@@ -3094,22 +3171,93 @@ $(document).ready(function(){
 			drawButtonCaption();
 		}
 		
+		if (interactionState == 'StarScreen') {
+			drawStarScreen();
+		}
 	}
 	
 	function interpretAndDraw() {
-//		if (nIterations%Math.round(skip) == 0) { //accelerate
-			interpretAll();
-			detectCrashes();
-			detectStations();
-			draw();
-//		}
-
-//		nIterations++;
-//		if (skip>1) skip -= 0.5;
+		interpretAll();
+		detectCrashes();
+		detectStations();
+		draw();
 	}
-	
+
 	draw(); //draw scene before play button pressed first time
 	
+	function drawStarScreen() {  //draw popup screen showing score, number of stars, success/failure, try again/next
+//		console.log ("Draw star screen"); 
+		x = canvasWidth/2; //center of popup
+		y = canvasHeight/2;
+		width = canvasWidth*0.7;
+		height = canvasHeight*0.4;
+
+		var highScore = 0;
+		text = "highscore-" + currentTrackSet + "-" + (currentTrackNumber);
+		console.log ("textHS="+text);
+		if (localStorage.getObject(text)) highScore = localStorage.getObject(text);
+		console.log("current="+currentTrackScore+" HS="+highScore);
+		if (currentTrackScore > highScore) {
+			console.log("New high score");
+			newHighScore = true;
+			highScore = currentTrackScore;
+			localStorage.setObject(text, currentTrackScore);
+		} ///???
+		ctx.fillStyle = starColor;
+		ctx.fillRect(x-width/2,y-height/2,width,height);
+		
+		ctx.font = "32px Arial";
+		ctx.fillStyle = fontColor;
+		ctx.textAlign = 'center';
+		ctx.fillText("Score = "+currentTrackScore, x, y-0.17*height);
+		ctx.font = "26px Arial";
+		message = ".";
+		if (newHighScore) {
+			console.log ("NewHS");
+			message = ". New high score!";
+		}
+		ctx.fillText("High score = "+highScore+message, x, y-0.05*height);
+		drawTextButton(x-0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Try again", false, false, buttonColor, buttonBorderColor);
+		buttonDims['Try again'] = new box(x-0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+		drawTextButton(x, y+0.38*height, 0.2*width, 0.14*height, "Back", false, false, "lightGray", "gray");
+		buttonDims['Back'] = new box(x, y+0.38*height, 0.2*width, 0.14*height);
+		ctx.font = "40px Arial";
+		if (currentTrackScore == 0) {
+			ctx.fillText("Crash!!!", x, y-0.3*height);
+			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", true, false, buttonColorGreen, buttonBorderColorGreen);
+			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0,0); //box is zero so can't click
+//			if (animationFrame == 0) {console.log("Failure"); playSound("failure");}
+		} else {
+			ctx.fillText("Success!!!", x, y-0.3*height);
+			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", false, true, buttonColorGreen, buttonBorderColorGreen);
+			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+			
+			//draw star
+			drawStar(x-0.35*width-imgStar.width/2, y-0.35*height-imgStar.height/2, 0);
+			if (animationFrame == 100) playSound ("tada1");
+			if (currentTrackScore >500) {
+				drawStar (x-imgStar.width/2-0.015*width, y-0.6*height-imgStar.height/2, 100);
+				if (animationFrame == 200) playSound ("tada2");
+			}
+			if (currentTrackScore >999) {
+				drawStar (x+0.35*width-imgStar.width/2, y-0.38*height-imgStar.height/2, 200);
+				if (animationFrame == 300) playSound ("tada3");
+			}
+		}
+		if (animationFrame<304) animationFrame+=2.5;
+	}
+
+	function drawStar(x,y, delay) {
+		if (animationFrame<delay) return;
+		ctx.save();
+		ctx.translate(x,y);
+		//ctx.rotate(animationFrame);
+		var scale = 1;
+		if (animationFrame-delay<100) scale = 1/(Math.sqrt(100-(animationFrame-delay)));
+		ctx.scale(scale, scale);
+		ctx.drawImage(imgStar, 0, 0);
+		ctx.restore();
+	}			
 	function drawAllTracks() {
 		//draw all tracks
 		//console.log("draw all tracks");
@@ -3619,7 +3767,7 @@ $(document).ready(function(){
 	
 	function drawCaptionBubble (capX, capY, captionWidth, captionHeight, objX, objY, isSecondary) { //capX, capY is upperleft corner of caption, objX, objY is location of where pointer goes
 		//draw caption bubble
-		console.log("Cap bubble at capX="+capX+" capY="+capY+" width="+captionWidth+" height="+captionHeight);
+		//console.log("Cap bubble at capX="+capX+" capY="+capY+" width="+captionWidth+" height="+captionHeight);
 		var angle = Math.atan2(objY-(capY+0.5*captionHeight)*tileWidth, objX-(capX+0.5*captionWidth)*tileWidth);
 		ctx.beginPath();
 		ctx.moveTo ((capX+0.5*captionWidth)*tileWidth+Math.cos(angle+Math.PI/2)*0.2*tileWidth, (capY+0.5*captionHeight)*tileWidth+Math.sin(angle+Math.PI/2)*0.2*tileWidth);
@@ -3721,9 +3869,14 @@ $(document).ready(function(){
 	
 	function drawTileBorder(gridx, gridy) {
 		//draw tile border
-		ctx.strokeStyle = gridColor;
 		ctx.save();
 		ctx.translate((gridx+0.5)*tileWidth, (gridy+0.5)*tileWidth*tileRatio);
+		ctx.strokeStyle = gridColor;
+		drawOctagonOrSquare();
+		ctx.restore();
+	}
+	
+	function drawOctagonOrSquare() {
 		ctx.beginPath();
 		ctx.lineWidth = 1;
 		if (useOctagons) { //draw octagon boundary
@@ -3740,9 +3893,8 @@ $(document).ready(function(){
 			ctx.rect(-0.5*tileWidth, -0.5*tileWidth*tileRatio, tileWidth, tileWidth*tileRatio)
 		}
 		ctx.stroke();
-		ctx.restore();
 	}
-	
+		
 	function drawButtonCaption() {
 		if (currentCaptionedButton == undefined) return;
 		var xC=Math.floor(tracksWidth/tileWidth)-3;
@@ -3756,7 +3908,7 @@ $(document).ready(function(){
 		for (var i=0; i<wC; i++) {
 			for (var j=0; j<hC; j++) {
 				var nBin = j*wC+i;
-				if (localStorage.getObject('trx-tracks'+nBin) == undefined) {
+				if (localStorage.getObject('trx-'+nBin) == undefined) {
 					ctx.strokeStyle = saveButtonColors[nBin];
 					ctx.lineWidth=3;
 					ctx.strokeRect(10+(i+xC)*tileWidth,10+(j+yC)*tileWidth, tileWidth-20, tileWidth-20);
@@ -3796,6 +3948,7 @@ $(document).ready(function(){
 //		tracks = localStorage.getObject('trx-tracks'+nBin);
 //		engines = localStorage.getObject('trx-engines'+nBin);
 //		cars = localStorage.getObject('trx-cars'+nBin);
+		playSound("open");
 		buildTrains();
 	}
 
@@ -4210,17 +4363,18 @@ $(document).ready(function(){
 			var startTrack = tracks[x][y];
 			var startOri = ec.orientation; // this was missing for a while so I added back, not sure if right
 
-			//clamp position to [0,1)]
- 			if (ec.position>=1) ec.position -= 1;		
- 			if (ec.position<0) ec.position += 1;		
-
 			//figure out next tile
 			next = getNextTrack(ec);
 
 			//check for crashes
 			if (tracks[next.gridx][next.gridy] == undefined) {
+				console.log("Undef crash");
 				crash(ec);
 			} else {	
+				//clamp position to [0,1)]
+	 			if (ec.position>=1) ec.position -= 1;		
+	 			if (ec.position<0) ec.position += 1;		
+	
 				//advance ec		
 				ec.gridx = next.gridx;
 				ec.gridy = next.gridy;
@@ -4314,7 +4468,7 @@ $(document).ready(function(){
 							playSound("connect");
 							rebuildTrains = true;
 						} else {
-							console.log ("Crash at x="+next.gridx+" y="+next.gridy);
+							console.log ("CrashAAA at x="+next.gridx+" y="+next.gridy);
 						}
 					}
 				}
@@ -4328,7 +4482,7 @@ $(document).ready(function(){
 							console.log("Join free car");
 							rebuildTrains = true;
 						} else {
-							console.log ("Crash at x="+next.gridx+" y="+next.gridy);
+							console.log ("CrashBBB at x="+next.gridx+" y="+next.gridy);
 						}
 					}
 				}
@@ -4479,10 +4633,22 @@ $(document).ready(function(){
 							//check for bunny
 							if (ec.cargo.type[1] == "bunny") {
 								playSound("home");
-								console.log("Bunny delivered");
+								console.log("Bunny delivered successfully");
 								index = currentTrackSet + "-" + (currentTrackNumber+1);
 								console.log("trx unlocked for index=" + index);
 								unlockedTrx[index] = true;
+								animationFrame = 0;
+								interactionState = 'StarScreen';
+								text = currentTrackSet + "-" + (currentTrackNumber);
+								bestTime = 1;
+								if (bestTrackTime[text]) bestTime= bestTrackTime[text];
+								var d = new Date();
+								now = d.getTime();
+								currentTrackTime = now - startTimePlay;
+								currentTrackScore = Math.round(1000*bestTrackTime[text]/currentTrackTime);
+								newHighScore = false;
+								if (currentTrackScore>1000) currentTrackScore = 1000; //???
+								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
 							} else {
 								playSound("pickdropReverse");
 							}
@@ -4513,7 +4679,7 @@ $(document).ready(function(){
 					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "increment") {
 						playSound("increment");
 						ec.cargo.value++;
-						console.log("Increment lnegth="+ ec.cargo.type.length);
+						//console.log("Increment lnegth="+ ec.cargo.type.length);
 						ec.cargo.value %= ec.cargo.type.length-1;
 					}
 					
@@ -4729,7 +4895,7 @@ $(document).ready(function(){
 						break;
 					default:
 						crash(ec);
-						console.log("Crash XXX");
+						console.log("Crash AAA");
 						break;
 				}
 				break;
@@ -4774,20 +4940,30 @@ $(document).ready(function(){
 	}
 	
 	function crash(ec) {
+		
 		playSound("crash");
 		console.log ("Engine crashed at gridx="+ ec.gridx + " gridy=" + ec.gridy);
-		
-		//delete train if crashes
-		var nEngine;
-		var train = getTrain(ec);
-		console.log("Train length="+train.length);
-		for (var i=0; i<train.length; i++) {
-			if (train[i].type == "EngineBasic") nEngine = i;
-			console.log("delete i="+i);
-			deleteEC(train[i]);
-		}
-		trains.splice(i,1);
-		
+		if (interactionState == 'Try level') { 
+			console.log ("Crashed on levels");
+			interactionState = 'StarScreen';
+			currentTrackScore = 0;
+			newHighScore = false;
+			// stop the train
+			clearInterval(interval);
+			getButton("Play").down = false;
+			playSound("failure");
+		} else {
+			//delete train if crashes
+			var nEngine;
+			var train = getTrain(ec);
+			console.log("Train length="+train.length);
+			for (var i=0; i<train.length; i++) {
+				if (train[i].type == "EngineBasic") nEngine = i;
+				console.log("delete i="+i);
+				deleteEC(train[i]);
+			}
+			trains.splice(i,1);
+		}		
 	}
 	
 	function deleteEC(ecdel) { //removes engines and cars from their arrays
@@ -5251,6 +5427,12 @@ $(document).ready(function(){
 					    ctx.strokeStyle = "yellow";
 					    ctx.strokeRect(0, 0, width, height);        
 					}
+					break;
+				case "Octagon":
+					ctx.strokeStyle = gridColorDark;
+					ctx.translate(width/2, height/2);
+					ctx.scale (0.8,0.8);
+					drawOctagonOrSquare();
 					break;
 				case "Eraser":
 					if (this.down) {
