@@ -1,11 +1,10 @@
 To Do:
--serialize unlocked tracks or recacl from high scores
--browse: add launch from thumbnail, and up down votes, and voting for online version	
--track sets game play-
---finalize trx for each level
 
-Game plan for development
--add yes/no data type
+-Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom
+-browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
+-finalize trx for each level
+-make stations type specific
+-should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
 
 
 
@@ -15,16 +14,12 @@ Bug-
 
 New features:
 High prioirty-
--pagiate browse.php
--should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
+
 
 -add stop, reverse, decouple stations
--make all stations only work for matching type. 
 -add user types, and show/hide functionality based on user types- trainee=no toolbar locked on draw tracks, etc.
--add pan and zoom using multifinger gester
--need to script rendering
+-need to script rendering, re-render everything at higher res
 -render cargoShapes line, triangle...octagon
--render cargoBinary
 -render square connector instead of drawn one
 
 Low priority-
@@ -32,8 +27,6 @@ Low priority-
 -optimize draw(). It currently redraws everything rather than just what has changed
 
 -SERVER
--server- keep track of progress of user (hobo, trainee, caboose captain, conductor, engineer)
-db tables: users, trx files, user types, courses
 
 -APPS
 -test on iPhone and Android
@@ -44,8 +37,6 @@ db tables: users, trx files, user types, courses
 -put dot in middle or in someway highlight which ec the mouse is currently over (hover using mouse move) so you can delete the right ec if near edge of tile
 -add undo/redo chain-for web
 -need an idiom for storing numbers >10. Like by having different cars for ones,tens, hundreds...
-
--for gameplay should block 45 degree tracks until user reaches a certain level (if block 45 show square instead of octagon), and block toolbar
 
 
 *To be sucessful
