@@ -1,8 +1,10 @@
 To Do:
-
 -Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom
+-compress/decompress by replacing text
+-home station
+-eyes and fur on bunny
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
--finalize trx for each level
+-remake trx for each level
 -make stations type specific
 -should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
 

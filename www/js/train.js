@@ -46,6 +46,12 @@ $(document).ready(function(){
 	console.debug("readyXXXXX");
 	console.log("READY");
 	console.log("press shift for pan, and option for zoom");
+	var testr={};
+	testr[mi(1,2)] = "test";
+	testr[mi(3,5)] = "test2";
+	testr[mi(1,5)] = "test3";
+	testr[mi(3,2)] = "test4";
+	console.log("test="+testr[mi(1,2)]+","+testr[mi(3,5)]+","+testr[mi(4,6)]+","+testr[mi(1,5)]+","+testr[mi(3,2)]);
 //	console.log("w = write tracks to console");
 /*	console.log("l = load tracks from trx array");
 	console.log("n = new user");
@@ -59,14 +65,12 @@ $(document).ready(function(){
 		
 	//console.log ("Document="+ document.URL);
 	var newUserLink = document.getElementById('newuserlink');
-	console.log(newUserLink);
 	newUserLink.style.cursor = 'pointer';
 	newUserLink.onclick = function() {
 	    console.log("New user clicked");
        	newUserDialog();
  	};
 
-//    navigator.notification.alert("Ready");
     window.addEventListener('orientationchange', doOnOrientationChange);
  //   window.addEventListener('touchstart', doTouchStart(e));
     window.addEventListener('touchstart', function(e){
@@ -85,53 +89,54 @@ $(document).ready(function(){
  	var optionIsPressed = false;
  	var commandIsPressed = false;
  	window.addEventListener('keydown', function(event) {
- 		console.log ("Key="+event.keyCode);
+// 		console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
-    	if(event.keyCode == 37) {
+ /*   	if(event.keyCode == 37) {
         	//console.log('Left was pressed');
         	nCurrentTrx--;
         	if (nCurrentTrx < 1) nCurrentTrx =1;
 			openTrxJSON(trx[nCurrentTrx]);
 			buildTrains();
 			draw();
-    	}
-    	else if(event.keyCode == 38) {
+    	}*/
+/*    	else if(event.keyCode == 38) {
         	console.log('Up was pressed');
         	zoomScale = zoomScale * zoomMultiplier;
-        	draw();
+    		if (zoomScale<0.2) zoomScale = 0.2;
+    		if (zoomScale>5) zoomScale = 5;
+       	draw();
  		}
     	else if(event.keyCode == 40) {
         	console.log('Down was pressed');
         	zoomScale = zoomScale / zoomMultiplier;
+    		if (zoomScale<0.2) zoomScale = 0.2;
+    		if (zoomScale>5) zoomScale = 5;
         	draw();
  		}
     	else if(event.keyCode == 87) {
         	//console.log('w pressed');
         	writeTrx();
- 		}
+ 		}*/
  		else if (event.keyCode == 16) { //pan
  			shiftIsPressed = true;
- 			console.log("shift down");
  			document.getElementById("canvas").style.cursor = 'move';
  		}
  		else if (event.keyCode == 18) { //zoom
  			optionIsPressed = true;
- 			console.log("option down");
  			document.getElementById("canvas").style.cursor = 'zoom-in';
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = true;
- 			console.log("command down");
  		}
-    	else if(event.keyCode == 39) {
+/*    	else if(event.keyCode == 39) {
         	nCurrentTrx++;
         	//console.log('Right was pressed/ CurrentTrx='+nCurrentTrx);
  //       	if (nCurrentTrx > trx.length) nCurrentTrx = trx.length;
 			openTrxJSON(trx[nCurrentTrx]);
 			buildTrains();
 			draw();
-		}
+		}*/
 	});   
 
  	window.addEventListener('keyup', function(event) {
@@ -139,13 +144,13 @@ $(document).ready(function(){
  			shiftIsPressed = false;
  			isPanning = false;
  			console.log("shift up");
- 			document.getElementById("canvas").style.cursor = 'pointer';
+ 			document.getElementById("canvas").style.cursor = 'crosshair';
  		}
  		else if (event.keyCode == 18) {
  			optionIsPressed = false;
  			isZooming = false;
  			console.log("option up");
- 			document.getElementById("canvas").style.cursor = 'pointer';
+ 			document.getElementById("canvas").style.cursor = 'crosshair';
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = false;
@@ -216,6 +221,8 @@ $(document).ready(function(){
 		passedTrackID = data["trackID"];
 		if (data["scale"]) {
 			zoomScale = data["scale"]/100;
+    		if (zoomScale<0.2) zoomScale = 0.2;
+    		if (zoomScale>5) zoomScale = 5;
 		}
 	}
 	console.log ("resize="+resizeCanvas);
@@ -233,8 +240,11 @@ $(document).ready(function(){
 	var ctx = canvas.getContext("2d");
     var canvasWidth;
     var canvasHeight;
-	var numTilesX = 5;
-	var numTilesY = 4; //recalcultated in calculateLayout()
+//	var numTilesX = 5;
+//	var numTilesY = 4; //recalcultated in calculateLayout()
+	var centerTileX=0; //which tile to put in the center of the canvas. This plus zoomScale determines frame of tracks to view
+	var centerTileY=0; 
+	var startCenterTileX, startCenterTileY; //used for panning
 	var buttonWidth = 76;
 	var buttonPadding = 10;
 	var toolBarWidthLevels = buttonWidth+2*buttonPadding; //width of toolbar in pixels
@@ -249,10 +259,11 @@ $(document).ready(function(){
 	var insetWidth = 0.35*tileWidth;
 	//var numTilesX = Math.floor(tracksWidth/tileWidth);
 	//var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
-    var trackArrayWidth = 10;
-    var trackArrayHeight = 10;
-	var tracks = createArray(trackArrayWidth, trackArrayHeight);
+//    var trackArrayWidth = 10;
+//    var trackArrayHeight = 10;
+//	var tracks = createArray(trackArrayWidth, trackArrayHeight);
 //	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
+	var tracks = {};
 	var engines = [];
 	var cars = [];
 	var trains = []
@@ -1124,8 +1135,8 @@ $(document).ready(function(){
 	var buttonBorderColorGreen = "rgba(34,178,34,0.9)";
 	var toolBarBackColor = "gray";
 	var tracksBackColor = "DarkOliveGreen";
-	var gridColor = "rgba(122,106,49,0.25)";
-	var gridColorDark = "rgba(122,106,49,1.0)";
+	var gridColor =  "rgba(200,106,49,0.5)";
+	var gridColorDark = "rgba(200,106,49,1.0)";
 	var tieColor = "#2A1506";
 	var railColor = "Gray";
 	var engineColor = "FireBrick";
@@ -1211,7 +1222,7 @@ $(document).ready(function(){
 		
 	var nCurrentTrx =1;
 	var trx = [];
-	var trxName = [];
+/*	var trxName = [];
 //	trx[0] = '[[[{"gridx":0,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":0,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":3,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":0,"gridy":4,"type":"TrackStraight","orientation":0,"state":"left","subtype":"supply","cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":0,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":6,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},null,null,null],[{"gridx":1,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":1,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":2,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":3,"type":"TrackStraight","orientation":6,"state":"left","subtype":"decrement"},null,null,null,null,null,null],[{"gridx":3,"gridy":0,"type":"TrackWyeRight","orientation":2,"state":"right","subtype":"compareLess","cargo":{"value":2,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":4,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[{"gridx":5,"gridy":0,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":0,"type":"EngineBasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017}],[{"gridx":1,"gridy":0,"type":"CarBasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017,"cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
 	trxName[1] = 'for loop';
 	//set trx{1] to passedTrx if defined
@@ -1236,8 +1247,8 @@ $(document).ready(function(){
     //trx[8]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":2,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":2,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":4,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":"increment"},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackWyeRight","orientation":2,"state":"right","subtype":"sprung"},{"gridx":5,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":5,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":5,"gridy":4,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"TrackWyeLeft","orientation":6,"state":"left","subtype":"sprung"},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":"increment"},null,null,{"gridx":7,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":"increment"},null,null,null,null,null],[null,{"gridx":8,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":8,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":9,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":9,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":4,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":3,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":2,"gridy":1,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]}},{"gridx":2,"gridy":2,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]}},{"gridx":2,"gridy":3,"type":"CarBasic","orientation":0,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["colors","white","black","brown","red","orange","yellow","green","blue","cyan","purple"]}},{"gridx":2,"gridy":4,"type":"CarBasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["dinosaurs","raptor","triceratops","stegosaurus","tyranisaurus","brontosaurus"]}}]]';
             	
 	//Trainee training
-	//draw single gap straight
-	trx[6]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+*/	//draw single gap straight
+/*	trx[6]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
 	//draw bigger gap straight
 	trx[7]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":2,"gridy":7,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":8,"type":"Track90","orientation":4,"state":"left","subtype":""},null],[null,{"gridx":3,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":3,"gridy":7,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":8,"type":"TrackWyeLeft","orientation":2,"state":"left","subtype":"sprung"},null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":4,"gridy":8,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null],[null,{"gridx":5,"gridy":1,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":5,"gridy":8,"type":"TrackStraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":9,"type":"TrackCargo","orientation":0,"state":"left","subtype":""}],[null,{"gridx":6,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},null,null,null,null,{"gridx":6,"gridy":7,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":8,"type":"Track90","orientation":2,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
 	//draw single curve
@@ -1378,14 +1389,10 @@ $(document).ready(function(){
     trx[77]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,{"gridx":2,"gridy":5,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":2,"gridy":6,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":2,"gridy":7,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":2,"gridy":8,"type":"Track90","orientation":4,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,{"gridx":3,"gridy":7,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":8,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":3,"gridy":8,"type":"TrackStraight","orientation":6,"state":"left","subtype":"supply"},null],[null,{"gridx":4,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":4,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,{"gridx":4,"gridy":7,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":4,"gridy":8,"type":"TrackWyeRight","orientation":6,"state":"left","subtype":"sprung"},null],[{"gridx":5,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":5,"gridy":1,"type":"Track90","orientation":4,"state":"left","subtype":""},null,{"gridx":5,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":6,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":5,"gridy":4,"type":"TrackWye","orientation":0,"state":"left","subtype":"compareLess"},null,null,{"gridx":5,"gridy":7,"type":"TrackStraight","orientation":6,"state":"left","subtype":"decrement"},{"gridx":5,"gridy":8,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},null],[{"gridx":6,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":1,"type":"TrackWyeRight","orientation":4,"state":"right","subtype":"sprung"},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":"home"},{"gridx":6,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,{"gridx":6,"gridy":6,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":6,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":6,"gridy":7,"type":"TrackWye","orientation":0,"state":"left","subtype":"compareGreater"},{"gridx":6,"gridy":8,"type":"Track90","orientation":2,"state":"left","subtype":""},null],[null,null,{"gridx":7,"gridy":2,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,{"gridx":7,"gridy":6,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":7,"gridy":7,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null],[{"gridx":8,"gridy":0,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":8,"gridy":1,"type":"TrackWyeLeft","orientation":4,"state":"left","subtype":"sprung"},{"gridx":8,"gridy":2,"type":"TrackStraight","orientation":4,"state":"left","subtype":"home"},{"gridx":8,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":8,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":9,"gridy":0,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":9,"gridy":1,"type":"Track90","orientation":2,"state":"left","subtype":""},null,{"gridx":9,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":6,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":9,"gridy":4,"type":"TrackWye","orientation":0,"state":"right","subtype":"compareLess"},null,null,null,null,null],[null,{"gridx":10,"gridy":1,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":2,"type":"TrackStraight","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":10,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":7,"type":"EngineBasic","orientation":4,"state":"","speed":20,"position":0.5}],[{"gridx":2,"gridy":6,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}},{"gridx":2,"gridy":5,"type":"CarBasic","orientation":4,"state":"","speed":20,"position":0.5}]]';
  	//propmt loop with catapult
     trx[78]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,{"gridx":1,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,{"gridx":2,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":3,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":4,"type":"TrackWyeRight","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null],[null,null,{"gridx":4,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"TrackStraight","orientation":0,"state":"left","subtype":"increment"},{"gridx":4,"gridy":4,"type":"TrackWyeLeft","orientation":2,"state":"right","subtype":"prompt"},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":5,"gridy":2,"type":"Track90","orientation":4,"state":"left","subtype":""},null,{"gridx":5,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"TrackCargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["stuffedAnimals","bunny"]}},{"gridx":6,"gridy":1,"type":"TrackStraight","orientation":6,"state":"left","subtype":"supply"},{"gridx":6,"gridy":2,"type":"TrackStraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"TrackStraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"TrackWyeLeft","orientation":0,"state":"right","subtype":"sprung"},{"gridx":7,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"catapult"},{"gridx":7,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,{"gridx":11,"gridy":3,"type":"TrackCargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":12,"gridy":2,"type":"Track90","orientation":6,"state":"left","subtype":""},{"gridx":12,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":"pickDrop"},{"gridx":12,"gridy":4,"type":"Track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":13,"gridy":2,"type":"Track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":3,"type":"TrackStraight","orientation":4,"state":"left","subtype":""},{"gridx":13,"gridy":4,"type":"Track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null]],[{"gridx":2,"gridy":4,"type":"EngineBasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":4,"type":"CarBasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":1,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
-    
-    openTrxJSON(trx[nCurrentTrx]);
-	buildTrains();
-	for (var i=0; i< numTilesX; i+=2) {
-	    for (var j=0; j<numTilesY; j+=2) {
-//	    	if (tracks[i][j]) tracks[i][j].immutable = true;  // TODO make color change for immutable tracks. Test immutable proprty for EC and make color change for them 
-		}
-	}
+ */   
+ //   trx[1]='[{"-1,-1":{"gridx":0,"gridy":0,"type":"TrackStraight","orientation":4,"state":"left","subtype":"","immutable":false}},[],[]]';
+ //   openTrxJSON(trx[nCurrentTrx]);
+ //	buildTrains();
 
 //	currentCaptionedObject = undefined;
 
@@ -1438,6 +1445,9 @@ $(document).ready(function(){
 	trainerLevelLocked['Trainee'] = false; //unlock first level so somewhere to start
 	
 	console.log("Ready!!");
+	var worldPoint = screenToWorld (tracksWidth/2, tracksHeight/2);
+	var screenPoint = worldToScreen (worldPoint.xtile, worldPoint.ytile);
+	console.log ("Canvas centerworldPoint="+worldPoint.xtile+","+worldPoint.ytile+" screenPoint="+screenPoint.x+","+screenPoint.y+ "orig="+tracksWidth/2+","+tracksHeight/2);
 	////// extend builtin methods
     ctx.dashedLine = function(x, y, x2, y2, da) {
         if (!da) da = [10,5];
@@ -1463,8 +1473,7 @@ $(document).ready(function(){
                  
 	//tracks ///////////////////////////////////////////
 	function Track(gridx, gridy, type, orientation, state, subtype) { //this object is stored by JSON.stringify so no functions allowed in object
-        if (tracks[gridx] == undefined) tracks[gridx]=[];//bbbb
-		tracks[gridx][gridy] = this;
+		tracks[mi(gridx,gridy)] = this;
 		this.gridx = gridx || 0;
 		this.gridy = gridy || 0;
 		this.type = type || "TrackStraight";
@@ -1476,6 +1485,10 @@ $(document).ready(function(){
 		this.immutable = false; //can this track be deleted or changed
 	}	
 
+	function mi(x,y) { //make index
+		return (x+','+y);
+	}
+	
 	function drawTitleScreen() {
 		ctx.save();
 		xScale = canvasWidth/imgTitleScreen.width;
@@ -2041,6 +2054,8 @@ $(document).ready(function(){
 	}
 	
 	function trackConnects(track, orientation) { //returns true if track connects in orientation, else false
+		if (!track) return;
+		if (!track.type) return;
 		var dif = (track.orientation - orientation + 8)%8;
 		switch (track.type) {
 			case "TrackStraight":
@@ -2069,7 +2084,7 @@ $(document).ready(function(){
 			case "TrackCargo":
 				return false;
 			default:
-				console.log("ERROR: trackConnect didn't detect track type");
+				console.log("ERROR: trackConnect didn't detect track type. Type="+track.type);
 				return false;
 		}
 	}
@@ -2094,11 +2109,11 @@ $(document).ready(function(){
 
 	function drawEC(ec) {  
 		if (!ec) return;
-		if (tracks[ec.gridx] == undefined || tracks[ec.gridx][ec.gridy] == undefined) {
+		if (!tracks[mi(ec.gridx,ec.gridy)]) {
 			alert ("Draw ec- Undefined track. gridx=" + ec.gridx + ", gridy=" + ec.gridy + " ec ori=" + ec.orientation);
 			return;
 		}
-		var track=tracks[ec.gridx][ec.gridy];
+		var track=tracks[mi(ec.gridx,ec.gridy)];
 
 		ctx.save();
 		ctx.translate((0.5+ec.gridx)*tileWidth, (0.5+ec.gridy)*tileWidth*tileRatio); //center origin on tile
@@ -2352,7 +2367,8 @@ $(document).ready(function(){
         		isPanning = true;
         		panStartX = mouseX;
         		panStartY = mouseY;
-        		zoomScale = startZoomScale;
+        		startCenterTileX = centerTileX;
+        		startCenterTileY = centerTileY;
         	} else if (optionIsPressed) {
         		console.log("Start zoom");
         		isZooming = true;
@@ -2394,17 +2410,18 @@ $(document).ready(function(){
 			    	//console.log ("Click in track space");
 		  			startXPoint = mouseX;
 		  			startYPoint = mouseYWorld;
+		  			//startYPoint = mouseY;
 			    	
 			    	//check if track button down
 			    	if (getButton("Track").down) {
 			    		isDrawingTrack = true;
-			    		addPointTrack(mouseX, mouseYWorld);
+			    		addPointTrack(mouseX, mouseY);
 			    	}
 			    	
 			    	//check if engine button down
 			    	if (getButton("Engine").down) {
 			    		isDrawingEngine = true;
-			    		addPointEC(mouseX, mouseYWorld);
+			    		addPointEC(mouseX, mouseY);
 			    	}
 			    	
 			    	//check if select button down
@@ -2428,7 +2445,7 @@ $(document).ready(function(){
 			    	//check if car button down
 			    	if (getButton("Car").down) {
 			    		isDrawingCar = true;
-			    		addPointEC(mouseX, mouseYWorld);
+			    		addPointEC(mouseX, mouseY);
 			    	}
 			    	
 			    	//check if cargo button down
@@ -2436,11 +2453,11 @@ $(document).ready(function(){
 			    		var gridx = Math.floor(mouseX/tileWidth);
 			    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
 		                console.log("gridx="+gridx+"tracks length="+tracks.length);
-			    		if (tracks[gridx] == undefined || tracks[gridx][gridy] == undefined || tracks[gridx][gridy] == null) {
+			    		if (tracks[mi(gridx,gridy)] == undefined || tracks[mi(gridx,gridy)] == null) {
 				    		//if no track at that location then add TrackBlank with "A"
 			    			console.log("Empty grid, add blank Track");
 			    			new Track(gridx, gridy, "TrackBlank");
-			    			tracks[gridx][gridy].cargo = new Cargo(0,cargoValues[1]);
+			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,cargoValues[1]);
 		                    draw();
 		                }
 			    		
@@ -2506,9 +2523,9 @@ $(document).ready(function(){
 			    		} else { //command is click so toggle track immutable
 				    		var gridx = Math.floor(mouseX/tileWidth);
 				    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
-			    			if (tracks[gridx] != undefined) if (tracks[gridx][gridy] != undefined) {
+			    			if (tracks[mi(gridx,gridy)]) {
 			    				console.log("Make immutable");
-			    				tracks[gridx][gridy].immutable = !tracks[gridx][gridy].immutable;
+			    				tracks[mi(gridx,gridy)].immutable = !tracks[mi(gridx,gridy)].immutable;
 			    			}
 			    			draw();
 			    		}
@@ -2570,7 +2587,7 @@ $(document).ready(function(){
 				  			break;
 				  		case "Clear":
 				  			//tracks.length=0;
-		                    tracks = createArray(trackArrayWidth, trackArrayHeight);
+		                    tracks = {};//createArray(trackArrayWidth, trackArrayHeight);
 				  			engines.length = 0;
 				  			cars.length = 0;
 				  			trains.length = 0;
@@ -2663,24 +2680,29 @@ $(document).ready(function(){
    			e.target.style.cursor = 'default';
 	    }
 
-		if (isZooming) e.target.style.cursor = 'zoom-in';
+		if (isZooming || optionIsPressed) e.target.style.cursor = 'zoom-in';
+		if (isPanning || shiftIsPressed) e.target.style.cursor = 'move';
 		
-	    if (mouseX < canvasWidth && mouseY < canvasHeight) {
+	    if (mouseX < tracksWidth/zoomScale && mouseY < tracksHeight/zoomScale) {
 	    	if (isDrawingTrack) {
-	    		addPointTrack(mouseX, mouseYWorld);
+	    		addPointTrack(mouseX, mouseY);
 	    	}
 	    	
 	    	if (isDrawingEngine || isDrawingCar) {
-	    		addPointEC(mouseX, mouseYWorld);
+	    		addPointEC(mouseX, mouseY);
 	    	}
 	    	
-       		panStartX = mouseX;
-        		panStartY = mouseY;
+       		if (isPanning) {
+       			centerTileX = startCenterTileX - (mouseX-panStartX)/tileWidth;
+       			centerTileY = startCenterTileY - (mouseY-panStartY)/(tileWidth*tileRatio);
+       			draw();
+       			return;
+       		}
  	    	if (isZooming) {
-	    		zoomScale = startZoomScale * Math.pow(zoomMultiplier, 10*(zoomStartY - mouseY)/canvasHeight);
-	    		if (zoomScale<0.06) zoomScale = 0.06;
+	    		zoomScale = startZoomScale * Math.pow(zoomMultiplier, 10*(zoomStartY - mouseY*zoomScale)/canvasHeight);
+	    		if (zoomScale<0.2) zoomScale = 0.2;
 	    		if (zoomScale>5) zoomScale = 5;
-	    		console.log("startzoom="+startZoomScale+" zoonscale="+zoomScale);
+	    		console.log("startzoom="+startZoomScale+" zoonscale="+zoomScale+" mouseY="+mouseY+" startY="+zoomStartY);
 	    		draw();
 	    		return;	
 	    	}
@@ -2706,8 +2728,8 @@ $(document).ready(function(){
 	    			deleteEC(ecDel); //delete engine or car
 	    			redraw = true;
 	    		}
-	    		if (tracks[gridx] != undefined) if (tracks[gridx][gridy] != undefined) if (!tracks[gridx][gridy].immutable) {
-	    			delete tracks[gridx][gridy]; //delete track
+	    		if (tracks[mi(gridx,gridy)]) if (!tracks[mi(gridx,gridy)].immutable) {
+	    			delete tracks[mi(gridx,gridy)]; //delete track 11111
 	    			redraw = true;
 	    		}
 	    		if (redraw) draw();
@@ -2882,12 +2904,12 @@ $(document).ready(function(){
 			    	}
 					
 	    			//see if clicked track
-	    			if (tracks[gridx] != undefined)  if (!getButton("Eraser").down && !foundEC ) {
-			    		if (tracks[gridx][gridy] != undefined) {
-				    		if (tracks[gridx][gridy].type == "TrackWye" || tracks[gridx][gridy].type == "TrackWyeLeft" 
-				    		 || tracks[gridx][gridy].type == "TrackWyeRight" || tracks[gridx][gridy].type == "TrackStraight"
-				    		 || tracks[gridx][gridy].type == "TrackCargo"|| tracks[gridx][gridy].type == "TrackBlank") {
-				    			currentCaptionedObject = tracks[gridx][gridy];
+	    			if (!getButton("Eraser").down && !foundEC ) {
+			    		if (tracks[mi(gridx,gridy)] != undefined) {
+				    		if (tracks[mi(gridx,gridy)].type == "TrackWye" || tracks[mi(gridx,gridy)].type == "TrackWyeLeft" 
+				    		 || tracks[mi(gridx,gridy)].type == "TrackWyeRight" || tracks[mi(gridx,gridy)].type == "TrackStraight"
+				    		 || tracks[mi(gridx,gridy)].type == "TrackCargo"|| tracks[mi(gridx,gridy)].type == "TrackBlank") {
+				    			currentCaptionedObject = tracks[mi(gridx,gridy)];
 					    		captionX = undefined;
 				    		}
 				    	} 
@@ -2907,20 +2929,24 @@ $(document).ready(function(){
 	    	draw();
 	    }
     	if (isDrawingEngine || isDrawingCar) {
+    		console.log("Drawing engine");
     		//make engine at startpoint in direction from down to up
+
     		if (startXPoint != undefined) {
-    			var startXTile = Math.floor(startXPoint/tileWidth);
-    			var startYTile = Math.floor(startYPoint/tileRatio/tileRatio/tileWidth);
+    			//var startWorldPoint = screenToWorld(startXPoint*zoomScale,startYPoint*zoomScale); 
+    			var startWorldPoint = screenToWorld(mouseX*zoomScale,mouseY*zoomScale); //this should be equivalent to above line but isn't for some unknown reason
+    			var startXTile = Math.floor(startWorldPoint.xtile); //???
+    			var startYTile = Math.floor(startWorldPoint.ytile);
     			var distSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseYWorld),2);
-    			//console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
-				if (tracks[startXTile] && tracks[startXTile][startYTile] && distSq>10 && 
-				(tracks[startXTile][startYTile].type == "TrackStraight" ||
-				 tracks[startXTile][startYTile].type == "Track45" ||
-				 tracks[startXTile][startYTile].type == "Track90" ||
-				 tracks[startXTile][startYTile].type == "TrackCross")) {
+    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
+				if (tracks[mi(startXTile,startYTile)] && distSq>10 && 
+				(tracks[mi(startXTile,startYTile)].type == "TrackStraight" ||
+				 tracks[mi(startXTile,startYTile)].type == "Track45" ||
+				 tracks[mi(startXTile,startYTile)].type == "Track90" ||
+				 tracks[mi(startXTile,startYTile)].type == "TrackCross")) {
 	    			var fraction = Math.atan2(mouseYWorld-startYPoint, mouseX-startXPoint)/(2*Math.PI) + 0.25;
 	    			var orientation = Math.round(8*fraction+8)%8;
-	    			if (trackConnects(tracks[startXTile][startYTile], (orientation+4)%8)) {
+	    			if (trackConnects(tracks[mi(startXTile,startYTile)], (orientation+4)%8)) {
 	    				if (getEC(startXTile, startYTile) == undefined) { //dont put ec on top of current ec
 							if (isDrawingEngine) new EC(startXTile, startYTile, "EngineBasic", orientation, "", 20, 0.5);
 							if (isDrawingCar) new EC(startXTile, startYTile, "CarBasic", orientation, "", 0, 0.5);
@@ -2960,7 +2986,7 @@ $(document).ready(function(){
 		    	for (gridy= Math.min(startSelectY, endSelectY)/tileWidth/tileRatio; gridy<Math.max(startSelectY, endSelectY)/tileWidth/tileRatio; gridy++) {
 //						ctx.translate(startX-startSelectX, startY-startSelectY); //center origin on tile
 		    		//copy track 
-		    		var track = tracks[gridx][gridy];
+		    		var track = tracks[mi(gridx,gridy)];
 		    		console.log("COpy tracl at "+gridx+", "+gridy);
 		    		if (track) {
 		    			console.log("endMoveX="+endMoveX+ " stMvX="+startMoveX);
@@ -2994,16 +3020,14 @@ $(document).ready(function(){
 	
 	function addTrackCargo(track) { //adds a new TrackCargo for the given track. The new TrackCargo will be behind the inset so one tile away
 		step = getTrackCargoStep(track);
-		if (tracks[track.gridx+step.stepX]) {
-			if (tracks[track.gridx+step.stepX][track.gridy+step.stepY] != undefined) {
-				if (tracks[track.gridx+step.stepX][track.gridy+step.stepY].type != "TrackCargo") {
-					//replace track with TrackCargo
-					new Track(track.gridx+step.stepX, track.gridy+step.stepY, "TrackCargo"); 
-				}
-			} else {
-				//make new TrackCargo
+		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)] != undefined) {
+			if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)].type != "TrackCargo") {
+				//replace track with TrackCargo
 				new Track(track.gridx+step.stepX, track.gridy+step.stepY, "TrackCargo"); 
 			}
+		} else {
+			//make new TrackCargo
+			new Track(track.gridx+step.stepX, track.gridy+step.stepY, "TrackCargo"); 
 		}
 		
 	}
@@ -3019,7 +3043,7 @@ $(document).ready(function(){
 				dif = 4;
 				break;
 		}
-		var angle = ((tracks[track.gridx][track.gridy].orientation + 2 + dif) %8)*Math.PI/4;
+		var angle = ((tracks[mi(track.gridx,track.gridy)].orientation + 2 + dif) %8)*Math.PI/4;
 		var stepX = Math.round(Math.cos(angle));
 		var stepY = Math.round(Math.sin(angle));
 		return {
@@ -3235,8 +3259,8 @@ $(document).ready(function(){
         }
         tracksWidth = canvasWidth-getToolBarWidth(); //width of the tracks area in pixels
         tracksHeight = canvasHeight; //height of the tracks area in pixels
-        numTilesX = Math.floor(tracksWidth/tileWidth);
-        numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
+//        numTilesX = Math.floor(tracksWidth/tileWidth);
+//        numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
     }
     
     function getToolBarWidth () {
@@ -3270,7 +3294,13 @@ $(document).ready(function(){
  //       ctx.restore();
         
         ctx.save();
+        //goal is to put centerTileX,centerTileY at tracksWidth/2, canvasHeight/2
+//		if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
+        var screenCenter = worldToScreen(centerTileX, centerTileY);
+//		ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale*zoomScale);
+		ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
 		ctx.scale(zoomScale, zoomScale);
+
 		if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
 		drawAllTracks();
 		drawSquares();
@@ -3278,13 +3308,13 @@ $(document).ready(function(){
 		if (showToolBar) {
 			drawCaption();
 			drawSecondaryCaption();
-			drawSelection();
-			drawPathEC();
-			drawPathTrack();
 		}
         ctx.restore();
 
 		if (showToolBar) { //toolbar doesn't zoom
+			drawSelection();
+			drawPathEC();
+			drawPathTrack();
 			drawToolBar();
 			drawButtonCaption();
 		}
@@ -3376,36 +3406,32 @@ $(document).ready(function(){
 		ctx.drawImage(imgStar, 0, 0);
 		ctx.restore();
 	}			
-	function drawAllTracks() {
+	function drawAllTracks() { //TODO iterate better
 		//draw all tracks
 		//console.log("draw all tracks");
 		
-//		for (var i=0; i< tracks.length; i++) {
-		for (var i=0; i< numTilesX; i++) {
-//		    for (var j=0; j<tracks[i].length; j++) {
-		    for (var j=0; j<numTilesY; j++) {
-		        if (tracks[i] != undefined && tracks[i][j] != undefined) {
-		        	drawTrack(tracks[i][j]);
-		        }
-		    }
+		for (var key in tracks) {
+		    drawTrack(tracks[key]);
 		}
 	}	
 	
 	function drawSquares() { 
+		return;
+//		console.log("Draw squares");
 		// draw tracks in the squares in the diagonals of tracks where needed
 		for (var i=0; i< numTilesX; i++) {
 //		for (var i=0; i< tracks.length; i++) {
-		    entry = tracks[i];
+//		    entry = tracks[i];
 		    for (var j=0; j<numTilesY; j++) {
 		    //for (var j=0; j<entry.length; j++) {
                 var track;
-		    	if (entry) track = entry[j];
+		    	track = tracks[mi(i,j)];
 		        if (track) {
 		        	//console.log("track type=" + entry[j].type);
-		        	if (tracks[i+1]) if (tracks[i+1][j+1]) {
+		        	if (tracks[mi(i+1,j+1)]) {
 		        		//console.log("Draw SE diagnol for x=" + i + " y=" + j); 
 		        		//only draw diagonal if both tracks line up with square
-		        		if (trackConnects(tracks[i][j],3)) if (trackConnects(tracks[i+1][j+1],7)) {
+		        		if (trackConnects(tracks[mi(i,j)],3)) if (trackConnects(tracks[mi(i+1,j+1)],7)) {
 							ctx.save();
 							ctx.translate((0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
 			        		//draw diagnol is SE
@@ -3413,10 +3439,10 @@ $(document).ready(function(){
 			        		ctx.restore();
 			        	}
 		        	}
-		        	if (tracks[i-1]) if (tracks[i-1][j+1]) {
+		        	if (tracks[mi(i-1,j+1)]) {
 		        		//console.log("Draw SW diagnol for x=" + i + " y=" + j); 
 		        		//only draw diagonal if both tracks line up with square
-		        		if (trackConnects(tracks[i][j],5)) if (trackConnects(tracks[i-1][j+1],1)) {
+		        		if (trackConnects(tracks[mi(i,j)],5)) if (trackConnects(tracks[mi(i-1,j+1)],1)) {
 							ctx.save();
 							ctx.translate((-0.5+track.gridx)*tileWidth, (0.5+track.gridy)*tileWidth*tileRatio); //center origin on tile
 							ctx.translate(0.5*tileWidth, 0.5*tileWidth); //center origin on corner
@@ -3519,7 +3545,7 @@ $(document).ready(function(){
 					ctx.save();
 					ctx.translate(startX-startSelectX, (startY-startSelectY)/tileRatio); //center origin on tile
 		    		//draw track 
-		    		drawTrack(tracks[gridx][gridy]);
+		    		drawTrack(tracks[mi(gridx,gridy)]);
 		    		//draw EC
 		    		var ec=getEC(gridx,gridy);
 		    		drawEC(ec);
@@ -3537,7 +3563,7 @@ $(document).ready(function(){
 		var offsetx = 0;
 		var offsety = 0; //fraction of a tile offset
 		
-		var track = tracks[ec.gridx][ec.gridy];
+		var track = tracks[mi(ec.gridx,ec.gridy)];
 		
 		var enterOri = ec.orientation;
 		if (ec.speed <0) enterOri = (enterOri+4)%8;
@@ -3949,12 +3975,11 @@ $(document).ready(function(){
     	for (var a=capx; a<capx+width; a++) {
 	    	for (var b=capy; b<capy+height; b++) {
 	    		if (a<0 || b<0 || a>=Math.floor(tracksWidth/tileWidth) || b>=Math.floor(tracksHeight/tileWidth)) return false;
-    			if (tracks[a] != undefined) {
-                    if (tracks[a][b] != undefined) {
-                        //console.log("No space at capx=" + capx + " capy=" + capy);
-                        return false;
-                    }
-    			}
+
+                if (tracks[mi(a,b)] != undefined) {
+                    //console.log("No space at capx=" + capx + " capy=" + capy);
+                    return false;
+                }
     		}
     	}
     	
@@ -3969,28 +3994,29 @@ $(document).ready(function(){
     }
 
 	function drawGrid () {
-		for (var i=0; i<numTilesX; i++) {
-			for (var j=0; j<numTilesY; j++) {
-				drawTileBorder(i,j);
+		//var startXTile = 0;//Math.floor(centerTileX-tracksWidth/2/tileWidth);
+		//var endXTile = tracksWidth/tileWidth;//Math.round(centerTileX+tracksWidth/2/tileWidth);
+		//var startYTile = 0;//Math.floor(centerTileY-canvasHeight/2/tileWidth/tileRatio);
+		//var endYTile = canvasHeight/tileWidth/tileRatio;//Math.round(centerTileY+canvasHeight/2/tileWidth/tileRatio);
+		var upperLeftWorld = screenToWorld(0, 0);
+		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
+//		var lowerRightWorld = screenToWorld(tracksWidth/2+1,canvasHeight/2+1);
+		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
+			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				drawTileBorder(Math.floor(i),Math.floor(j));
 			}
 		}	
 	}
 
-	function drawToolBar () {
-		ctx.fillStyle = toolBarBackColor;
-		ctx.fillRect(tracksWidth, 0, getToolBarWidth(), toolBarHeight);
-		
-		var toolButtons = getCurrentToolButtons();
-		
-		for (var i=0; i<toolButtons.length; i++) {
-			toolButtons[i].draw();
-		}
-	}
-	
-	function drawTileBorder(gridx, gridy) {
+	function drawTileBorder(tilex, tiley) {
 		//draw tile border
+		//console.log("Draw tile border x="+tilex+" y="+tiley);
 		ctx.save();
-		ctx.translate((gridx+0.5)*tileWidth, (gridy+0.5)*tileWidth*tileRatio);
+		ctx.translate((0.5+tilex)*tileWidth, (0.5+tiley)*tileWidth*tileRatio); //center origin on tile
+//		ctx.save();
+//		var screenPoint = worldToScreen(tilex, tiley);
+//		ctx.translate(screenPoint.x+tileWidth/2, screenPoint.y+tileWidth*tileRatio/2);
+//		ctx.scale(zoomScale, zoomScale);
 		ctx.strokeStyle = gridColor;
 		drawOctagonOrSquare();
 		ctx.restore();
@@ -4015,6 +4041,17 @@ $(document).ready(function(){
 		ctx.stroke();
 	}
 		
+	function drawToolBar () {
+		ctx.fillStyle = toolBarBackColor;
+		ctx.fillRect(tracksWidth, 0, getToolBarWidth(), toolBarHeight);
+		
+		var toolButtons = getCurrentToolButtons();
+		
+		for (var i=0; i<toolButtons.length; i++) {
+			toolButtons[i].draw();
+		}
+	}
+	
 	function drawButtonCaption() {
 		if (currentCaptionedButton == undefined) return;
 		var xC=Math.floor(tracksWidth/tileWidth)-3;
@@ -4048,6 +4085,7 @@ $(document).ready(function(){
 //		localStorage.setObject('trx-tracks'+nBin, tracks);
 //		localStorage.setObject('trx-engines'+nBin, engines);
 //		localStorage.setObject('trx-cars'+nBin, cars);
+		draw();
 	}
 	
 	function openTrx(nBin) { //opens trx stored in bin nButton
@@ -4466,14 +4504,14 @@ $(document).ready(function(){
 		if (ec.position>=1 || ec.position<0) { //stepped past current tile so figure out which one to jump to
 			var x = Math.floor(ec.gridx);
 			var y = Math.floor(ec.gridy);
-			var startTrack = tracks[x][y];
+			var startTrack = tracks[mi(x,y)];
 			var startOri = ec.orientation; // this was missing for a while so I added back, not sure if right
 
 			//figure out next tile
 			next = getNextTrack(ec);
 
 			//check for crashes
-			if (tracks[next.gridx][next.gridy] == undefined) {
+			if (tracks[mi(next.gridx,next.gridy)] == undefined) {
 				console.log("Undef crash");
 				crash(ec);
 			} else {	
@@ -4487,11 +4525,11 @@ $(document).ready(function(){
 				ec.orientation = next.orientation;
 
 				//check for lazy wyes
-				var oriDif = (ec.orientation - tracks[ec.gridx][ec.gridy].orientation +8)%8;
-				if (tracks[ec.gridx][ec.gridy].subtype == "lazy") {
+				var oriDif = (ec.orientation - tracks[mi(ec.gridx,ec.gridy)].orientation +8)%8;
+				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "lazy") {
 					//console.log("Lazy wye. Ori dif="+oriDif);
-					var state = tracks[ec.gridx][ec.gridy].state;
-					switch 	(tracks[ec.gridx][ec.gridy].type) {
+					var state = tracks[mi(ec.gridx,ec.gridy)].state;
+					switch 	(tracks[mi(ec.gridx,ec.gridy)].type) {
 						case "TrackWyeLeft":
 							if (oriDif == 2) state = "left";
 							if (oriDif == 4) state = "right";
@@ -4506,21 +4544,21 @@ $(document).ready(function(){
 							break;
 					}
 					
-					if (tracks[ec.gridx][ec.gridy].state != state) { //switch
-						tracks[ec.gridx][ec.gridy].state = state;
+					if (tracks[mi(ec.gridx,ec.gridy)].state != state) { //switch
+						tracks[mi(ec.gridx,ec.gridy)].state = state;
 						playSound("switch");
 					}
 				}
 				
 				//check for prompt on entering tile
-				if (tracks[ec.gridx][ec.gridy].subtype == "prompt" && oriDif == 0 && isFirstCarInTrain(ec)) {
+				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "prompt" && oriDif == 0 && isFirstCarInTrain(ec)) {
 					console.log("Interpret prompt");
 					ctx.lineWidth = 3;
 					ctx.strokeStyle = highlightColor;
-					roundRect(tracks[ec.gridx][ec.gridy].gridx*tileWidth, tracks[ec.gridx][ec.gridy].gridy*tileWidth, tileWidth, tileWidth,3, false, true);
+					roundRect(tracks[mi(ec.gridx,ec.gridy)].gridx*tileWidth, tracks[mi(ec.gridx,ec.gridy)].gridy*tileWidth, tileWidth, tileWidth,3, false, true);
 					var retVal = confirm("Go left ?");
-					if (retVal)	tracks[ec.gridx][ec.gridy].state = "left";
-					else tracks[ec.gridx][ec.gridy].state = "right";	
+					if (retVal)	tracks[mi(ec.gridx,ec.gridy)].state = "left";
+					else tracks[mi(ec.gridx,ec.gridy)].state = "right";	
 					ctx.lineWidth = 1;
 				}
 	
@@ -4532,26 +4570,26 @@ $(document).ready(function(){
 				}
 				
 				//check for compareLess or compareGreater on engine entering tile
-				var step = getTrackCargoStep(tracks[ec.gridx][ec.gridy]);
-				if ((tracks[ec.gridx][ec.gridy].subtype == "compareLess" || tracks[ec.gridx][ec.gridy].subtype == "compareGreater") && oriDif == 0 && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined && isFirstCarInTrain(ec)) {
+				var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
+				if ((tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess" || tracks[mi(ec.gridx,ec.gridy)].subtype == "compareGreater") && oriDif == 0 && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined && isFirstCarInTrain(ec)) {
 					//iterate through train to find first car with same type as switch cargo type. Use it for comparison
 					var train = getTrain(ec);
 					var car;
 					for (var c=1; c<train.length && car == undefined;  c++) {
-						if (train[c].cargo) if (train[c].cargo.type[0] == tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.type[0]) car = train[c];
+						if (train[c].cargo) if (train[c].cargo.type[0] == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0]) car = train[c];
 					}
 					
 					if (car) {
 						var state;
-						if (tracks[ec.gridx][ec.gridy].subtype == "compareLess") { //for compareLess
-							if (car.cargo.value < tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value) state = "left";
+						if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess") { //for compareLess
+							if (car.cargo.value < tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value) state = "left";
 							else state = "right";
 						} else { //for compareGreater
-							if (car.cargo.value < tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value) state = "right";
+							if (car.cargo.value < tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value) state = "right";
 							else state = "left";
 						}
-						if (state != tracks[ec.gridx][ec.gridy].state) playSound("switch");
-						tracks[ec.gridx][ec.gridy].state = state;
+						if (state != tracks[mi(ec.gridx,ec.gridy)].state) playSound("switch");
+						tracks[mi(ec.gridx,ec.gridy)].state = state;
 					}
 	
 				}
@@ -4608,98 +4646,98 @@ $(document).ready(function(){
 				if (ec.position >= 0.5 && ec.position < 0.5+ec.speed/1000 && ec.type == "CarBasic") { //perform action when car reaches middle of track
 					//console.log("detect stations");
 					// pickup cargo lying on track (not on station)
-				/*	if (ec.cargo == undefined && tracks[ec.gridx][ec.gridy].cargo != undefined && tracks[ec.gridx][ec.gridy].type == "supply") {
+				/*	if (ec.cargo == undefined && tracks[mi(ec.gridx,ec.gridy)].cargo != undefined && tracks[mi(ec.gridx,ec.gridy)].type == "supply") {
 						//move cargo
-						ec.cargo = tracks[ec.gridx][ec.gridy].cargo;
-						tracks[ec.gridx][ec.gridy].cargo = undefined;
+						ec.cargo = tracks[mi(ec.gridx,ec.gridy)].cargo;
+						tracks[mi(ec.gridx,ec.gridy)].cargo = undefined;
 				} */
 					
-					var step = getTrackCargoStep(tracks[ec.gridx][ec.gridy]);
+					var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
 
 					//divide cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "divide") {
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "divide") {
 						console.log("Divide");
-						if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined)  { //station has cargo 
-							if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.type[0] == ec.cargo.type[0]) { // same type so divide
+						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so divide
 								playSound("divide");
-								ec.cargo.value = Math.round(ec.cargo.value / tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value);
-								tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+								ec.cargo.value = Math.round(ec.cargo.value / tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value);
+								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 							}
 						} else { // station does not have cargo so transfer cargo
 							console.log("Transfer to empty");
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					} 
 					
 					//multiply cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "multiply") {
-						if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined)  { //station has cargo 
-							if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.type[0] == ec.cargo.type[0]) { // same type so multiply
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "multiply") {
+						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so multiply
 								playSound("multiply");
-								ec.cargo.value = (ec.cargo.value * tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value)%(ec.cargo.type.length-1);
-								tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value * tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
+								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					} 
 
 					//subtract cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "subtract") {
-						if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined)  { //station has cargo 
-							if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.type[0] == ec.cargo.type[0]) { // same type so subtract
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "subtract") {
+						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so subtract
 								playSound("subtract");
-								ec.cargo.value = (ec.cargo.value - tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value + (ec.cargo.type.length-1))%(ec.cargo.type.length-1);
-								//console.log("len="+ec.cargo.type.length+" testmod="+ 2%10+" ecval="+ec.cargo.value+" trackval="+tracks[ec.gridx][ec.gridy].cargo.value);
-								tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value - tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value + (ec.cargo.type.length-1))%(ec.cargo.type.length-1);
+								//console.log("len="+ec.cargo.type.length+" testmod="+ 2%10+" ecval="+ec.cargo.value+" trackval="+tracks[mi(ec.gridx,ec.gridy)].cargo.value);
+								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					} 
 
 					//add cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "add") {
-						if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined)  { //station has cargo 
-							if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.type[0] == ec.cargo.type[0]) { // same type so add
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "add") {
+						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so add
 								playSound("add");
-								ec.cargo.value = (ec.cargo.value + tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value)%(ec.cargo.type.length-1);
-								tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value + tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
+								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					} 
 
 					//catapult cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "catapult") {
-						if (tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined)  { //station has cargo so catapult ec cargo and remove number from station and cargo from car
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "catapult") {
+						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo so catapult ec cargo and remove number from station and cargo from car
 							playSound("catapult");
-							var angle = ((tracks[ec.gridx][ec.gridy].orientation + 2 + 2) %8)*Math.PI/4;
-							var stepX = tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value * Math.round(Math.cos(angle));
-							var stepY = tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo.value * Math.round(Math.sin(angle));
+							var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
+							var stepX = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.cos(angle));
+							var stepY = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.sin(angle));
 							//console.log("stepX="+stepX+" stepY="+stepY)
-							if (tracks[ec.gridx+stepX][ec.gridy+stepY] == undefined) new Track (ec.gridx+stepX, ec.gridy+stepY, "TrackBlank");
-							tracks[ec.gridx+stepX][ec.gridy+stepY].cargo = ec.cargo; //catapult
+							if (tracks[mi(ec.gridx+stepX,ec.gridy+stepY)] == undefined) new Track (ec.gridx+stepX, ec.gridy+stepY, "TrackBlank");
+							tracks[mi(ec.gridx+stepX,ec.gridy+stepY)].cargo = ec.cargo; //catapult
 							ec.cargo = undefined;
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 						} else { // station does not have cargo so transfer cargo if its a number
 							if (ec.cargo.type[0] == "numbers") {
 								playSound("catapultWindup");
-								tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 								ec.cargo = undefined;
 							}
 						}
 					} 
 
 					//slingshot cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "slingshot") {
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "slingshot") {
 						playSound("slingshot");
-						var angle = ((tracks[ec.gridx][ec.gridy].orientation + 2 + 2) %8)*Math.PI/4;
+						var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
 						var stepX = Math.round(Math.cos(angle));
 						var stepY = Math.round(Math.sin(angle));
 						
@@ -4715,8 +4753,8 @@ $(document).ready(function(){
 							if (curX<0 || curY<0 || curX>=numTilesX || curY>=numTilesY) { // exit loop if goes off screen
 								tempCargo = undefined;
 							} else {
-								if (tracks[curX][curY] == undefined) new Track(curX, curY, "TrackBlank");
-								track = tracks[curX][curY];
+								if (tracks[mi(curX,curY)] == undefined) new Track(curX, curY, "TrackBlank");
+								track = tracks[mi(curX,curY)];
 								temp2cargo = track.cargo;
 								track.cargo = tempCargo;
 								tempCargo=temp2cargo;
@@ -4725,17 +4763,17 @@ $(document).ready(function(){
 					}
 					
 					//pickdrop cargo
-					//console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
-					if (tracks[ec.gridx][ec.gridy].subtype == "pickDrop") {
+					//console.log("subtype="+tracks[mi(ec.gridx,ec.gridy)].subtype);
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "pickDrop") {
 						//console.log("Pickdrop");
 						//if station has cargo and car doesn't, then swap station cargo to car
-						if (ec.cargo == undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined) {
+						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
 							playSound("pickdrop");
-							ec.cargo = tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo; //move cargo
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = undefined;
+							ec.cargo = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
 						}
 						//if car has cargo and station doesn't, then swap car cargo to station
-						else if (ec.cargo != undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo == undefined) {
+						else if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							//check for bunny
 							if (ec.cargo.type[1] == "bunny") {
 								playSound("home");
@@ -4758,31 +4796,31 @@ $(document).ready(function(){
 							} else {
 								playSound("pickdropReverse");
 							}
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					}
 					
 					//home cargo
-					//console.log("subtype="+tracks[ec.gridx][ec.gridy].subtype);
-					if (tracks[ec.gridx][ec.gridy].subtype == "home") {
+					//console.log("subtype="+tracks[mi(ec.gridx,ec.gridy)].subtype);
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "home") {
 						//console.log("home");
 						//if car has cargo and station doesn't, then swap car cargo to station
-						if (ec.cargo != undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo == undefined) {
+						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("home");
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					}
 					
 					//dump cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "dump") {
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "dump") {
 						playSound("dump");
 						ec.cargo = undefined;
 					}
 					
 					//increment cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "increment") {
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "increment") {
 						playSound("increment");
 						ec.cargo.value++;
 						//console.log("Increment lnegth="+ ec.cargo.type.length);
@@ -4790,38 +4828,38 @@ $(document).ready(function(){
 					}
 					
 					//decrement cargo
-					if (ec.cargo !=undefined && tracks[ec.gridx][ec.gridy].subtype == "decrement") {
+					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "decrement") {
 						playSound("decrement");
 						ec.cargo.value--;
 						ec.cargo.value %= ec.cargo.type.length-1;
 					}
 					
 					//supply station
-					if (tracks[ec.gridx][ec.gridy].subtype == "supply") {
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "supply") {
 						//if station has cargo and car doesn't, then copy station cargo to car
-						if (ec.cargo == undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo != undefined) {
+						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
 							playSound("supply");
-							ec.cargo = jQuery.extend({},tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo); //copy cargo
+							ec.cargo = jQuery.extend({},tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo); //copy cargo
 						}
 						//if car has cargo and station doesn't, then moce car cargo to station
-						if (ec.cargo != undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo == undefined) {
+						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("supply");
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo;
 							ec.cargo == undefined;
 						}
 					}
 
 					//tunnel
-					if (tracks[ec.gridx][ec.gridy].subtype == "redTunnel") {
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "redTunnel") {
 						console.log ("Enter red tunnel");
 					}
 
 					//drop off cargo at empty compareLess or comapreGreater wyes
-					if (tracks[ec.gridx][ec.gridy].subtype == "compareLess" || tracks[ec.gridx][ec.gridy].subtype == "compareGreater") {
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess" || tracks[mi(ec.gridx,ec.gridy)].subtype == "compareGreater") {
 						//if car has cargo and station doesn't, then swap car cargo to station
-						if (ec.cargo != undefined && tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo == undefined) {
+						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("supply");
-							tracks[ec.gridx+step.stepX][ec.gridy+step.stepY].cargo = ec.cargo ; //move cargo
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
 					}
@@ -4853,7 +4891,8 @@ $(document).ready(function(){
 	}
 	
 	function reverseOrientation(ec) { //flips the orientation of the ec so it is going the other way on the track. For track straight just ori+=4
-		var track=tracks[ec.gridx][ec.gridy];
+		console.log("ReverseOri");
+		var track=tracks[mi(ec.gridx,ec.gridy)];
 		for (var dif=1; dif<8; dif++) {
 			var oriCheck = (ec.orientation+dif)%8;
 			if (ec.speed >=0) oriCheck = (oriCheck+4)%8; //add 4 since orientation is based on orientation when entering
@@ -4868,14 +4907,15 @@ $(document).ready(function(){
 	}
 	
 	function reverseSpeed(ec) { //reverse the speed of this engine or car. If straight then just speed = -speed. If on corner then must change ori
-		var type = getTypeForWye(ec, tracks[ec.gridx][ec.gridy]);
+		console.log("ReverseSpeed");
+		var type = getTypeForWye(ec, tracks[mi(ec.gridx,ec.gridy)]);
 		if (type != "TrackStraight" && type != "TrackBridge" && type != "TrackCross") {
 			var ori;
 			for (var dif=1; dif<9 && ori == undefined; dif++) {
 				var testOri = (ec.orientation+dif)%8;
 				//if (ec.speed<0) testOri = (testOri+4)%8; //since going backwards use opposite orientation
 				var oriDif = (testOri-ec.orientation+8)%8;
-				if ((trackConnects(tracks[ec.gridx][ec.gridy], testOri)) && oriDif !=4) {
+				if ((trackConnects(tracks[mi(ec.gridx,ec.gridy)], testOri)) && oriDif !=4) {
 					ori = testOri;
 					if (ec.speed<0) ori = (ori+4)%8;
 				}
@@ -4895,7 +4935,7 @@ $(document).ready(function(){
 	
 	function getNextTrack(ec) {
 		//console.log("getNextTrack");
-		var track = tracks[ec.gridx][ec.gridy];
+		var track = tracks[mi(ec.gridx,ec.gridy)];
 		if (!track) console.log("ERROR no track found for getNextTrack ec.gridx="+ec.gridx+" y="+ec.gridy);
 		var type = getTypeForWye(ec, track);
 		var gridx=0, gridy=0;
@@ -5097,22 +5137,38 @@ $(document).ready(function(){
 		
 	}
 		
+	function screenToWorld(x,y) { //converts point in pixels of canvas on screen to world coordinates in xtiles, ytiles
+		var worldPoint = {};
+		worldPoint.xtile = (x-(tracksWidth/2-centerTileX*tileWidth))/zoomScale/tileWidth;
+		worldPoint.ytile = (y-(canvasHeight/2-centerTileY*tileWidth*tileRatio))/zoomScale/tileWidth/tileRatio;
+		return worldPoint;	
+	}
+	
+	function worldToScreen(xtile, ytile) { //converts points in world cordidates (units tiles) to screen coordinates (units pixels)
+		var screenPoint	= {};
+		screenPoint.x = xtile*tileWidth*zoomScale+(tracksWidth/2-centerTileX*tileWidth);
+		screenPoint.y = ytile*tileWidth*zoomScale*tileRatio+(canvasHeight/2-centerTileY*tileWidth*tileRatio);
+		return screenPoint;
+	}
+	
 	function addPointTrack(x,y) {
-		if (x > (Math.floor(tracksWidth/tileWidth) * tileWidth)) return;
-		if (y > (Math.floor(tracksHeight/tileWidth) * tileWidth)) return;
+		if (x > tracksWidth/zoomScale) {console.log("Greater than trackWidth");return; }
+		if (y > tracksHeight/zoomScale) return;
 
+		x *= zoomScale;
+		y *= zoomScale;
 		drawingPointsTrackX.push(x);
 		drawingPointsTrackY.push(y);
 		if (!getButton("Play").down) drawPathTrack();
 		
-		x-=1; y-=1; //this is so you can draw on gridx=0 and gridy=0 since you need to cross border to trigger a new tile
 		//get tile coords
-		var trackTileX = Math.floor(x/tileWidth);
-		var trackTileY = Math.floor(y/tileRatio/tileRatio/tileWidth);
+		var worldPoint = screenToWorld(x,y);
+		var trackTileX = Math.floor(worldPoint.xtile);
+		var trackTileY = Math.floor(worldPoint.ytile);
 						
 		//get tile quadrant (tile split into 3x3 grid, center is 8, 0 is N, 1 is NE, 2 is E...)
-		var xFraction = (x%tileWidth)/tileWidth * (2+2*Math.SQRT2); 
-		var yFraction = ((y/tileRatio)%(tileWidth*tileRatio))/(tileWidth*tileRatio) * (2+2*Math.SQRT2);
+		var xFraction = (worldPoint.xtile-trackTileX) * (2+2*Math.SQRT2);
+		var yFraction = (worldPoint.ytile-trackTileY) * (2+2*Math.SQRT2);
 		var tileOrientation;
 
 		if (useOctagons) {
@@ -5215,13 +5271,13 @@ $(document).ready(function(){
 					case "Track90":
 						//console.log("Track90");
 						//if there is already a straight track then make a wye left track
-						if (tracks[currentXTile] != undefined && tracks[currentXTile][currentYTile] != undefined) {
-							switch (tracks[currentXTile][currentYTile].type) {
+						if (tracks[mi(currentXTile,currentYTile)]) {
+							switch (tracks[mi(currentXTile,currentYTile)].type) {
 								case "TrackStraight":
-									var difEnter = (tracks[currentXTile][currentYTile].orientation - enteringOrientation +8)%8;
-									var difExit = (tracks[currentXTile][currentYTile].orientation - exitingOrientation +8)%8;
+									var difEnter = (tracks[mi(currentXTile,currentYTile)].orientation - enteringOrientation +8)%8;
+									var difExit = (tracks[mi(currentXTile,currentYTile)].orientation - exitingOrientation +8)%8;
 									//console.log ("difEnter=" + difEnter + " difExit=" + difExit);
-									//console.log("current ori=" + tracks[currentXTile][currentYTile].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
+									//console.log("current ori=" + tracks[mi(currentXTile,currentYTile)].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
 									if ((difEnter == 4 && difExit == 2) || (difEnter == 2 && difExit == 4) || (difEnter == 0 && difExit == 6) || (difEnter == 6 && difExit == 0)) {
 											type = "TrackWyeLeft";
 											state = "left";
@@ -5234,8 +5290,8 @@ $(document).ready(function(){
 									    }
 								break;
 								case "Track90":
-									//console.log("current ori=" + tracks[currentXTile][currentYTile].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
-									switch ((tracks[currentXTile][currentYTile].orientation - enteringOrientation +8)%8) {
+									//console.log("current ori=" + tracks[mi(currentXTile,currentYTile)].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
+									switch ((tracks[mi(currentXTile,currentYTile)].orientation - enteringOrientation +8)%8) {
 										case 0:
 										case 2:
 											type = "TrackWye";
@@ -5255,12 +5311,12 @@ $(document).ready(function(){
 						}
 						break;	
 					case "TrackStraight":
-						if (tracks[currentXTile] != undefined && tracks[currentXTile][currentYTile] != undefined) {
-							switch (tracks[currentXTile][currentYTile].type) {
+						if (tracks[mi(currentXTile,currentYTile)] != undefined) {
+							switch (tracks[mi(currentXTile,currentYTile)].type) {
 								case "TrackStraight":
 								case "TracksCross":
 								//if new straight track crosses straight or cross track then make cross track
-									switch ((tracks[currentXTile][currentYTile].orientation - enteringOrientation +8)%8) {
+									switch ((tracks[mi(currentXTile,currentYTile)].orientation - enteringOrientation +8)%8) {
 										case 2:
 										case 6:
 											type = "TrackCross";
@@ -5269,10 +5325,10 @@ $(document).ready(function(){
 									break;
 								case "Track90":
 								//if new straight track crosses straight or cross track then make cross track
-									var difEnter = (tracks[currentXTile][currentYTile].orientation - enteringOrientation +8)%8;
-									var difExit = (tracks[currentXTile][currentYTile].orientation - exitingOrientation +8)%8;
+									var difEnter = (tracks[mi(currentXTile,currentYTile)].orientation - enteringOrientation +8)%8;
+									var difExit = (tracks[mi(currentXTile,currentYTile)].orientation - exitingOrientation +8)%8;
 									console.log ("XXX difEnter=" + difEnter + " difExit=" + difExit);
-									//console.log("current ori=" + tracks[currentXTile][currentYTile].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
+									//console.log("current ori=" + tracks[mi(currentXTile,currentYTile)].orientation + " entering ori=" + enteringOrientation + " exit ori=" + exitingOrientation);
 									if ((difEnter == 4 && difExit == 0) || (difEnter == 0 && difExit == 4)) {
 											type = "TrackWyeLeft";
 											state = "right";
@@ -5293,8 +5349,11 @@ $(document).ready(function(){
 				if (type != "Track135") { // 135 not allowed because too sharp
 					new Track(currentXTile, currentYTile, type, orientation, state, subtype);
 					ctx.save();
+			        var screenCenter = worldToScreen(centerTileX, centerTileY);
+					ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
+			        //ctx.translate(screenCenter.x, screenCenter.y);
 					ctx.scale(zoomScale, zoomScale);
-					drawTrack(tracks[currentXTile][currentYTile]);
+					drawTrack(tracks[mi(currentXTile,currentYTile)]);
 					ctx.restore();
 				}
 			}
@@ -5314,12 +5373,11 @@ $(document).ready(function(){
 	    ctx.lineJoin = "round";
 	    ctx.lineWidth = 4;
 	    ctx.save();
-	    ctx.scale(zoomScale,zoomScale);
 				
         ctx.beginPath();
-        ctx.moveTo(drawingPointsTrackX[0], drawingPointsTrackY[0]/tileRatio);
+        ctx.moveTo(drawingPointsTrackX[0], drawingPointsTrackY[0]);
         for (i=1; i<drawingPointsTrackX.length; i++) {
-	        ctx.lineTo(drawingPointsTrackX[i], drawingPointsTrackY[i]/tileRatio);
+	        ctx.lineTo(drawingPointsTrackX[i], drawingPointsTrackY[i]);
         	
         }
 	    ctx.stroke();
@@ -5327,9 +5385,11 @@ $(document).ready(function(){
 	}	
 
 	function addPointEC(x,y) { //for drawing mouse movements when manually placing engines or cars
-		if (x > (Math.floor(tracksWidth/tileWidth) * tileWidth)) return;
-		if (y > (Math.floor(tracksHeight/tileWidth) * tileWidth)) return;
+		if (x > tracksWidth/zoomScale) return;
+		if (y > tracksHeight/zoomScale) return;
 
+		x *= zoomScale;
+		y *= zoomScale;
 		drawingPointsECX.push(x);
 		drawingPointsECY.push(y);
 		if (!getButton("Play").down) drawPathEC();
@@ -5343,12 +5403,11 @@ $(document).ready(function(){
 	    ctx.lineJoin = "round";
 	    ctx.lineWidth = 4;
 	    ctx.save();
-	    ctx.scale(zoomScale,zoomScale);
 				
         ctx.beginPath();
-        ctx.moveTo(drawingPointsECX[0], drawingPointsECY[0]/tileRatio);
+        ctx.moveTo(drawingPointsECX[0], drawingPointsECY[0]);
         for (i=1; i<drawingPointsECX.length; i++) {
-	        ctx.lineTo(drawingPointsECX[i], drawingPointsECY[i]/tileRatio);
+	        ctx.lineTo(drawingPointsECX[i], drawingPointsECY[i]);
         }
 	    ctx.stroke();
 	    ctx.restore();
