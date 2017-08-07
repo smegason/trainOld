@@ -1,7 +1,8 @@
 To Do:
+-spiral is missing spots
 -Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom. Zoom now works(drawtracks, engine, copy works but not caption) but need to debug pan
--compress/decompress by replacing text
--home station
+
+-draw diagonal square in blender
 -eyes and fur on bunny
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
 -remake trx for each level
@@ -11,6 +12,7 @@ To Do:
 
 
 Bug-
+-tunnel needs to be on top. Draw last.
 -greater/less than. the equal gives wrong answer. See trx 74 for example.
 -bunny makes increment sound e.g. trx76
 
@@ -22,7 +24,6 @@ High prioirty-
 -add user types, and show/hide functionality based on user types- trainee=no toolbar locked on draw tracks, etc.
 -need to script rendering, re-render everything at higher res
 -render cargoShapes line, triangle...octagon
--render square connector instead of drawn one
 
 Low priority-
 -animate stations performing their action: catapult and slignshot cargo moving, slide on off for supply, dump, pickDrop
