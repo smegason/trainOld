@@ -1,5 +1,5 @@
 To Do:
--Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom
+-Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom. Zoom now works(drawtracks, engine, copy works but not caption) but need to debug pan
 -compress/decompress by replacing text
 -home station
 -eyes and fur on bunny
