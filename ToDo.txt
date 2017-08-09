@@ -1,7 +1,6 @@
 To Do:
--spiral is missing spots
--Pan and zoom for browser and ipad. On ipad, two finger drag is pan and pinch is zoom. On browser, shift-click is drag and control-click is zoom. Zoom now works(drawtracks, engine, copy works but not caption) but need to debug pan
-
+-Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom. Zoom now works(drawtracks, engine, copy works but not caption) but need to debug pan
+-when make station rotate platform 180 to avoid putting over track
 -draw diagonal square in blender
 -eyes and fur on bunny
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php

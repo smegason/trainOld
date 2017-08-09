@@ -66,7 +66,11 @@ $(document).ready(function(){
  	};
 
     window.addEventListener('orientationchange', doOnOrientationChange);
- //   window.addEventListener('touchstart', doTouchStart(e));
+    
+    window.addEventListener('mousewheel', function(e){
+    	doMouseWheel(e);
+    }, false);
+    
     window.addEventListener('touchstart', function(e){
         doTouchStart(e);
     }, false)
@@ -86,32 +90,6 @@ $(document).ready(function(){
 // 		console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
- /*   	if(event.keyCode == 37) {
-        	//console.log('Left was pressed');
-        	nCurrentTrx--;
-        	if (nCurrentTrx < 1) nCurrentTrx =1;
-			openTrxJSON(trx[nCurrentTrx]);
-			buildTrains();
-			draw();
-    	}*/
-/*    	else if(event.keyCode == 38) {
-        	console.log('Up was pressed');
-        	zoomScale = zoomScale * zoomMultiplier;
-    		if (zoomScale<0.2) zoomScale = 0.2;
-    		if (zoomScale>5) zoomScale = 5;
-       	draw();
- 		}
-    	else if(event.keyCode == 40) {
-        	console.log('Down was pressed');
-        	zoomScale = zoomScale / zoomMultiplier;
-    		if (zoomScale<0.2) zoomScale = 0.2;
-    		if (zoomScale>5) zoomScale = 5;
-        	draw();
- 		}
-    	else if(event.keyCode == 87) {
-        	//console.log('w pressed');
-        	writeTrx();
- 		}*/
  		else if (event.keyCode == 16) { //pan
  			shiftIsPressed = true;
  			document.getElementById("canvas").style.cursor = 'move';
@@ -123,14 +101,6 @@ $(document).ready(function(){
  		else if (event.keyCode == 224) {
  			commandIsPressed = true;
  		}
-/*    	else if(event.keyCode == 39) {
-        	nCurrentTrx++;
-        	//console.log('Right was pressed/ CurrentTrx='+nCurrentTrx);
- //       	if (nCurrentTrx > trx.length) nCurrentTrx = trx.length;
-			openTrxJSON(trx[nCurrentTrx]);
-			buildTrains();
-			draw();
-		}*/
 	});   
 
  	window.addEventListener('keyup', function(event) {
@@ -156,7 +126,6 @@ $(document).ready(function(){
 	var oct2 = (Math.SQRT2 + 2)/(2+2*Math.SQRT2);
 
 	//globals
-	//Canvas stuff
     var canvas = $("#canvas")[0];
  
  	//passed params
@@ -177,14 +146,9 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-//	console.log("Data=");
-//	console.log (data);
 
 	var buttonDims = [];
 	var buttonDimLevels = [];
-//	var buttonLevelsX1, buttonLevelsY1, buttonLevelsX2, buttonLevelsY2;
-//	var buttonFreeplayX1, buttonFreeplayY1, buttonFreeplayX2, buttonFreeplayY2;
-//	var buttonAboutX1, buttonAboutY1, buttonAboutX2, buttonAboutY2;
 	var showTitleScreen = true;
 	var interactionState = 'TitleScreen';
 	var resizeCanvas = true;
@@ -225,17 +189,10 @@ $(document).ready(function(){
     var windowWidth = 100;
     var windowHeight = 100;
     var pixelRatio = 1; /// get pixel ratio of device
-//    console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
-//    canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
-//    canvas.height = windowHeight;// * pixelRatio;
-//    canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
-//    canvas.style.height = windowHeight + 'px';
 
 	var ctx = canvas.getContext("2d");
     var canvasWidth;
     var canvasHeight;
-//	var numTilesX = 5;
-//	var numTilesY = 4; //recalcultated in calculateLayout()
 	var centerTileX=0; //which tile to put in the center of the canvas. This plus zoomScale determines frame of tracks to view
 	var centerTileY=0; 
 	var startCenterTileX, startCenterTileY; //used for panning
@@ -249,14 +206,7 @@ $(document).ready(function(){
     var tileRatio = 57/63; //aspect ratio of tiles
 	var tileWidth=60;
 	calculateLayout();
-//    var globalAlpha = 1;
 	var insetWidth = 0.35*tileWidth;
-	//var numTilesX = Math.floor(tracksWidth/tileWidth);
-	//var numTilesY = Math.floor(tracksHeight/tileRatio/tileWidth);
-//    var trackArrayWidth = 10;
-//    var trackArrayHeight = 10;
-//	var tracks = createArray(trackArrayWidth, trackArrayHeight);
-//	var tracks = createArray(Math.max(numTilesX, numTilesY), Math.max(numTilesX, numTilesY));
 	var tracks = {};
 	var engines = [];
 	var cars = [];
@@ -283,14 +233,14 @@ $(document).ready(function(){
 	var exitingOrientation;
 	var startXPoint; //for drawing engine
 	var startYPoint;
-	var startSelectX; //for drawing selection
-	var startSelectY;
-	var endSelectX; //for drawing selection
-	var endSelectY;
-	var startMoveX; //for moving selection
-	var startMoveY;
-	var endMoveX; //for moving selection
-	var endMoveY;
+	var startSelectXTile; //for drawing selection
+	var startSelectYTile;
+	var endSelectXTile; //for drawing selection
+	var endSelectYTile;
+	var startMoveXTile; //for moving selection
+	var startMoveYTile;
+	var endMoveXTile; //for moving selection
+	var endMoveYTile;
 	var currentCaptionedObject; //for making caption bubble for engine or car
 	var captionX; //upper left x,y tile for caption bubble
 	var captionY; //upper left x,y tile for caption bubble
@@ -1381,8 +1331,6 @@ $(document).ready(function(){
     openTrxJSON(trx[1]);
  	buildTrains();
 
-//	currentCaptionedObject = undefined;
-
 	// make Toolbar for Levels
 	toolButtonsLevels.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
 
@@ -1508,7 +1456,6 @@ $(document).ready(function(){
 		ctx.save();
 		xScale = canvasWidth/imgTitleScreen.width;
 		yScale = canvasHeight/imgTitleScreen.height;
-		//console.log("canvasWodth="+canvasWidth+" canvasHeight="+canvasHeight+" imgWidth="+imgTitleScreen.width+" imgHeight="+imgTitleScreen.height);
 		ctx.scale(xScale, yScale);
 		ctx.drawImage(imgTitleScreen, 0, 0);
 		ctx.restore();
@@ -1521,15 +1468,12 @@ $(document).ready(function(){
 
 		drawTextButton(0.5*canvasWidth, 0.85*canvasHeight, 0.15*canvasWidth, 0.07*canvasHeight, "About", false, false, "lightGray", "gray");
 		buttonDims['About'] = new box(0.5*canvasWidth, 0.85*canvasHeight, 0.15*canvasWidth, 0.7*canvasHeight);
-		
 	}
 	
 	function drawButtonScreen() { // draws the screen for different sets of buttons such levels, trainee, conductor
-		//console.log("Draw button screen");
 		ctx.save();
 		xScale = canvasWidth/imgTitleScreen.width;
 		yScale = canvasHeight/imgTitleScreen.height;
-		//console.log("canvasWidth="+canvasWidth+" canvasHeight="+canvasHeight+" imgWidth="+imgTitleScreen.width+" imgHeight="+imgTitleScreen.height);
 		ctx.scale(xScale, yScale);
 		ctx.drawImage(imgTitleScreen, 0, 0);
 		ctx.restore();
@@ -1545,7 +1489,6 @@ $(document).ready(function(){
 		if (interactionState == 'Levels') maxY=4;
 		for (x=0; x<2; x++) {
 			for (y=0; y<maxY; y++) {
-				//console.log ("x="+x+" y="+y);
 				var text, unlocked;
 				index = x*maxY + y +1;
 				if (interactionState == 'Levels') {
@@ -1556,7 +1499,6 @@ $(document).ready(function(){
 					unlocked = unlockedTrx[text];
 					text = "track "+index;
 				}
-				//console.log("text="+text+" unlcoked="+unlocked);
 				drawTextButton((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight, text, !unlocked, unlocked, buttonColor, buttonBorderColor);
 				buttonDimLevels[text] = new box((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight);
 			}
@@ -1572,7 +1514,6 @@ $(document).ready(function(){
 		//console.log ("drawTextButton x="+x+" y="+y);
 		ctx.fillStyle = fillColor;
 		ctx.strokeStyle = strokeColor;
-//		ctx.fillRect(x-0.07*canvasWidth,y-0.05*canvasHeight, 0.2*canvasWidth, 0.08*canvasHeight);
 		roundRect (x-0.5*width, y-0.5*height, width, height, 5, true, true);
 		ctx.font = "normal bold 30px Arial";
 		ctx.fillStyle = fontColor;
@@ -2248,7 +2189,6 @@ $(document).ready(function(){
 		var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
 		if (obj.cargo.type[0] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
 		if (obj.type == "trackcargo" || obj.type == "trackblank") frame = 16;
-		//console.log("type="+obj.cargo.type[0]+" value="+obj.cargo.value);
 		try {
 			ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
 		} catch (err) {
@@ -2266,16 +2206,10 @@ $(document).ready(function(){
 	  	    } 
 	    }
 	 	
-//	    console.log ("Button not found");
+	    console.log ("Button not found");
 	    return undefined;
 	}
 	
-	// touch detection==
-//	$('#canvas').touchstart(function(e) {
-//        console.log("TOUCH START");
-//	});
-
-
 	// mouse detection==
 	$('#canvas').mousedown(function(e) {
         //console.log("MouseDown");
@@ -2285,18 +2219,20 @@ $(document).ready(function(){
 	});	
 
     function onClickDown (mouseX, mouseY, e) { //for handling both mouse and touch events
-//        console.log("onClickDown");
+    	var worldMouse = screenToWorld(mouseX, mouseY);
+    	var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
+        //console.log("onClickDown mouse="+mouseX+","+mouseY+" world="+worldMouse.xtile+","+worldMouse.ytile+" screenMouse="+screenMouse.x+","+screenMouse.y);
 		if (interactionState == 'TitleScreen') {
 			if (buttonDims['Levels'].inside(mouseX, mouseY)) {
 				interactionState = 'Levels';
 				draw();
 			}	
-			if (buttonDims['Freeplay'].inside(mouseX, mouseY)) {
+			else if (buttonDims['Freeplay'].inside(mouseX, mouseY)) {
 				interactionState = 'Freeplay';
 				calculateLayout();
 				draw();
 			}	
-			if (buttonDims['About'].inside(mouseX, mouseY)) {
+			else if (buttonDims['About'].inside(mouseX, mouseY)) {
 				ctx.fillStyle = aboutColor;
 				ctx.fillRect (0,0,canvasWidth,0.6*canvasHeight);
 				ctx.font = "20px Arial";
@@ -2389,9 +2325,8 @@ $(document).ready(function(){
         		zoomStartY = mouseY;
         		startZoomScale = zoomScale;
  				e.target.style.cursor = 'zoom-in';
-       	} else {
-	        	mouseX = mouseX / zoomScale;
-	        	mouseY = mouseY / zoomScale;
+       		} else {
+       			//console.log("mouseX="+mouseX+","+mouseY);
 			    var mouseYWorld = mouseY*tileRatio; //world coordinates
 				
 				//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
@@ -2419,50 +2354,50 @@ $(document).ready(function(){
 			    	}
 			    }
 			    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
-			    if (mouseX*zoomScale < tracksWidth && mouseY*zoomScale < tracksHeight) { //in track space
-			    	//console.log ("Click in track space");
+			    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
+			    	var worldMouse = screenToWorld(mouseX, mouseY);
+	       			var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
 		  			startXPoint = mouseX;
-		  			startYPoint = mouseYWorld;
-		  			//startYPoint = mouseY;
+		  			startYPoint = mouseY;
 			    	
 			    	//check if track button down
 			    	if (getButton("Track").down) {
 			    		isDrawingTrack = true;
-			    		addPointTrack(mouseX, mouseY);
+			    		addPointTrack(worldMouse.xtile, worldMouse.ytile);
 			    	}
 			    	
 			    	//check if engine button down
 			    	if (getButton("Engine").down) {
 			    		isDrawingEngine = true;
-			    		addPointEC(mouseX, mouseY);
+			    		addPointEC(worldMouse.xtile, worldMouse.ytile);
 			    	}
 			    	
 			    	//check if select button down
 			    	if (getButton("Select")) if (getButton("Select").down) {
 			    		console.log("Select button down----");
-			   			if (mouseX*zoomScale>Math.min(startSelectX, endSelectX) && mouseY*zoomScale>Math.min(startSelectY, endSelectY)
-			   			   && mouseX*zoomScale<Math.max(startSelectX, endSelectX) && mouseY*zoomScale<Math.max(startSelectY, endSelectY)) {
+			   			if (worldMouse.xtile>Math.min(startSelectXTile, endSelectXTile) && worldMouse.ytile*zoomScale>Math.min(startSelectYTile, endSelectYTile)
+			   			   && worldMouse.xtile<Math.max(startSelectXTile, endSelectXTile) && worldMouse.ytile<Math.max(startSelectYTile, endSelectYTile)) {
 			   				//move current selection
 			   				console.log("In selection. Move");
 				    		isMoving = true;
-				    		startMoveX = mouseX*zoomScale;
-				    		startMoveY = mouseY*zoomScale;
+				    		startMoveXTile = worldMouse.xtile;
+				    		startMoveYTile = worldMouse.ytile;
 			   				
 			   			} else { 
 			   				//start new selection
 				    		isSelecting = true;
-				    		tempPointWorld = screenToWorld(mouseX, mouseY);
-				    		tempPointScreen = worldToScreen(Math.round(tempPointWorld.xtile), Math.round(tempPointWorld.ytile));
-				    		console.log ("temp x="+tempPointWorld.xtile+","+tempPointWorld.ytile+" screen x="+ tempPointScreen.x+","+tempPointScreen.y);
-				    		startSelectX = tempPointScreen.x;
-				    		startSelectY = tempPointScreen.y;
+				    		startSelectXTile = Math.round(worldMouse.xtile);
+				    		startSelectYTile = Math.round(worldMouse.ytile);
+				    		console.log("startSelectXTile="+startSelectXTile+","+startSelectYTile);
+//				    		startSelectXTile = tempPointScreen.x;
+	//			    		startSelectYTile = tempPointScreen.y;
 			    		}
 			    	} 
 			    	
 			    	//check if car button down
 			    	if (getButton("Car").down) {
 			    		isDrawingCar = true;
-			    		addPointEC(mouseX, mouseY);
+			    		addPointEC(worldMouse.xtile, worldMouse.ytile);
 			    	}
 			    	
 			    	//check if cargo button down
@@ -2470,8 +2405,6 @@ $(document).ready(function(){
 						var worldPoint = screenToWorld(mouseX, mouseY); 
 						var gridx = Math.floor(worldPoint.xtile); 
 						var gridy = Math.floor(worldPoint.ytile);
-//			    		var gridx = Math.floor(mouseX/tileWidth);
-	//		    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
 		                console.log("gridx="+gridx+"tracks length="+tracks.length);
 			    		if (tracks[mi(gridx,gridy)] == undefined || tracks[mi(gridx,gridy)] == null) {
 				    		//if no track at that location then add TrackBlank with "A"
@@ -2491,8 +2424,6 @@ $(document).ready(function(){
 							var worldPoint = screenToWorld(mouseX, mouseY); 
 							var gridx = Math.floor(worldPoint.xtile); 
 							var gridy = Math.floor(worldPoint.ytile);
-//				    		var gridx = Math.floor(mouseX/tileWidth);
-	//			    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
 				    		//console.log("gridx="+gridx+" gridy="+gridy);
 							var train;
 							
@@ -2547,8 +2478,6 @@ $(document).ready(function(){
 							var worldPoint = screenToWorld(mouseX, mouseY); 
 							var gridx = Math.floor(worldPoint.xtile); 
 							var gridy = Math.floor(worldPoint.ytile);
-//				    		var gridx = Math.floor(mouseX/tileWidth);
-	//			    		var gridy = Math.floor(mouseYWorld/tileWidth/tileRatio/tileRatio);
 			    			if (tracks[mi(gridx,gridy)]) {
 			    				console.log("Make immutable");
 			    				tracks[mi(gridx,gridy)].immutable = !tracks[mi(gridx,gridy)].immutable;
@@ -2560,11 +2489,9 @@ $(document).ready(function(){
 			    	//deselect track area captions
 			    	currentCaptionedObject = undefined;
 			    	secondaryCaption = undefined;
-			    	endSelectX = startSelectX;
-			    	endSelectY = startSelectY;
+			    	endSelectXTile = startSelectXTile;
+			    	endSelectYTile = startSelectYTile;
 			    	
-			    	mouseX = mouseX*zoomScale;
-			    	mouseY = mouseY*zoomScale;
 				    //check if buttons clicked
 				    var pushedButton;
 					var toolButtons = getCurrentToolButtons();
@@ -2633,6 +2560,8 @@ $(document).ready(function(){
 				  		case "Octagon":
 				  			getButton("Octagon").down = !getButton("Octagon").down;
 				  			useOctagons = getButton("Octagon").down;
+				  		default:
+				  			console.log("button not found");
 				  	}
 		
 					//toggle up/down if button is in a group
@@ -2683,22 +2612,22 @@ $(document).ready(function(){
 	});
         
     function onClickMove(mouseX,mouseY, e) { //for mouse move or touch move events
-        //console.log("onClickMove");
         if (!showToolBar) return; //if toolbar hidden then ignore events
+		var worldMouse = screenToWorld(mouseX,mouseY);
         
-    	//mouseX = mouseX / zoomScale;
-    	//mouseY = mouseY / zoomScale;
-	    var mouseYWorld = mouseY*tileRatio; //world coordinates
-	    
 	    //change mouse cursor
         if (e) if (mouseX<tracksWidth)  { // in track area
 	    	if (getButton("Engine").down || getButton("Track").down) {
 	   			e.target.style.cursor = 'crosshair';
 			} else if (getButton("Eraser").down) {
 	   			e.target.style.cursor = 'no-drop';
-	   		} else if (!isSelecting && mouseX>Math.min(startSelectX, endSelectX) && mouseY>Math.min(startSelectY, endSelectY)
-	   		          && mouseX<Math.max(startSelectX, endSelectX) && mouseY<Math.max(startSelectY, endSelectY)) {
-	   			e.target.style.cursor = 'move';
+	   		} else if (!isSelecting) {
+	   			if (worldMouse.xtile>Math.min(startSelectXTile, endSelectXTile) && worldMouse.ytile>Math.min(startSelectYTile, endSelectYTile)
+	   		          && worldMouse.xtile<Math.max(startSelectXTile, endSelectXTile) && worldMouse.ytile<Math.max(startSelectYTile, endSelectYTile)) {
+	   				e.target.style.cursor = 'move';
+	   			} else {
+	   				e.target.style.cursor = 'default';
+	   			}	
 	   		} else if (isMoving) {
 	   			e.target.style.cursor = 'move';
 		   	} else {
@@ -2713,11 +2642,11 @@ $(document).ready(function(){
 		
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) {
 	    	if (isDrawingTrack) {
-	    		addPointTrack(mouseX/zoomScale, mouseY/zoomScale);
+	    		addPointTrack(worldMouse.xtile, worldMouse.ytile);
 	    	}
 	    	
 	    	if (isDrawingEngine || isDrawingCar) {
-	    		addPointEC(mouseX/zoomScale, mouseY/zoomScale);
+	    		addPointEC(worldMouse.xtile, worldMouse.ytile);
 	    	}
 	    	
        		if (isPanning) {
@@ -2730,20 +2659,19 @@ $(document).ready(function(){
 	    		zoomScale = startZoomScale * Math.pow(zoomMultiplier, 10*(zoomStartY - mouseY)/canvasHeight);
 	    		if (zoomScale<0.2) zoomScale = 0.2;
 	    		if (zoomScale>5) zoomScale = 5;
-	    		console.log("startzoom="+startZoomScale+" zoonscale="+zoomScale+" mouseY="+mouseY+" startY="+zoomStartY);
 	    		draw();
 	    		return;	
 	    	}
 	    	
 	    	if (isSelecting) {
-	    		endSelectX = mouseX;
-	    		endSelectY = mouseY;
+	    		endSelectXTile = worldMouse.xtile;
+	    		endSelectYTile = worldMouse.ytile;
 	    		draw();
 	    	}
 	    	
 	    	if (isMoving) {
-	    		endMoveX = mouseX;
-	    		endMoveY = mouseY;
+	    		endMoveXTile = worldMouse.xtile;
+	    		endMoveYTile = worldMouse.ytile;
 	    		draw();
 	    	}
 	    	
@@ -2751,16 +2679,14 @@ $(document).ready(function(){
 				var worldPoint = screenToWorld(mouseX, mouseY); 
 				var gridx = Math.floor(worldPoint.xtile); 
 				var gridy = Math.floor(worldPoint.ytile);
-//	    		var gridx = Math.floor(mouseX*zoomScale/tileWidth);
-	//    		var gridy = Math.floor(mouseY*zoomScale/tileWidth/tileRatio/tileRatio);
 	    		var ecDel = getEC(gridx, gridy);
 	    		var redraw = false;
 	    		if (ecDel) {
-	    			deleteEC(ecDel); //delete engine or car
+	    			deleteEC(ecDel); 
 	    			redraw = true;
 	    		}
 	    		if (tracks[mi(gridx,gridy)]) if (!tracks[mi(gridx,gridy)].immutable) {
-	    			delete tracks[mi(gridx,gridy)]; //delete track 11111
+	    			delete tracks[mi(gridx,gridy)]; 
 	    			redraw = true;
 	    		}
 	    		if (redraw) draw();
@@ -2780,16 +2706,13 @@ $(document).ready(function(){
 		isPanning = false;
 		isZooming = false;
 		
-    	mouseX = mouseX / zoomScale;
-    	mouseY = mouseY / zoomScale;
-	    var mouseYWorld = mouseY*tileRatio; //world coordinates
+		var mouseWorld = screenToWorld(mouseX, mouseY);
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
-	    	var distanceSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseYWorld),2);
+	    	var distanceSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseY),2);
 	    	if (distanceSq<10) { //select object for caption if mouse up near mouse down
-				var worldPoint = screenToWorld(mouseX, mouseY); 
-				var gridx = Math.floor(worldPoint.xtile); 
-				var gridy = Math.floor(worldPoint.ytile);
+				var gridx = Math.floor(mouseWorld.xtile); 
+				var gridy = Math.floor(mouseWorld.ytile);
 	    		
 	    		if ((secondaryCaption) && captionSecondaryX !=undefined && gridx >= captionSecondaryX && gridx< captionSecondaryX+3 && gridy >= captionSecondaryY && gridy< captionSecondaryY+3) {
     				//clicked in secondary caption ***********************
@@ -2818,8 +2741,6 @@ $(document).ready(function(){
 					var col= Math.floor(nCols*fracX);
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
-					//console.log("value ="+cargoValues[iCargo][i+1]+" row="+row+" col="+col+" nRows="+nRows+" nCols="+nCols);
-					//console.log("i="+i+" value="+cargoValues[iCargo]);
 					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]);
 					secondaryCaption = undefined;
 					captionX = undefined;
@@ -2843,8 +2764,6 @@ $(document).ready(function(){
 							fracX = (worldPoint.xtile-captionX)/captionWidth;
 							fracY = (worldPoint.ytile-captionY)/captionHeight;
 		 	    			var angle = Math.atan2(fracY-0.8,fracX-0.5);
-		    				//var angle = Math.atan2(mouseYWorld-(captionY+0.7)*tileWidth, mouseX-(captionX+1)*tileWidth);
-		    				//var angle = Math.atan2(mouseYWorld-(captionY+1.8)*tileWidth, mouseX-(captionX+1)*tileWidth);
 		    				if (angle>1) angle = -Math.PI;
 		    				var speed = (2*angle/Math.PI+1)*maxEngineSpeed;
 		    				speed = Math.min(speed, maxEngineSpeed);
@@ -2951,21 +2870,21 @@ $(document).ready(function(){
 	    	draw();
 	    }
     	if (isDrawingEngine || isDrawingCar) {
-    		//console.log("Drawing engine");
+    		console.log("Drawing engine");
     		//make engine at startpoint in direction from down to up
 
     		if (startXPoint != undefined) {
-    			var startWorldPoint = screenToWorld(mouseX,mouseY); 
-    			var startXTile = Math.floor(startWorldPoint.xtile); 
-    			var startYTile = Math.floor(startWorldPoint.ytile);
-    			var distSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseYWorld),2);
-//    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
+    			//var startWorldPoint = screenToWorld(mouseX,mouseY); 
+    			var startXTile = Math.floor(mouseWorld.xtile); 
+    			var startYTile = Math.floor(mouseWorld.ytile);
+    			var distSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseY),2);
+    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
 				if (tracks[mi(startXTile,startYTile)] && distSq>10 && 
 				(tracks[mi(startXTile,startYTile)].type == "trackstraight" ||
 				 tracks[mi(startXTile,startYTile)].type == "track45" ||
 				 tracks[mi(startXTile,startYTile)].type == "track90" ||
 				 tracks[mi(startXTile,startYTile)].type == "trackcross")) {
-	    			var fraction = Math.atan2(mouseYWorld-startYPoint, mouseX-startXPoint)/(2*Math.PI) + 0.25;
+	    			var fraction = Math.atan2(mouseY-startYPoint, mouseX-startXPoint)/(2*Math.PI) + 0.25;
 	    			var orientation = Math.round(8*fraction+8)%8;
 	    			if (trackConnects(tracks[mi(startXTile,startYTile)], (orientation+4)%8)) {
 	    				if (getEC(startXTile, startYTile) == undefined) { //dont put ec on top of current ec
@@ -2986,54 +2905,49 @@ $(document).ready(function(){
 	    }
 
     	if (isSelecting) {
-    		tempPointWorld = screenToWorld(mouseX, mouseY);
-    		tempPointScreen = worldToScreen(Math.round(tempPointWorld.xtile), Math.round(tempPointWorld.ytile));
-    		console.log ("temp x="+tempPointWorld.xtile+","+tempPointWorld.ytile+" screen x="+ tempPointScreen.x+","+tempPointScreen.y);
-    		endSelectX = tempPointScreen.x;
-    		endSelectY = tempPointScreen.y;
+    		endSelectXTile = Math.round(mouseWorld.xtile);
+    		endSelectYTile = Math.round(mouseWorld.ytile);
     		draw();
-   			if (e) if (mouseX>Math.min(startSelectX, endSelectX) 
-   			 && mouseYWorld>Math.min(startSelectY, endSelectY)
-   			 && mouseX<Math.max(startSelectX, endSelectX)
-   			 && mouseYWorld<Math.max(startSelectY, endSelectY))
-   			  e.target.style.cursor = 'move';
+   			if (e) {
+   				if (mouseWorld.xtile>Math.min(startSelectXTile, endSelectXTile) 
+	   			 && mouseWorld.ytile>Math.min(startSelectYTile, endSelectYTile)
+	   			 && mouseWorld.xtile<Math.max(startSelectXTile, endSelectXTile)
+	   			 && mouseWorld.ytile<Math.max(startSelectYTile, endSelectYTile))
+ 	  			  e.target.style.cursor = 'move';
+ 	  		}
     	}
     	
     	if (isMoving) {
-    		endMoveX = tileWidth*Math.round(mouseX*zoomScale/tileWidth);
-    		endMoveY = tileWidth*tileRatio*Math.round(mouseY*zoomScale/(tileWidth*tileRatio));
+    		endMoveXTile = mouseWorld.xtile;
+    		endMoveYTile = mouseWorld.ytile;
     		moveX = undefined
 			isMoving = false;
 			
-//
 			//copy tracks and ecs
-			var startSelectWorldPoint = screenToWorld(Math.min(startSelectX, endSelectX), Math.min(startSelectY, endSelectY)); 
-			var startSelectXTile = Math.round(startSelectWorldPoint.xtile); 
-			var startSelectYTile = Math.round(startSelectWorldPoint.ytile);
-			var endSelectWorldPoint = screenToWorld(Math.max(startSelectX, endSelectX)+2, Math.max(startSelectY, endSelectY)+2); 
-			var endSelectXTile = Math.round(endSelectWorldPoint.xtile);
-			var endSelectYTile = Math.round(endSelectWorldPoint.ytile);
-    		console.log("IsMoving copy: start gridx="+startSelectXTile+" y="+startSelectYTile+" end select grix="+endSelectXTile+","+endSelectYTile);
-	    	for (gridx= startSelectXTile; gridx<endSelectXTile; gridx++) {
-		    	for (gridy= startSelectYTile; gridy<endSelectYTile; gridy++) {
-//						ctx.translate(startX-startSelectX, startY-startSelectY); //center origin on tile
+			var upperLeftSelectXTile = Math.round(Math.min(startSelectXTile, endSelectXTile)); 
+			var upperLeftSelectYTile = Math.round(Math.min(startSelectYTile, endSelectYTile));
+			var lowerRightSelectXTile = Math.round(Math.max(startSelectXTile, endSelectXTile)); 
+			var lowerRightSelectYTile = Math.round(Math.max(startSelectYTile, endSelectYTile));
+    		console.log("IsMoving copy: start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+	    	for (gridx= upperLeftSelectXTile; gridx<lowerRightSelectXTile; gridx++) {
+		    	for (gridy= upperLeftSelectYTile; gridy<lowerRightSelectYTile; gridy++) {
 		    		//copy track 
 		    		var track = tracks[mi(gridx,gridy)];
 		    		console.log("COpy tracl at "+gridx+", "+gridy);
 		    		if (track) {
-		    			console.log("endMoveX="+endMoveX+ " stMvX="+startMoveX);
-		    			console.log("New track at "+ gridx+Math.round((endMoveX-startMoveX)/tileWidth)+", "+gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
-		    			var newTrack = new Track ( gridx+Math.round((endMoveX-startMoveX)/tileWidth/zoomScale), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio/zoomScale), track.type, track.orientation, track.state, track.subtype);
+		    			console.log("endMoveXTile="+endMoveXTile+ " stMvX="+startMoveXTile);
+		    			console.log("New track at "+ gridx+Math.round(endMoveXTile-startMoveXTile)+", "+gridy+Math.round(endMoveYTile-startMoveYTile));
+		    			var newTrack = new Track ( gridx+Math.round(endMoveXTile-startMoveXTile), gridy+Math.round(endMoveYTile-startMoveYTile), track.type, track.orientation, track.state, track.subtype);
 		    			newTrack.cargo = track.cargo;
 		    			buildTrains();
 		    		}
 		    		// delete any ECs for which new track is placed on top of
-		    		var ecOld =getEC(gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio));
+		    		var ecOld =getEC(gridx+Math.round(endMoveXTile-startMoveXTile), gridy+Math.round(endMoveYTile-startMoveYTile));
 					if (ecOld) deleteEC(ecOld); // delete any ECs for which new track is placed on top of
 		    		//copy EC
 		    		var ec=getEC(gridx,gridy);
 		    		if (ec) {
-		    			var newEC = new EC (gridx+Math.round((endMoveX-startMoveX)/tileWidth), gridy+Math.round((endMoveY-startMoveY)/tileWidth/tileRatio), ec.type, ec.orientation, ec.state, ec.speed, ec.position);
+		    			var newEC = new EC (gridx+Math.round(endMoveXTile-startMoveXTile), gridy+Math.round(endMoveYTile-startMoveYTile), ec.type, ec.orientation, ec.state, ec.speed, ec.position);
 		    			newEC.cargo = ec.cargo; //copy cargo
 		    		}
 		    	}
@@ -3245,6 +3159,10 @@ $(document).ready(function(){
         draw();
     }
 
+	function doMouseWheel(e)  {
+		console.log ("MOuse Wheel");
+	}
+	
     function doTouchStart(e) {
         var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
         var x = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
@@ -3544,24 +3462,28 @@ $(document).ready(function(){
 */	
 	function drawSelection() {
 
-		if (startSelectX == endSelectX) return;
-		if (startSelectY == endSelectY) return;
+		if (startSelectXTile == endSelectXTile) return;
+		if (startSelectYTile == endSelectYTile) return;
 //		if (!(isSelecting || isMoving)) return;
 		
 		ctx.lineWidth = 2;
 	    ctx.strokeStyle = "red";
 	    ctx.beginPath();
 	    
-	    var startX = startSelectX;
-	    var startY = startSelectY;
-	    var endX = endSelectX;
-	    var endY = endSelectY;
+	    var screenPoint = worldToScreen(startSelectXTile, startSelectYTile);
+	    var startX = screenPoint.x;
+	    var startY = screenPoint.y;
+	    screenPoint = worldToScreen(endSelectXTile, endSelectYTile);
+	    var endX = screenPoint.x;
+	    var endY = screenPoint.y;
 	    if (isMoving) {
-	    	console.log("startMoveY="+startMoveY+" endMoveY="+endMoveY);
-    		startX = startX - startMoveX + endMoveX;
-    		startY = startY - startMoveY + endMoveY;
-    		endX = endX - startMoveX + endMoveX;
-    		endY = endY - startMoveY + endMoveY;
+	    	console.log("startMoveYTile="+startMoveYTile+" endMoveYTile="+endMoveYTile);
+	    	var startScreen= worldToScreen(startMoveXTile, startMoveYTile);
+	    	var endScreen= worldToScreen(endMoveXTile, endMoveYTile);
+    		startX = startX + (endScreen.x - startScreen.x);
+    		startY = startY + (endScreen.y - startScreen.y);
+    		endX = endX +  (endScreen.x - startScreen.x);
+    		endY = endY + (endScreen.y - startScreen.y);
 	    }
 		ctx.dashedLine( startX, startY, endX, startY, [4,3]);
 		ctx.dashedLine( endX, startY, endX, endY, [4,3]);
@@ -3571,20 +3493,20 @@ $(document).ready(function(){
 
 		//show tracks and ecs being moved
 	    if (isMoving) { 
-			var startSelectWorldPoint = screenToWorld(Math.min(startSelectX, endSelectX), Math.min(startSelectY, endSelectY)); 
-			var startSelectXTile = Math.round(startSelectWorldPoint.xtile); 
-			var startSelectYTile = Math.round(startSelectWorldPoint.ytile);
-			var endSelectWorldPoint = screenToWorld(Math.max(startSelectX, endSelectX), Math.max(startSelectY, endSelectY)); 
-			var endSelectXTile = Math.round(endSelectWorldPoint.xtile);
-			var endSelectYTile = Math.round(endSelectWorldPoint.ytile);
-    		console.log("IsMoving drag:start gridx="+startSelectXTile+" y="+startSelectYTile+" end select grix="+endSelectXTile+","+endSelectYTile);
-	    	for (gridx= startSelectXTile; gridx<endSelectXTile; gridx++) {
-		    	for (gridy= startSelectYTile; gridy<endSelectYTile; gridy++) {
+			var upperLeftSelectXTile = Math.round(Math.min(startSelectXTile, endSelectXTile)); 
+			var upperLeftSelectYTile = Math.round(Math.min(startSelectYTile, endSelectYTile));
+			var lowerRightSelectXTile = Math.round(Math.max(startSelectXTile, endSelectXTile)); 
+			var lowerRightSelectYTile = Math.round(Math.max(startSelectYTile, endSelectYTile));
+    		console.log("IsMoving drag:start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+	    	for (gridx= upperLeftSelectXTile; gridx<lowerRightSelectXTile; gridx++) {
+		    	for (gridy= upperLeftSelectYTile; gridy<lowerRightSelectYTile; gridy++) {
 					//translate
 					ctx.save();
-					ctx.translate(startX-startSelectX, startY-startSelectY); //center origin on tile
+					///ctx.translate(startX-mouseX, startY-mouseY); //center origin on tile
+					//ctx.translate(startX-startSelectXTile*tileWidth, startY-startSelectYTile*tileWidth); //center origin on tile
+					ctx.translate(startX, startY); //center origin on tile
 			        var screenCenter = worldToScreen(centerTileX, centerTileY);
-					ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
+					//ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
 					ctx.scale(zoomScale, zoomScale);
 		    		//draw track 
 		    		console.log ("Drag draw x="+gridx+","+gridy+"  track="+tracks[mi(gridx,gridy)]);
@@ -3951,7 +3873,7 @@ $(document).ready(function(){
 	
 	function drawCaptionBubble (capX, capY, captionWidth, captionHeight, objX, objY, isSecondary) { //capX, capY is upperleft corner of caption, objX, objY is location of where pointer goes
 		//draw caption bubble
-		console.log("Cap bubble at capX="+capX+" capY="+capY+" width="+captionWidth+" height="+captionHeight+" objX="+objX+","+objY);
+		//console.log("Cap bubble at capX="+capX+" capY="+capY+" width="+captionWidth+" height="+captionHeight+" objX="+objX+","+objY);
 		var angle = Math.atan2(objY-(capY+0.5*captionHeight)*tileWidth, objX-(capX+0.5*captionWidth)*tileWidth);
 		ctx.beginPath();
 		ctx.moveTo ((capX+0.5*captionWidth)*tileWidth+Math.cos(angle+Math.PI/2)*0.2*tileWidth+Math.cos(angle)*captionWidth*0.45*tileWidth, (capY+0.5*captionHeight)*tileWidth+Math.sin(angle+Math.PI/2)*0.2*tileWidth+Math.sin(angle)*captionHeight*0.45*tileWidth);
@@ -3986,7 +3908,7 @@ $(document).ready(function(){
 	    	if ((-maxX/2 < x && x <= maxX/2) && (-maxY/2 < y && y <= maxY/2)) {
 	    		console.log ("x=" + (gridx+x) + " y=" + (gridy+y));
 	    		if (isSpace(gridx+x, gridy+y, width, height)) {
-	    			console.log ("Found empty space at x=" + (gridx+x) + " y=" + (gridy+y));
+//	    			console.log ("Found empty space at x=" + (gridx+x) + " y=" + (gridy+y));
 	    			//successfully found empty space
 				    return {
 				        'gridx': gridx + x,
@@ -5181,8 +5103,10 @@ $(document).ready(function(){
 		
 	function screenToWorld(x,y) { //converts point in pixels of canvas on screen to world coordinates in xtiles, ytiles
 		var worldPoint = {};
-		worldPoint.xtile = (x*zoomScale-(tracksWidth/2-centerTileX*tileWidth))/zoomScale/tileWidth;
-		worldPoint.ytile = (y*zoomScale-(canvasHeight/2-centerTileY*tileWidth*tileRatio))/zoomScale/tileWidth/tileRatio;
+		worldPoint.xtile = (x-(tracksWidth/2-centerTileX*tileWidth))/zoomScale/tileWidth;
+		worldPoint.ytile = (y-(canvasHeight/2-centerTileY*tileWidth*tileRatio))/zoomScale/tileWidth/tileRatio;
+//		worldPoint.xtile = (x*zoomScale-(tracksWidth/2-centerTileX*tileWidth))/zoomScale/tileWidth;
+	//	worldPoint.ytile = (y*zoomScale-(canvasHeight/2-centerTileY*tileWidth*tileRatio))/zoomScale/tileWidth/tileRatio;
 		return worldPoint;	
 	}
 	
@@ -5193,23 +5117,22 @@ $(document).ready(function(){
 		return screenPoint;
 	}
 	
-	function addPointTrack(x,y) {
-		if (x > tracksWidth/zoomScale) {console.log("Greater than trackWidth");return; }
-		if (y > tracksHeight/zoomScale) return;
+	function addPointTrack(x,y) { //x,y are in world coords
+		var screenPoint = worldToScreen(x,y);
+		if (screenPoint.x > tracksWidth) {console.log("Greater than trackWidth");return; }
+		if (screenPoint.y > tracksHeight) return;
 
-		var worldPoint = screenToWorld(x,y);
-
-		drawingPointsTrackX.push(worldPoint.xtile);
-		drawingPointsTrackY.push(worldPoint.ytile);
+		drawingPointsTrackX.push(x);
+		drawingPointsTrackY.push(y);
 		if (!getButton("Play").down) drawPathTrack();
 		
 		//get tile coords
-		var trackTileX = Math.floor(worldPoint.xtile);
-		var trackTileY = Math.floor(worldPoint.ytile);
+		var trackTileX = Math.floor(x);
+		var trackTileY = Math.floor(y);
 						
 		//get tile quadrant (tile split into 3x3 grid, center is 8, 0 is N, 1 is NE, 2 is E...)
-		var xFraction = (worldPoint.xtile-trackTileX) * (2+2*Math.SQRT2);
-		var yFraction = (worldPoint.ytile-trackTileY) * (2+2*Math.SQRT2);
+		var xFraction = (x-trackTileX) * (2+2*Math.SQRT2);
+		var yFraction = (y-trackTileY) * (2+2*Math.SQRT2);
 		var tileOrientation;
 
 		if (useOctagons) {
@@ -5426,12 +5349,11 @@ $(document).ready(function(){
 	    ctx.restore();
 	}	
 
-	function addPointEC(x,y) { //for drawing mouse movements when manually placing engines or cars
-		if (x > tracksWidth/zoomScale) return;
-		if (y > tracksHeight/zoomScale) return;
+	function addPointEC(x,y) { //for drawing mouse movements when manually placing engines or cars //x,y are in world coords
+		var screenPoint = worldToScreen(x,y);
+		if (screenPoint.x > tracksWidth) return;
+		if (screenPoint.y > tracksHeight) return;
 
-		x *= zoomScale;
-		y *= zoomScale;
 		drawingPointsECX.push(x);
 		drawingPointsECY.push(y);
 		if (!getButton("Play").down) drawPathEC();
@@ -5447,9 +5369,11 @@ $(document).ready(function(){
 	    ctx.save();
 				
         ctx.beginPath();
-        ctx.moveTo(drawingPointsECX[0], drawingPointsECY[0]);
+        var screenPoint = worldToScreen(drawingPointsECX[0], drawingPointsECY[0]);
+        ctx.moveTo(screenPoint.x, screenPoint.y);
         for (i=1; i<drawingPointsECX.length; i++) {
-	        ctx.lineTo(drawingPointsECX[i], drawingPointsECY[i]);
+        	screenPoint = worldToScreen(drawingPointsECX[i], drawingPointsECY[i]);
+	        ctx.lineTo(screenPoint.x, screenPoint.y);
         }
 	    ctx.stroke();
 	    ctx.restore();
@@ -5733,7 +5657,5 @@ $(document).ready(function(){
 		ctx.lineTo(0.25*width, 0.45*height-1);
 		ctx.stroke();
 	}
-	
-	
-	
+		
 });
