@@ -1,24 +1,17 @@
 To Do:
--make stations type specific (maybe already done for add subtract, check for wyes)
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
--idiom for two digit numbers- if cargo rolls over then increment next car's cargo (but backwards...)
--improve prompt	
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
 -remake trx for each level
 
-
+-some weird bug where can't add cargo and makes immutable
 
 Bug-
--tunnel needs to be on top. Draw last.
--greater/less than. the equal gives wrong answer. See trx 74 for example.
--bunny makes increment sound e.g. trx76
 
 New features:
 High prioirty-
 
 
 -add stop, reverse, decouple stations
--add user types, and show/hide functionality based on user types- trainee=no toolbar locked on draw tracks, etc.
 -need to script rendering, re-render everything at higher res
 -render cargoShapes line, triangle...octagon
 
@@ -37,6 +30,7 @@ Low priority-
 -put dot in middle or in someway highlight which ec the mouse is currently over (hover using mouse move) so you can delete the right ec if near edge of tile
 -add undo/redo chain-for web
 -need an idiom for storing numbers >10. Like by having different cars for ones,tens, hundreds...
+-idiom for two digit numbers- if cargo rolls over then increment next car's cargo (but backwards...)
 
 
 *To be sucessful

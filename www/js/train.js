@@ -213,6 +213,7 @@ $(document).ready(function(){
 	var engines = [];
 	var cars = [];
 	var trains = []
+	var modalTrack; // used to store value of the current modal track. Used for wye prompts so know which wye to change after mouse interaction
 	
 	var useOctagons = false; //use square or octagon shaped tiles for drawing
 	var interval = 0;	
@@ -291,6 +292,7 @@ $(document).ready(function(){
 	console.log("load images");
 	// load buttons for title screens
 
+	var imgArrowIcon = new Image(); imgArrowIcon.src = 'img/arrow-icon.png';
 	var imgLockedIcon = new Image(); imgLockedIcon.src = 'img/lockedIcon.png';
 	var imgUnlockedIcon = new Image(); imgUnlockedIcon.src = 'img/unlockedIcon.png';
 	var imgLoadIcon = new Image(); imgLoadIcon.src = 'img/loadicon.png';
@@ -1616,8 +1618,6 @@ $(document).ready(function(){
 					case "prompt":
 						name += "prompt";
 						break;
-//							if (track.state == "left") drawSprite("trackwyeleft-Prompt-L", track.orientation);
-//							else drawSprite("trackwyeleft-Prompt-R", track.orientation);
 					case "alternate":
 						name += "alternate";
 						break;
@@ -2333,6 +2333,17 @@ $(document).ready(function(){
 				interactionState = 'Levels';
 				draw();
 			}
+		} else if (modalTrack) { //detect clicks for choosing wye prompt direction 
+			console.log("Click down for promt");	
+			worldMouse.xtile -= 0.5;
+			worldMouse.ytile -= 0.5;
+			var angle = (10+8/(2*Math.PI)*Math.atan2 (modalTrack.gridy-worldMouse.ytile, modalTrack.gridx-worldMouse.xtile)-modalTrack.orientation)%8;	
+			//console.log ("angle="+angle+" modalY="+modalTrack.gridy+" mouseY="+worldMouse.ytile+" modalX="+modalTrack.gridx+" mouseX="+worldMouse.xtile);	
+			//console.log ("anlge="+angle+" ori="+modalTrack.orientation);
+			if (angle > 4)  modalTrack.state = "right";
+			else modalTrack.state = "left";
+			modalTrack = undefined;
+			interval = setInterval(interpretAndDraw, 20);			
         } else if (showToolBar) { //freeplay
         	if (shiftIsPressed) {
         		isPanning = true;
@@ -3245,6 +3256,10 @@ $(document).ready(function(){
     
 	//////////////////////
 	function draw() {
+		if (modalTrack) {
+			return;
+		}
+		
 		if (interactionState == 'TitleScreen') {
 			drawTitleScreen();
 			return;
@@ -4463,13 +4478,12 @@ $(document).ready(function(){
 	
 	function interpretAll() {
 		for (var i=0; i<engines.length; i++) {
-			interpret(engines[i]);
+			if (!modalTrack) interpret(engines[i]);
 		}
 
 		for (var i=0; i<cars.length; i++) {
-			interpret(cars[i]);
+			if (!modalTrack) interpret(cars[i]);
 		}
-		
 	}
 	
 	function interpret(ec) { //interprets an engine or car one iteration (moves engine or car down track)
@@ -4527,13 +4541,30 @@ $(document).ready(function(){
 				//check for prompt on entering tile
 				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "prompt" && oriDif == 0 && isFirstCarInTrain(ec)) {
 					console.log("Interpret prompt");
-					ctx.lineWidth = 3;
-					ctx.strokeStyle = highlightColor;
-					roundRect(tracks[mi(ec.gridx,ec.gridy)].gridx*tileWidth, tracks[mi(ec.gridx,ec.gridy)].gridy*tileWidth, tileWidth, tileWidth,3, false, true);
-					var retVal = confirm("Go left ?");
-					if (retVal)	tracks[mi(ec.gridx,ec.gridy)].state = "left";
-					else tracks[mi(ec.gridx,ec.gridy)].state = "right";	
-					ctx.lineWidth = 1;
+					clearInterval(interval);
+					ctx.save();
+					ctx.fillStyle = "rgba(128,128,128,0.4)";
+					ctx.fillRect(0,0, canvasWidth, canvasHeight); //grey out background
+					
+			        var screenCenter = worldToScreen(centerTileX, centerTileY);
+					ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
+					ctx.scale(zoomScale, zoomScale);
+					ctx.translate((0.5+ec.gridx)*tileWidth, (0.5+ ec.gridy)*tileWidth*tileRatio); //center origin on tile
+					ctx.rotate(ec.orientation*2*Math.PI/8);
+					ctx.drawImage(imgArrowIcon,-tileWidth,-0.5*tileWidth*tileRatio);
+					ctx.rotate(Math.PI);
+					ctx.drawImage(imgArrowIcon,-tileWidth,-0.5*tileWidth*tileRatio*tileRatio);
+					modalTrack = tracks[mi(ec.gridx,ec.gridy)];
+					ctx.restore();
+					//ctx.lineWidth = 3;
+					//ctx.strokeStyle = highlightColor;
+					//roundRect(tracks[mi(ec.gridx,ec.gridy)].gridx*tileWidth, tracks[mi(ec.gridx,ec.gridy)].gridy*tileWidth, tileWidth, tileWidth,3, false, true);
+					//var retVal = confirm("Go left ?");
+					
+					//if (retVal)	tracks[mi(ec.gridx,ec.gridy)].state = "left";
+					//else tracks[mi(ec.gridx,ec.gridy)].state = "right";	
+					//ctx.lineWidth = 1;
+					console.log("Doneprompt");
 				}
 	
 				//check for alternate on exiting tile
@@ -4556,7 +4587,7 @@ $(document).ready(function(){
 					
 					if (car) {
 						var state;
-						if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess") { //for compareLess
+						if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareless") { //for compareLess
 							if (car.cargo.value < tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value) state = "left";
 							else state = "right";
 						} else { //for comparegreater
