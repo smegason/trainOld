@@ -175,7 +175,7 @@ $(document).ready(function(){
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
 				showToolBar = false;
-				interactionState == 'Freeplay';
+				interactionState = 'Freeplay';
 			}
 		}
 		passedTrackID = data["trackID"];
