@@ -1349,9 +1349,9 @@ $(document).ready(function(){
     trx[78]='[[[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,{"gridx":1,"gridy":4,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,{"gridx":2,"gridy":4,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":3,"gridy":2,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":4,"type":"trackwyeright","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null],[null,null,{"gridx":4,"gridy":2,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":4,"gridy":3,"type":"trackstraight","orientation":0,"state":"left","subtype":"increment"},{"gridx":4,"gridy":4,"type":"trackwyeleft","orientation":2,"state":"right","subtype":"prompt"},null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":5,"gridy":2,"type":"track90","orientation":4,"state":"left","subtype":""},null,{"gridx":5,"gridy":4,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[{"gridx":6,"gridy":0,"type":"trackcargo","orientation":0,"state":"left","subtype":"","cargo":{"value":0,"type":["stuffedAnimals","bunny"]}},{"gridx":6,"gridy":1,"type":"trackstraight","orientation":6,"state":"left","subtype":"supply"},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":2,"state":"left","subtype":""},{"gridx":6,"gridy":3,"type":"trackcargo","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":4,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null],[null,{"gridx":7,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":7,"gridy":2,"type":"trackwyeleft","orientation":0,"state":"right","subtype":"sprung"},{"gridx":7,"gridy":3,"type":"trackstraight","orientation":4,"state":"left","subtype":"catapult"},{"gridx":7,"gridy":4,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,{"gridx":11,"gridy":3,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,{"gridx":12,"gridy":2,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":12,"gridy":3,"type":"trackstraight","orientation":4,"state":"left","subtype":"pickDrop"},{"gridx":12,"gridy":4,"type":"track90","orientation":4,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":13,"gridy":2,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":3,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":13,"gridy":4,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null]],[{"gridx":2,"gridy":4,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":4,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":1,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
  */   
  //   trx[1]='[{"-1,-1":{"gridx":0,"gridy":0,"type":"trackstraight","orientation":4,"state":"left","subtype":"","immutable":false}},[],[]]';
-    trx[1]='[{"0,0":{"gridx":0,"gridy":0,"type":"trackstraight","orientation":0,"state":"left","subtype":"","immutable":false}},[],[]]';
-    openTrxJSON(trx[1]);
- 	buildTrains();
+//    trx[1]='[{"0,0":{"gridx":0,"gridy":0,"type":"trackstraight","orientation":0,"state":"left","subtype":"","immutable":false}},[],[]]';
+  //  openTrxJSON(trx[1]);
+ 	//buildTrains();
 
 	// make Toolbar for Levels
 	toolButtonsLevels.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
@@ -1444,6 +1444,7 @@ $(document).ready(function(){
 	}
 	
 	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
+	//swap array for "TRXv1.0:"
 	var swap = {};
 	swap['"gridy":'] 		= 'A';
 	swap['"gridx":'] 		= 'B';
@@ -1468,18 +1469,21 @@ $(document).ready(function(){
 	swap['"sprung"'] 		= 'U';
 	swap['"trackwye"'] 		= 'V';
 	swap['"trackcross"'] 	= 'W';
+	swap['"comparegreater"']= 'X';
+	swap['"trackcargo"'] 	= 'Y';
+	swap['"blocks"'] 		= 'Z';
 	
 	function compress(decompressedTrx) {
 		var compressedTrx = decompressedTrx;
 		for (var key in swap) {
 		    compressedTrx = compressedTrx.replace(new RegExp(key, 'g'), swap[key]);
 		}
-		return "TRX-COMP-v1.0:"+compressedTrx
+		return "TRXv1.0:"+compressedTrx
 	}
 	
 	function decompress (compressedTrx) {
 		var decompressedTrx= compressedTrx;
-		decompressedTrx = decompressedTrx.replace("TRX-COMP-v1.0:", "");
+		decompressedTrx = decompressedTrx.replace("TRXv1.0:", "");
 		for (var key in swap) {
 		    decompressedTrx = decompressedTrx.replace(new RegExp(swap[key], 'g'), key);
 		}
@@ -2313,7 +2317,7 @@ $(document).ready(function(){
 						currentTrackNumber = i;
 						interactionState = 'Try level';
 						calculateLayout();
-						openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+						openTrxJSON(decompress(trxLevels[currentTrackSet][currentTrackNumber]));
 						buildTrains();
 						draw();
 						pushPlayButton();
@@ -2328,7 +2332,7 @@ $(document).ready(function(){
 			if (buttonDims['Try again'].inside(mouseX, mouseY)) {
 				console.log ("Try again");
 				interactionState = "Try level";
-				openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+				openTrxJSON(decompress(trxLevels[currentTrackSet][currentTrackNumber]));
 				buildTrains();
 				draw();
 				getButton("Play").down=false;	
@@ -2338,7 +2342,7 @@ $(document).ready(function(){
 				interactionState = "Try level";
 				currentTrackNumber++;
 				if (trxLevels[currentTrackSet][currentTrackNumber]) {
-					openTrxJSON(trxLevels[currentTrackSet][currentTrackNumber]);
+					openTrxJSON(decompress(trxLevels[currentTrackSet][currentTrackNumber]));
 					buildTrains();
 					draw();
 					getButton("Play").down = false;
@@ -4208,7 +4212,7 @@ $(document).ready(function(){
 	function uploadTrackGet() { // uses GET
 		console.log ("Function Upload track");
  		var trx = [tracks, engines, cars];
-		var strTrx = JSON.stringify(trx);
+		var strTrx = compress(JSON.stringify(trx));
 
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
@@ -4239,7 +4243,7 @@ $(document).ready(function(){
 	function uploadTrackPost() { //uses POST to upload longer tracks
 		console.log ("Function Upload track POST");
  		var trx = [tracks, engines, cars];
-		var strTrx = JSON.stringify(trx);
+		var strTrx = compress(JSON.stringify(trx));
 
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
@@ -4452,13 +4456,13 @@ $(document).ready(function(){
 		//console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
-		var decompressed= decompress(compressed);
-		console.log("decomptrx[]=\'"+decompressed+"\'\;");
+		//var decompressed= decompress(compressed);
+		//console.log("decomptrx[]=\'"+decompressed+"\'\;");
 	}
 
 	function loadTrack() { //load tracks from the trx array
 		nCurrentTrx = prompt("Please enter level number to load", "1");
-		openTrxJSON(trx[nCurrentTrx]);
+		openTrxJSON(decompress(trx[nCurrentTrx]));
 		buildTrains();
 		draw();
 	}
@@ -4484,7 +4488,7 @@ $(document).ready(function(){
 //                console.log("strTrxD="+strTrxD);
 //                console.log("trackName="+trackName);
 //                console.log("trackDescription="+trackDescription);
-				openTrxJSON(strTrxD);
+				openTrxJSON(decompress(strTrxD));
 				buildTrains();
 				draw();
             }
