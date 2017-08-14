@@ -180,7 +180,7 @@ $(document).ready(function(){
 			}
 		}
 		
-		if (data["trackID']) {
+		if (data["trackID"]) {
 			passedTrackID = data["trackID"];
 			interactionState = 'Freeplay';
 		}
@@ -1445,29 +1445,41 @@ $(document).ready(function(){
 	
 	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
 	var swap = {};
-	swap['"gridy"'] 		= 'Y';
-	swap['"gridx"'] 		= 'X';
-	swap['"orientation"'] 	= 'O';
-	swap['"state"'] 		= 'A';
-	swap['"trackstraight"'] = 'S';
-	swap['"track90"'] 		= 'N';
-	swap['"left"'] 			= 'L';
-	swap['"right"'] 		= 'R';
-	swap['"subtype"'] 		= 'B';
-	swap['"immutable"'] 	= 'I';
-	swap['false'] 			= 'F';
-	swap['type'] 			= 'T';
+	swap['"gridy":'] 		= 'A';
+	swap['"gridx":'] 		= 'B';
+	swap['"orientation":'] 	= 'C';
+	swap['"state":'] 		= 'D';
+	swap['"trackstraight"'] = 'E';
+	swap['"track90"'] 		= 'F';
+	swap['"left"'] 			= 'G';
+	swap['"right"'] 		= 'H';
+	swap['"subtype":'] 		= 'I';
+	swap['"immutable":'] 	= 'J';
+	swap['false'] 			= 'K';
+	swap['"type":'] 		= 'L';
+	swap['"enginebasic"'] 	= 'M';
+	swap['"carbasic"'] 		= 'N';
+	swap['"tunnelfrom":'] 	= 'O';
+	swap['"tunnelto":'] 	= 'P';
+	swap['"speed":'] 		= 'Q';
+	swap['"position":'] 	= 'R';
+	swap['"trackwyeright"'] = 'S';
+	swap['"trackwyeleft"'] 	= 'T';
+	swap['"sprung"'] 		= 'U';
+	swap['"trackwye"'] 		= 'V';
+	swap['"trackcross"'] 	= 'W';
 	
 	function compress(decompressedTrx) {
 		var compressedTrx = decompressedTrx;
 		for (var key in swap) {
 		    compressedTrx = compressedTrx.replace(new RegExp(key, 'g'), swap[key]);
 		}
-		return compressedTrx
+		return "TRX-COMP-v1.0:"+compressedTrx
 	}
 	
 	function decompress (compressedTrx) {
 		var decompressedTrx= compressedTrx;
+		decompressedTrx = decompressedTrx.replace("TRX-COMP-v1.0:", "");
 		for (var key in swap) {
 		    decompressedTrx = decompressedTrx.replace(new RegExp(swap[key], 'g'), key);
 		}
@@ -2080,8 +2092,8 @@ $(document).ready(function(){
 		this.position = position || 0.50; //position across tile in range of [0,1) with respect to orientation of engine. 0=begining, 1=end
 		this.cargo = undefined;// a reference to a Cargo object carried by this EC
 		this.immutable = false; //can this EC be deleted or changed type?
-		this.tunnelFrom = []; //used to return EC to a tunnel. This is the (grid,gridy) of the tunnel that sent the EC 
-		this.tunnelTo = []; //used to return EC to a tunnel. This is the (grid,gridy) of the tunnel that the EC got sent to 
+		this.tunnelfrom = []; //used to return EC to a tunnel. This is the (grid,gridy) of the tunnel that sent the EC 
+		this.tunnelto = []; //used to return EC to a tunnel. This is the (grid,gridy) of the tunnel that the EC got sent to 
 
 		if (type == "enginebasic") engines.push(this);
 		else cars.push(this);
@@ -4437,7 +4449,7 @@ $(document).ready(function(){
 	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
 		var strTrx= JSON.stringify(trx)
-		console.log("    trx[]=\'"+strTrx+"\'\;");
+		//console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
 		var decompressed= decompress(compressed);
@@ -4885,11 +4897,11 @@ $(document).ready(function(){
 						var transportKey, distance;
 						
 						//see if ec has arrived at this tunnel before if so transport back to sending tunnel and remove entry
-						for (var i=0; i<ec.tunnelTo.length; i++) {
-							if (ec.tunnelTo[i] == mi(ec.gridx,ec.gridy)) {
-								transportKey = ec.tunnelFrom[i];
-								ec.tunnelTo.splice(i,1);
-								ec.tunnelFrom.splice(i,1);
+						for (var i=0; i<ec.tunnelto.length; i++) {
+							if (ec.tunnelto[i] == mi(ec.gridx,ec.gridy)) {
+								transportKey = ec.tunnelfrom[i];
+								ec.tunnelto.splice(i,1);
+								ec.tunnelfrom.splice(i,1);
 							}
 						}
 						if (transportKey) playSound("tunnelReverse");
@@ -4913,8 +4925,8 @@ $(document).ready(function(){
 							
 							if (transportKey) {
 								playSound("tunnel");
-								ec.tunnelTo.push(mi(tracks[transportKey].gridx, tracks[transportKey].gridy));
-								ec.tunnelFrom.push(mi(ec.gridx, ec.gridy));
+								ec.tunnelto.push(mi(tracks[transportKey].gridx, tracks[transportKey].gridy));
+								ec.tunnelfrom.push(mi(ec.gridx, ec.gridy));
 							}
 						}
 						
