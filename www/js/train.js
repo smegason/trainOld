@@ -283,7 +283,7 @@ $(document).ready(function(){
 	
 	//buttonArrays - used to store the order in which buttons are displayed in captions
 	var buttonsStation = [["none","pickdrop","supply","dump"],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"],["home","greentunnel","redtunnel","bluetunnel"]];
- 	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareLess","compareGreater"]];
+ 	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareless","comparegreater"]];
 // 	var buttonsCargoTypes = [["blocks","numbers","colors"],["uppercase","lowercase"],["binary","dinosaurs","stuffedAnimals"]] //needs to match the 0th element of each cargo subarray
  	var buttonsCargoTypes = [["numbers","uppercase","lowercase","colors"],["blocks","binary","dinosaurs","stuffedAnimals"]] //needs to match the 0th element of each cargo subarray and be in same order as cargoValues
 
@@ -299,7 +299,7 @@ $(document).ready(function(){
 	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
     var imgTitleScreen = new Image();
     imgTitleScreen.onload = function() { console.log("Height: " + this.height); draw();}
-    imgTitleScreen.src = 'img/titlePage3.png';
+    imgTitleScreen.src = 'img/titlePage4.png';
     
     drawTitleScreen();
 
@@ -1134,6 +1134,7 @@ $(document).ready(function(){
 	sounds["pickdropreverse"] = new Audio("sound/pickdrop-reverse.wav");
 	sounds["home"] = new Audio("sound/success.wav");
 	sounds["tunnel"] = new Audio("sound/Tunnel.wav");
+	sounds["tunnelReverse"] = new Audio("sound/TunnelReverse.wav");
 	sounds["tada1"] = new Audio("sound/tada-f.wav");
 	sounds["tada2"] = new Audio("sound/tada-g.wav");
 	sounds["tada3"] = new Audio("sound/tada-a.wav");
@@ -1424,7 +1425,7 @@ $(document).ready(function(){
 		this.type = type || "trackstraight";
 		this.orientation = orientation || 0;
 		this.state = state || "left"; //left or right
-		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareLess, compareGreater
+		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareless, comparegreater
 		//for TrackStraight- subtype can be increment, decrement, add, subtract, divide, multiply, sligshot, catapult
 		this.cargo = undefined;// a reference to a Cargo object carried by this track
 		this.immutable = false; //can this track be deleted or changed
@@ -1604,7 +1605,7 @@ $(document).ready(function(){
 				drawSprite(track.type, track.orientation);
 				break; 
 			case "trackstraight":
-				if (track.subtype == "none" || track.subtype == "") drawSprite("trackstraight", track.orientation);
+				if (track.subtype == "none" || track.subtype == "" || track.subtype == "greentunnel" || track.subtype == "redtunnel" || track.subtype == "bluetunnel") drawSprite("trackstraight", track.orientation);
 				else drawSprite(track.subtype, track.orientation);
 				break;
 			case "trackwyeleft":
@@ -1794,10 +1795,10 @@ $(document).ready(function(){
 			case "track45":
 				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
-			case "tracksquareSE": //draw the little squares between diagonal tracks ???
+			case "tracksquareSE": //draw the little squares between diagonal tracks 
 				ctx.drawImage(imgTrackDiagonalSquare[7], 0, 0);
 				break;
-			case "tracksquareSW": //draw the little squares between diagonal tracks ???
+			case "tracksquareSW": //draw the little squares between diagonal tracks 
 				ctx.drawImage(imgTrackDiagonalSquare[1], 0, 0);
 				break;
 			case "trackstraight":
@@ -1846,7 +1847,7 @@ $(document).ready(function(){
 			case "trackwyeleft-alternate-r":
 				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
-			case "trackwyeleft-Lazy-l":
+			case "trackwyeleft-lazy-l":
 				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
 			case "trackwyeleft-lazy-r":
@@ -2846,8 +2847,8 @@ $(document).ready(function(){
     						var row = Math.floor(fracY*buttonsWye.length);
     						var col = Math.floor(fracX*buttonsWye[row].length);
     						currentCaptionedObject.subtype = buttonsWye[row][col];
-    						if (currentCaptionedObject.subtype  == "compareLess"
-    						 || currentCaptionedObject.subtype  == "compareGreater" ) {
+    						if (currentCaptionedObject.subtype  == "compareless"
+    						 || currentCaptionedObject.subtype  == "comparegreater" ) {
     						 	addTrackCargo(currentCaptionedObject);
     						 }
 							break;
@@ -2987,6 +2988,8 @@ $(document).ready(function(){
 	
 	function addTrackCargo(track) { //adds a new TrackCargo for the given track. The new TrackCargo will be behind the inset so one tile away
 		step = getTrackCargoStep(track);
+		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)]) if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)].type == "trackcargo") return;
+		
 		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)] && track.type == "trackstraight" && !tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)]) {
 			track.orientation = (track.orientation +4)%8;// rotate track
 			new Track(track.gridx-step.stepX, track.gridy-step.stepY, "trackcargo");
@@ -3272,13 +3275,17 @@ $(document).ready(function(){
 		ctx.scale(zoomScale, zoomScale);
 
 		if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
+		
 		drawSquares();
 		drawAllTracks();
 		drawAllEnginesAndCars();
+		drawAllTunnels();
+		
 		if (showToolBar) {
 			drawCaption();
 			drawSecondaryCaption();
 		}
+		
         ctx.restore();
 
 		if (showToolBar) { //toolbar doesn't zoom
@@ -3376,12 +3383,25 @@ $(document).ready(function(){
 		ctx.drawImage(imgStar, 0, 0);
 		ctx.restore();
 	}			
-	function drawAllTracks() { //TODO iterate better
-		//draw all tracks
-		//console.log("draw all tracks");
-		
+	function drawAllTracks() {
+		var upperLeftWorld = screenToWorld(0, 0);
+		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
+		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
+			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				drawTrack(tracks[mi(Math.floor(i),Math.floor(j))]);
+			}
+		}	
+	}	
+
+	function drawAllTunnels() {
 		for (var key in tracks) {
-		    drawTrack(tracks[key]);
+		    if (tracks[key].subtype == "redtunnel" || tracks[key].subtype == "greentunnel" || tracks[key].subtype == "bluetunnel") {;
+				ctx.save();
+				ctx.translate((0.5+tracks[key].gridx)*tileWidth, (0.5+tracks[key].gridy)*tileWidth*tileRatio); //center origin on tile
+				ctx.rotate(tracks[key].orientation * Math.PI/4);
+		    	drawSprite(tracks[key].subtype, tracks[key].orientation);
+		    	ctx.restore();
+		    }
 		}
 	}	
 	
@@ -3403,7 +3423,7 @@ $(document).ready(function(){
 							ctx.save();
 							ctx.translate((track.gridx+0.25)*tileWidth, (track.gridy+0.18)*tileWidth*tileRatio); //center origin on tile
 			        		//draw diagnol is SE
-							drawSprite("tracksquareSE",0,0);//???
+							drawSprite("tracksquareSE",0,0);
 			        		ctx.restore();
 			        	}
 		        	}
@@ -4523,10 +4543,11 @@ $(document).ready(function(){
 					playSound("switch");
 				}
 				
-				//check for compareLess or compareGreater on engine entering tile
+				//check for compareless or comparegreater on engine entering tile
 				var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
-				if ((tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess" || tracks[mi(ec.gridx,ec.gridy)].subtype == "compareGreater") && oriDif == 0 && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined && isFirstCarInTrain(ec)) {
+				if ((tracks[mi(ec.gridx,ec.gridy)].subtype == "compareless" || tracks[mi(ec.gridx,ec.gridy)].subtype == "comparegreater") && oriDif == 0 && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined && isFirstCarInTrain(ec)) {
 					//iterate through train to find first car with same type as switch cargo type. Use it for comparison
+					console.log("COmpare greater less");
 					var train = getTrain(ec);
 					var car;
 					for (var c=1; c<train.length && car == undefined;  c++) {
@@ -4538,7 +4559,7 @@ $(document).ready(function(){
 						if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess") { //for compareLess
 							if (car.cargo.value < tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value) state = "left";
 							else state = "right";
-						} else { //for compareGreater
+						} else { //for comparegreater
 							if (car.cargo.value < tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value) state = "right";
 							else state = "left";
 						}
@@ -4729,7 +4750,7 @@ $(document).ready(function(){
 						//if car has cargo and station doesn't, then swap car cargo to station
 						else if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							//check for bunny
-							if (ec.cargo.type[1] == "bunny") {
+/*							if (ec.cargo.type[1] == "bunny") {
 								playSound("home");
 								console.log("Bunny delivered successfully");
 								index = currentTrackSet + "-" + (currentTrackNumber+1);
@@ -4748,8 +4769,8 @@ $(document).ready(function(){
 								if (currentTrackScore>1000) currentTrackScore = 1000; 
 								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
 							} else {
-								playSound("pickdropreverse");
-							}
+*/								playSound("pickdropreverse");
+						//	}
 							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
@@ -4762,6 +4783,24 @@ $(document).ready(function(){
 						//if car has cargo and station doesn't, then swap car cargo to station
 						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("home");
+							console.log("Bunny delivered successfully");
+							if (interactionState == 'Try level') {
+								index = currentTrackSet + "-" + (currentTrackNumber+1);
+								console.log("trx unlocked for index=" + index);
+								unlockedTrx[index] = true;
+								animationFrame = 0;
+								interactionState = 'StarScreen';
+								text = currentTrackSet + "-" + (currentTrackNumber);
+								bestTime = 1;
+								if (bestTrackTime[text]) bestTime= bestTrackTime[text];
+								var d = new Date();
+								now = d.getTime();
+								currentTrackTime = now - startTimePlay;
+								currentTrackScore = Math.round(1000*bestTrackTime[text]/currentTrackTime);
+								newHighScore = false;
+								if (currentTrackScore>1000) currentTrackScore = 1000; 
+								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
+							}
 							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
 							ec.cargo = undefined;
 						}
@@ -4804,24 +4843,24 @@ $(document).ready(function(){
 					}
 
 					//tunnel
-					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "greentunnel") {
-//						console.log ("Enter green tunnel");
-						//find first (lowest y-coord) other matching tunnel
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "greentunnel" || tracks[mi(ec.gridx,ec.gridy)].subtype == "redtunnel" || tracks[mi(ec.gridx,ec.gridy)].subtype == "bluetunnel") {
+//						console.log ("Enter  tunnel");
 						var transportKey, distance;
 						
 						//see if ec has arrived at this tunnel before if so transport back to sending tunnel and remove entry
 						for (var i=0; i<ec.tunnelTo.length; i++) {
-							if (ec.tunnelTo[i]) if (ec.tunnelTo[i] == mi(ec.gridx,ec.gridy)) {
+							if (ec.tunnelTo[i] == mi(ec.gridx,ec.gridy)) {
 								transportKey = ec.tunnelFrom[i];
-								ec.tunnelTo[i] == undefined;
-								ec.tunnelFrom[i] == undefined;
+								ec.tunnelTo.splice(i,1);
+								ec.tunnelFrom.splice(i,1);
 							}
 						}
+						if (transportKey) playSound("tunnelReverse");
 
 						//if not transported before then transport to the closest tunnel of same color
 						if (!transportKey) {
 							for (var key in tracks) {
-							    if (tracks[key].subtype == "greentunnel" && key != mi(ec.gridx,ec.gridy)) {
+							    if (tracks[key].subtype == tracks[mi(ec.gridx,ec.gridy)].subtype && key != mi(ec.gridx,ec.gridy)) {
 							    	//console.log("KEY="+key+" y="+tracks[key].gridy);
 							    	if (!transportKey) {
 							    		transportKey = key;
@@ -4834,24 +4873,24 @@ $(document).ready(function(){
 							    	}
 							    }
 							}
+							
+							if (transportKey) {
+								playSound("tunnel");
+								ec.tunnelTo.push(mi(tracks[transportKey].gridx, tracks[transportKey].gridy));
+								ec.tunnelFrom.push(mi(ec.gridx, ec.gridy));
+							}
 						}
 						
 						if (transportKey) { // transport EC is found another tunnel
-							//console.log ("Transport tunnel = "+transportKey);
-							playSound("tunnel");
-							ec.tunnelFrom.push(mi(ec.gridx, ec.gridy));
-//							console.log("ori1="+ec.orientation+" tracksori="+tracks[mi(ec.gridx,ec.gridy)].orientation+" trackkeyori="+tracks[transportKey].orientation);
 							ec.orientation = (ec.orientation - (tracks[mi(ec.gridx,ec.gridy)].orientation - tracks[transportKey].orientation))%8;
-	//						console.log("ori2="+ec.orientation);
 							ec.gridx = tracks[transportKey].gridx;
 							ec.gridy = tracks[transportKey].gridy;
-							ec.tunnelTo.push(mi(ec.gridx, ec.gridy));
 						}
 					}
 					//console.log ("type="+tracks[mi(ec.gridx,ec.gridy)].subtype);
 
-					//drop off cargo at empty compareLess or comapreGreater wyes
-					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareLess" || tracks[mi(ec.gridx,ec.gridy)].subtype == "compareGreater") {
+					//drop off cargo at empty compareless or comapregreater wyes
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "compareless" || tracks[mi(ec.gridx,ec.gridy)].subtype == "comparegreater") {
 						//if car has cargo and station doesn't, then swap car cargo to station
 						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("supply");

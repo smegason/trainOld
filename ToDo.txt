@@ -1,11 +1,8 @@
 To Do:
 -make stations type specific (maybe already done for add subtract, check for wyes)
--should enable functions by having magic tunnel that train enters in one place and then exits in another place (function) then returns
--switch bunny progress to home station rather than pickdrop
---rerender tunnel with just tunnel, no track, and when draw, draw plain track and then at end after trains add tunnels
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -idiom for two digit numbers- if cargo rolls over then increment next car's cargo (but backwards...)
-
+-improve prompt	
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
 -remake trx for each level
 
