@@ -171,6 +171,7 @@ $(document).ready(function(){
 		passedStrTrx = data["trx"];
 		if (passedStrTrx) {
 			passedTrx = decodeURIComponent(passedStrTrx);
+			interactionState = 'Freeplay';
 		}
 		if (data["toolbar"]) {
 			if (data["toolbar"]==0) {
@@ -178,7 +179,12 @@ $(document).ready(function(){
 				interactionState = 'Freeplay';
 			}
 		}
-		passedTrackID = data["trackID"];
+		
+		if (data["trackID']) {
+			passedTrackID = data["trackID"];
+			interactionState = 'Freeplay';
+		}
+		
 		if (data["scale"]) {
 			zoomScale = data["scale"]/100;
     		if (zoomScale<0.2) zoomScale = 0.2;
