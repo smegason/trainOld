@@ -3,9 +3,15 @@ To Do:
 -browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
 -remake trx for each level
 
--some weird bug where can't add cargo and makes immutable
+-earn badge
+-turn on octagons if loaded track has diagonal angles
+-random wye?
+
 
 Bug-
+-copy when zoomed doesn't work
+-some weird bug where can't add cargo and makes immutable
+-station on diagonal straight doesn't work
 
 New features:
 High prioirty-
