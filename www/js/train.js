@@ -89,7 +89,7 @@ $(document).ready(function(){
  	var optionIsPressed = false;
  	var commandIsPressed = false;
  	window.addEventListener('keydown', function(event) {
-// 		console.log ("Key="+event.keyCode);
+ 		console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
  		else if (event.keyCode == 16) { //pan
@@ -102,6 +102,10 @@ $(document).ready(function(){
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = true;
+ 		}
+ 		else if (event.keyCode == 90) {
+ 			if (shiftIsPressed && commandIsPressed) redoTrx();
+ 			if (!shiftIsPressed && commandIsPressed) undoTrx();
  		}
 	});   
 
@@ -281,9 +285,9 @@ $(document).ready(function(){
 	var gColors = ['white', 'black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'cyan', 'purple'];
 	cargoValues.push( ['binary','yes', 'no']); //2
 	//cargoValues.push( ['shapes', 'point', 'line', 'triangle', 'square', 'pentagon', 'hexagon']); //6
-	//cargoValues.push( ['safariAnimals','aardvark', 'cheetah', 'elephant', 'giraffe', 'hippo', 'lion', 'osterich', 'rhino', 'warthog', 'zebra']); //10
+	//cargoValues.push( ['safarianimals','aardvark', 'cheetah', 'elephant', 'giraffe', 'hippo', 'lion', 'osterich', 'rhino', 'warthog', 'zebra']); //10
 	cargoValues.push( ['dinosaurs', 'raptor', 'triceratops', 'stegosaurus', 'tyranisaurus', 'brontosaurus']); //5
-	cargoValues.push( ['stuffedAnimals', 'bunny']);
+	cargoValues.push( ['stuffedanimals', 'bunny']);
 	//var cargoJungleAnimals
 	//var cargoAustralianAnimals
 	//var cargoAmericanAnimals
@@ -291,8 +295,8 @@ $(document).ready(function(){
 	//buttonArrays - used to store the order in which buttons are displayed in captions
 	var buttonsStation = [["none","pickdrop","supply","dump"],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"],["home","greentunnel","redtunnel","bluetunnel"]];
  	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareless","comparegreater"]];
-// 	var buttonsCargoTypes = [["blocks","numbers","colors"],["uppercase","lowercase"],["binary","dinosaurs","stuffedAnimals"]] //needs to match the 0th element of each cargo subarray
- 	var buttonsCargoTypes = [["numbers","uppercase","lowercase","colors"],["blocks","binary","dinosaurs","stuffedAnimals"]] //needs to match the 0th element of each cargo subarray and be in same order as cargoValues
+// 	var buttonsCargoTypes = [["blocks","numbers","colors"],["uppercase","lowercase"],["binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray
+ 	var buttonsCargoTypes = [["numbers","uppercase","lowercase","colors"],["blocks","binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray and be in same order as cargoValues
 
 	//images
 	console.log("load images");
@@ -1123,6 +1127,8 @@ $(document).ready(function(){
 	
 	var toolButtonsLevels = [];
 	var toolButtonsFreeplay = [];
+	var undoHistory = [];
+	var undoCurrentIndex = 0;
 
 	//Sounds
 	var sounds = [];
@@ -1148,16 +1154,82 @@ $(document).ready(function(){
 	sounds["tada3"] = new Audio("sound/tada-a.wav");
 	sounds["failure"] = new Audio("sound/failure.wav");
 	sounds["open"] = new Audio("sound/open.wav");
+
+	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
+	//swap array for "TRXv1.0:"
+	var swap = {};
+	swap['"gridy":'] 		= 'A';
+	swap['"gridx":'] 		= 'B';
+	swap['"orientation":'] 	= 'C';
+	swap['"state":'] 		= 'D';
+	swap['"trackstraight"'] = 'E';
+	swap['"track90"'] 		= 'F';
+	swap['"left"'] 			= 'G';
+	swap['"right"'] 		= 'H';
+	swap['"subtype":'] 		= 'I';
+	swap['"immutable":'] 	= 'J';
+	swap['false'] 			= 'K';
+	swap['"type":'] 		= 'L';
+	swap['"enginebasic"'] 	= 'M';
+	swap['"carbasic"'] 		= 'N';
+	swap['"tunnelfrom":'] 	= 'O';
+	swap['"tunnelto":'] 	= 'P';
+	swap['"speed":'] 		= 'Q';
+	swap['"position":'] 	= 'R';
+	swap['"trackwyeright"'] = 'S';
+	swap['"trackwyeleft"'] 	= 'T';
+	swap['"sprung"'] 		= 'U';
+	swap['"trackwye"'] 		= 'V';
+	swap['"trackcross"'] 	= 'W';
+	swap['"comparegreater"']= 'X';
+	swap['"trackcargo"'] 	= 'Y';
+	swap['"blocks"'] 		= 'Z';
+	
 	
 	//////// trx for levels
 	var trxLevels = [];
 	var bestTrackTime = [];
 	trxLevels['Trainee'] = [];
 	//draw single gap straight
-	trxLevels['Trainee'][1] ='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	trxLevels['Trainee'][1] ='TRXv1.0:[{"1,-3":{B1,A-3,LE,C6,DG,I"",Jtrue},"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"2,0":{B2,A0,LE,C2,DG,I"",Jtrue},"3,0":{B3,A0,LF,C2,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C0,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C0,DG,I"",Jtrue},"3,-3":{B3,A-3,LF,C0,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C6,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
 	bestTrackTime['Trainee-1'] = 10110;
 	//draw bigger gap straight
-	trxLevels['Trainee'][2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":2,"gridy":7,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":8,"type":"track90","orientation":4,"state":"left","subtype":""},null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":3,"gridy":7,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":8,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":4,"gridy":8,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":5,"gridy":8,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":9,"type":"trackcargo","orientation":0,"state":"left","subtype":""}],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,null,null,null,{"gridx":6,"gridy":7,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":8,"type":"track90","orientation":2,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
+	trxLevels['Trainee'][2] ='TRXv1.0:[{"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"2,0":{B2,A0,LE,C2,DG,I"",Jtrue},"3,0":{B3,A0,LF,C2,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C0,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C0,DG,I"",Jtrue},"3,-3":{B3,A-3,LF,C0,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C6,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-2'] = 13106;
+	//draw single curve
+	trxLevels['Trainee'][3]='TRXv1.0:[{"1,-3":{B1,A-3,LE,C6,DG,I"",Jtrue},"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"2,0":{B2,A0,LE,C2,DG,I"",Jtrue},"3,0":{B3,A0,LF,C2,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C0,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-3'] = 9105;
+	//draw curve and fill gap in two different places
+	trxLevels['Trainee'][4]='TRXv1.0:[{"1,-3":{B1,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"2,0":{B2,A0,LE,C2,DG,I"",Jtrue},"3,0":{B3,A0,LF,C2,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C0,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C2,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C0,DG,I"",Jtrue},"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-4'] = 9105;
+	//draw cross
+	trxLevels['Trainee'][5]='TRXv1.0:[{"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"0,0":{B0,A0,LF,C2,DG,I"",Jtrue},"0,-1":{B0,A-1,LE,C0,DG,I"",Jtrue},"2,-1":{B2,A-1,LE,C4,DG,I"",Jtrue},"2,0":{B2,A0,LF,C2,DG,I"",Jtrue},"1,0":{B1,A0,LF,C4,DG,I"",Jtrue},"0,-2":{B0,A-2,LF,C6,DG,I"",JK},"1,-2":{B1,A-2,LE,C2,DG,I"",JK},"2,-2":{B2,A-2,LF,C0,DG,I"",JK}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-5'] = 9105;
+	//many crosses
+	trxLevels['Trainee'][6]='TRXv1.0:[{"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",JK},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"0,0":{B0,A0,LW,C4,DG,I"",Jtrue},"1,0":{B1,A0,LE,C0,DG,I"",JK},"2,0":{B2,A0,LW,C4,DG,I"",Jtrue},"1,-1":{B1,A-1,LW,C0,DG,I"",Jtrue},"-1,-1":{B-1,A-1,LW,C0,DG,I"",Jtrue},"0,-2":{B0,A-2,LW,C4,DG,I"",Jtrue},"3,0":{B3,A0,LF,C2,DG,I"",Jtrue},"3,-1":{B3,A-1,LF,C0,DG,I"",Jtrue},"2,-2":{B2,A-2,LW,C4,DG,I"",Jtrue},"3,-2":{B3,A-2,LF,C2,DG,I"",Jtrue},"3,-3":{B3,A-3,LF,C0,DG,I"",Jtrue},"2,-3":{B2,A-3,LF,C6,DG,I"",Jtrue},"2,1":{B2,A1,LF,C2,DG,I"",Jtrue},"1,1":{B1,A1,LF,C4,DG,I"",Jtrue},"1,-3":{B1,A-3,LF,C0,DG,I"",Jtrue},"0,-3":{B0,A-3,LF,C6,DG,I"",Jtrue},"0,1":{B0,A1,LF,C2,DG,I"",Jtrue},"-1,1":{B-1,A1,LF,C4,DG,I"",Jtrue},"-2,-2":{B-2,A-2,LF,C6,DG,I"",Jtrue},"-2,-1":{B-2,A-1,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LF,C0,DG,I"",JK}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-6'] = 9105;
+	//picup bunny from station
+	trxLevels['Trainee'][7]='TRXv1.0:[{"1,-3":{B1,A-3,LE,C6,DG,I"",Jtrue},"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"2,-3":{B2,A-3,LF,C0,DG,I"",Jtrue},"2,0":{B2,A0,LF,C2,DG,I"",Jtrue},"3,3":{B3,A3,LE,C4,DG,I"supply",Jtrue},"3,4":{B3,A4,LF,C4,DG,I"",Jtrue},"4,4":{B4,A4,LF,C2,DG,I"",Jtrue},"4,3":{B4,A3,LE,C0,DG,I"",Jtrue},"2,3":{B2,A3,LY,C0,DG,I"","cargo":{"value":0,L["stuffedanimals","bunny"]},Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":null,JK,O[],P[]}]]';
+	bestTrackTime['Trainee-7'] = 9105;
+	//draw diagonal
+	trxLevels['Trainee'][8]='TRXv1.0:[{"1,-3":{B1,A-3,LE,C6,DG,I"",Jtrue},"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"2,0":{B2,A0,LE,C2,DG,I"",JK},"3,0":{B3,A0,L"track45",C2,DG,I"",JK},"4,-1":{B4,A-1,L"track45",C1,DG,I"",JK},"2,-3":{B2,A-3,LE,C6,DG,I"",JK},"3,-2":{B3,A-2,LF,C0,DG,I"",JK},"3,-1":{B3,A-1,LF,C2,DG,I"",JK},"2,-1":{B2,A-1,LF,C4,DG,I"",JK},"2,-2":{B2,A-2,LF,C6,DG,I"",JK},"4,-4":{B4,A-4,LF,C6,DG,I"",JK},"5,-4":{B5,A-4,LF,C0,DG,I"",JK},"5,-3":{B5,A-3,LF,C2,DG,I"",JK},"4,-3":{B4,A-3,LF,C4,DG,I"",JK}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-8'] = 9105;
+	//draw many diagonals thru maze
+	trxLevels['Trainee'][9]='TRXv1.0:[{"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",Jtrue},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"1,0":{B1,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"2,0":{B2,A0,L"track45",C7,DG,I"",Jtrue},"4,-3":{B4,A-3,L"track45",C3,DG,I"",Jtrue},"4,-4":{B4,A-4,LE,C5,DG,I"",Jtrue},"3,-3":{B3,A-3,L"track45",C5,DG,I"",Jtrue},"1,-1":{B1,A-1,LF,C4,DG,I"",Jtrue},"1,-2":{B1,A-2,LE,C4,DG,I"",Jtrue},"1,-3":{B1,A-3,LF,C0,DG,I"",Jtrue},"2,1":{B2,A1,LF,C0,DG,I"",Jtrue},"2,2":{B2,A2,L"track45",C4,DG,I"",Jtrue},"3,3":{B3,A3,L"track45",C3,DG,I"",Jtrue},"4,3":{B4,A3,LF,C0,DG,I"",Jtrue},"4,4":{B4,A4,LF,C2,DG,I"",Jtrue},"3,4":{B3,A4,L"track45",C3,DG,I"",Jtrue},"2,3":{B2,A3,LE,C7,DG,I"",Jtrue},"1,2":{B1,A2,L"track45",C4,DG,I"",Jtrue},"1,1":{B1,A1,LF,C6,DG,I"",Jtrue},"5,2":{B5,A2,L"track45",C5,DG,I"",Jtrue},"6,1":{B6,A1,LF,C1,DG,I"",Jtrue},"6,-1":{B6,A-1,L"track45",C1,DG,I"",Jtrue},"6,-2":{B6,A-2,LE,C0,DG,I"",Jtrue},"6,-3":{B6,A-3,L"track45",C0,DG,I"",Jtrue},"5,-4":{B5,A-4,LF,C5,DG,I"",Jtrue},"6,-5":{B6,A-5,L"track45",C1,DG,I"",Jtrue},"6,-6":{B6,A-6,LE,C0,DG,I"",Jtrue},"6,-7":{B6,A-7,LF,C0,DG,I"",Jtrue},"5,-7":{B5,A-7,LE,C6,DG,I"",Jtrue},"4,-7":{B4,A-7,L"track45",C6,DG,I"",Jtrue},"3,-6":{B3,A-6,L"track45",C2,DG,I"",Jtrue},"2,-6":{B2,A-6,LF,C4,DG,I"",Jtrue},"2,-7":{B2,A-7,LF,C6,DG,I"",Jtrue},"3,-7":{B3,A-7,LE,C2,DG,I"",Jtrue},"2,-5":{B2,A-5,L"track45",C5,DG,I"",Jtrue},"2,-4":{B2,A-4,LE,C4,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C4,DG,I"",Jtrue},"2,-2":{B2,A-2,LE,C4,DG,I"",Jtrue},"4,-2":{B4,A-2,L"track45",C1,DG,I"",Jtrue},"3,-1":{B3,A-1,L"track45",C5,DG,I"",Jtrue},"3,0":{B3,A0,L"track45",C4,DG,I"",Jtrue},"0,-2":{B0,A-2,LE,C4,DG,I"",Jtrue},"0,-1":{B0,A-1,LE,C4,DG,I"",Jtrue},"0,-4":{B0,A-4,LE,C2,DG,I"",Jtrue},"1,-4":{B1,A-4,LE,C2,DG,I"",Jtrue},"5,3":{B5,A3,LE,C4,DG,I"",Jtrue},"5,4":{B5,A4,LE,C4,DG,I"",Jtrue},"4,1":{B4,A1,L"track45",C0,DG,I"",Jtrue},"5,0":{B5,A0,LF,C5,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":0,L["stuffedanimals","bunny"]},JK,O[],P[]}]]';
+	bestTrackTime['Trainee-9'] = 9105;
+	//many diagonals through maze and pickup bunny
+	trxLevels['Trainee'][10]='TRXv1.0:[{"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",JK},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"1,4":{B1,A4,LE,C2,DG,I"supply",Jtrue},"1,5":{B1,A5,LY,C0,DG,I"","cargo":{"value":0,L["stuffedanimals","bunny"]},JK},"0,2":{B0,A2,L"track45",C3,DG,I"",Jtrue},"-1,4":{B-1,A4,LF,C2,DG,I"",Jtrue},"-1,3":{B-1,A3,LF,C6,DG,I"",JK},"4,3":{B4,A3,LF,C2,DG,I"",Jtrue},"4,-4":{B4,A-4,LW,C4,DG,I"",Jtrue},"2,-6":{B2,A-6,LF,C6,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C5,DG,I"",Jtrue},"1,3":{B1,A3,LE,C2,DG,I"",Jtrue},"2,3":{B2,A3,L"track45",C2,DG,I"",Jtrue},"3,2":{B3,A2,L"track45",C1,DG,I"",Jtrue},"3,1":{B3,A1,LE,C0,DG,I"",Jtrue},"3,0":{B3,A0,L"track45",C0,DG,I"",Jtrue},"6,0":{B6,A0,L"track45",C0,DG,I"",Jtrue},"6,1":{B6,A1,L"track45",C1,DG,I"",Jtrue},"5,2":{B5,A2,L"track45",C5,DG,I"",Jtrue},"5,3":{B5,A3,L"track45",C1,DG,I"",Jtrue},"3,5":{B3,A5,LF,C2,DG,I"",Jtrue},"3,4":{B3,A4,LF,C6,DG,I"",Jtrue},"4,4":{B4,A4,LE,C2,DG,I"",Jtrue},"5,-2":{B5,A-2,L"track45",C5,DG,I"",Jtrue},"6,-3":{B6,A-3,L"track45",C1,DG,I"",Jtrue},"5,-6":{B5,A-6,L"track45",C0,DG,I"",Jtrue},"4,-7":{B4,A-7,L"track45",C7,DG,I"",Jtrue},"3,-7":{B3,A-7,LE,C6,DG,I"",Jtrue},"2,-7":{B2,A-7,L"track45",C6,DG,I"",Jtrue},"2,-4":{B2,A-4,LE,C7,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C3,DG,I"",Jtrue},"2,-2":{B2,A-2,LE,C3,DG,I"",Jtrue},"-3,1":{B-3,A1,LE,C4,DG,I"",Jtrue},"-3,2":{B-3,A2,LE,C4,DG,I"",Jtrue},"-3,3":{B-3,A3,LE,C4,DG,I"",Jtrue},"-1,2":{B-1,A2,LE,C7,DG,I"",Jtrue},"-3,4":{B-3,A4,LE,C4,DG,I"",Jtrue},"-3,5":{B-3,A5,LF,C4,DG,I"",Jtrue},"-2,5":{B-2,A5,LE,C2,DG,I"",Jtrue},"-1,5":{B-1,A5,LE,C2,DG,I"",Jtrue},"0,5":{B0,A5,LE,C2,DG,I"",Jtrue},"2,5":{B2,A5,LE,C6,DG,I"",Jtrue},"1,1":{B1,A1,LE,C2,DG,I"",Jtrue},"0,1":{B0,A1,L"track45",C3,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C7,DG,I"",Jtrue},"4,0":{B4,A0,LE,C3,DG,I"",Jtrue},"1,-6":{B1,A-6,LF,C0,DG,I"",Jtrue},"1,-5":{B1,A-5,LE,C4,DG,I"",Jtrue},"1,-4":{B1,A-4,LF,C2,DG,I"",Jtrue},"0,-4":{B0,A-4,LF,C4,DG,I"",Jtrue},"0,-5":{B0,A-5,LE,C0,DG,I"",Jtrue},"0,-6":{B0,A-6,LF,C6,DG,I"",Jtrue},"6,-4":{B6,A-4,LE,C0,DG,I"",Jtrue},"6,-5":{B6,A-5,L"track45",C0,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":null,JK,O[],P[]}]]';
+	bestTrackTime['Trainee-10'] = 9105;
+	
+	openTrxJSON(decompress(trxLevels['Trainee'][1]));
+	updateUndoHistory();
+	buildTrains();
+/*	trxLevels['Trainee'] = [];
+	//draw single gap straight
+	trxLevels['Trainee'][1] ='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedanimals","bunny"]}}]]';
+	bestTrackTime['Trainee-1'] = 10110;
+	//draw bigger gap straight
+	trxLevels['Trainee'][2]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":2,"gridy":7,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":8,"type":"track90","orientation":4,"state":"left","subtype":""},null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,{"gridx":3,"gridy":7,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":8,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":4,"gridy":8,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,{"gridx":5,"gridy":8,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":9,"type":"trackcargo","orientation":0,"state":"left","subtype":""}],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,null,null,null,{"gridx":6,"gridy":7,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":8,"type":"track90","orientation":2,"state":"left","subtype":""},null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedanimals","bunny"]}}]]';
 	bestTrackTime['Trainee-2'] = 13106;
 	//draw single curve
 	trxLevels['Trainee'][3]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,null,null,null,null,null,null],[null,null,null,{"gridx":7,"gridy":3,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,{"gridx":8,"gridy":3,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":8,"gridy":4,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null,null,null],[null,null,{"gridx":9,"gridy":2,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":9,"gridy":3,"type":"trackwyeright","orientation":6,"state":"right","subtype":"sprung"},null,null,null,null,null,null],[null,null,{"gridx":10,"gridy":2,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":10,"gridy":3,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]},"immutable":false}]]';
@@ -1177,9 +1249,9 @@ $(document).ready(function(){
 	//large gaps free draw
 	trxLevels['Trainee'][8]='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":3,"gridy":5,"type":"trackcargo","orientation":0,"state":"left","subtype":"","immutable":true},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"trackstraight","orientation":4,"state":"left","subtype":"pickDrop","immutable":true},{"gridx":4,"gridy":6,"type":"trackwyeright","orientation":0,"state":"right","subtype":"sprung","immutable":false},{"gridx":4,"gridy":7,"type":"track90","orientation":4,"state":"left","subtype":"","immutable":false},null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,{"gridx":5,"gridy":6,"type":"track90","orientation":0,"state":"left","subtype":"","immutable":false},{"gridx":5,"gridy":7,"type":"track90","orientation":2,"state":"left","subtype":"","immutable":false},null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,{"gridx":13,"gridy":6,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":13,"gridy":7,"type":"track90","orientation":2,"state":"left","subtype":""},null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedAnimals","bunny"]}}]]';
 	bestTrackTime['Trainee-8'] = 11104;
-		
-	var nCurrentTrx =1;
-	var trx = [];
+*/		
+//	var nCurrentTrx =1;
+	///var trx = [];
 /*	var trxName = [];
 //	trx[0] = '[[[{"gridx":0,"gridy":0,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":0,"gridy":1,"type":"trackstraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":2,"type":"trackstraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":3,"type":"trackwyeleft","orientation":4,"state":"left","subtype":"lazy"},{"gridx":0,"gridy":4,"type":"trackstraight","orientation":0,"state":"left","subtype":"supply","cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":0,"gridy":5,"type":"trackstraight","orientation":0,"state":"left","subtype":""},{"gridx":0,"gridy":6,"type":"trackstraight","orientation":0,"state":"left","subtype":""},null,null,null],[{"gridx":1,"gridy":0,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":1,"gridy":3,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":2,"gridy":0,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":3,"type":"trackstraight","orientation":6,"state":"left","subtype":"decrement"},null,null,null,null,null,null],[{"gridx":3,"gridy":0,"type":"trackwyeright","orientation":2,"state":"right","subtype":"compareLess","cargo":{"value":2,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}},{"gridx":3,"gridy":1,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":3,"gridy":3,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null],[{"gridx":4,"gridy":0,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[{"gridx":5,"gridy":0,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":0,"type":"enginebasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017}],[{"gridx":1,"gridy":0,"type":"carbasic","orientation":2,"state":"","speed":40,"position":0.5800000000000017,"cargo":{"value":5,"type":["numbers","0","1","2","3","4","5","6","7","8","9"]}}]]';
 	trxName[1] = 'for loop';
@@ -1438,42 +1510,40 @@ $(document).ready(function(){
 		this.cargo = undefined;// a reference to a Cargo object carried by this track
 		this.immutable = false; //can this track be deleted or changed
 	}	
+	
+	function updateUndoHistory() {
+		console.log("Update undo history. Index="+undoCurrentIndex);
+	 	var trx = [tracks, engines, cars];
+		undoCurrentIndex += 1;
+		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(trx));
+	}
 
+	function undoTrx() {
+		console.log("undo trx. Index="+undoCurrentIndex);
+		if (undoCurrentIndex>1) {
+			undoCurrentIndex -= 1;
+			openTrxJSON(decompress(undoHistory[undoCurrentIndex]));
+			buildTrains();
+			draw();
+		}
+	}
+	
+	function redoTrx() {
+		console.log("redo trx");
+		if (undoCurrentIndex < undoHistory.length-1) {
+			undoCurrentIndex += 1;
+			openTrxJSON(decompress(undoHistory[undoCurrentIndex]));
+			buildTrains();
+			draw();
+		}
+	}
+	
 	function mi(x,y) { //make index
 		return (x+','+y);
 	}
 	
-	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
-	//swap array for "TRXv1.0:"
-	var swap = {};
-	swap['"gridy":'] 		= 'A';
-	swap['"gridx":'] 		= 'B';
-	swap['"orientation":'] 	= 'C';
-	swap['"state":'] 		= 'D';
-	swap['"trackstraight"'] = 'E';
-	swap['"track90"'] 		= 'F';
-	swap['"left"'] 			= 'G';
-	swap['"right"'] 		= 'H';
-	swap['"subtype":'] 		= 'I';
-	swap['"immutable":'] 	= 'J';
-	swap['false'] 			= 'K';
-	swap['"type":'] 		= 'L';
-	swap['"enginebasic"'] 	= 'M';
-	swap['"carbasic"'] 		= 'N';
-	swap['"tunnelfrom":'] 	= 'O';
-	swap['"tunnelto":'] 	= 'P';
-	swap['"speed":'] 		= 'Q';
-	swap['"position":'] 	= 'R';
-	swap['"trackwyeright"'] = 'S';
-	swap['"trackwyeleft"'] 	= 'T';
-	swap['"sprung"'] 		= 'U';
-	swap['"trackwye"'] 		= 'V';
-	swap['"trackcross"'] 	= 'W';
-	swap['"comparegreater"']= 'X';
-	swap['"trackcargo"'] 	= 'Y';
-	swap['"blocks"'] 		= 'Z';
-	
 	function compress(decompressedTrx) {
+		if (!decompressedTrx) return;
 		var compressedTrx = decompressedTrx;
 		for (var key in swap) {
 		    compressedTrx = compressedTrx.replace(new RegExp(key, 'g'), swap[key]);
@@ -1482,8 +1552,8 @@ $(document).ready(function(){
 	}
 	
 	function decompress (compressedTrx) {
-		var decompressedTrx= compressedTrx;
-		decompressedTrx = decompressedTrx.replace("TRXv1.0:", "");
+		if (!compressedTrx) return;
+		var decompressedTrx= compressedTrx.replace("TRXv1.0:", "");
 		for (var key in swap) {
 		    decompressedTrx = decompressedTrx.replace(new RegExp(swap[key], 'g'), key);
 		}
@@ -1727,7 +1797,7 @@ $(document).ready(function(){
 			case "Captionraptor":
 				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
 				break;
-			case "CaptionstuffedAnimals":
+			case "Captionstuffedanimals":
 				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionbunny":
@@ -2216,7 +2286,7 @@ $(document).ready(function(){
 			case "dinosaurs":
 				imgCargo = imgCargoDinosaurs;
 				break;
-			case "stuffedAnimals":
+			case "stuffedanimals":
 				imgCargo = imgCargoStuffedAnimals;
 				break;
 			case "binary":
@@ -2317,6 +2387,7 @@ $(document).ready(function(){
 						currentTrackNumber = i;
 						interactionState = 'Try level';
 						calculateLayout();
+						console.log("Open set="+currentTrackSet+" numbree="+currentTrackNumber);
 						openTrxJSON(decompress(trxLevels[currentTrackSet][currentTrackNumber]));
 						buildTrains();
 						draw();
@@ -2466,6 +2537,7 @@ $(document).ready(function(){
 			    			console.log("Empty grid, add blank Track");
 			    			new Track(gridx, gridy, "trackblank");
 			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,cargoValues[1]);
+		                    updateUndoHistory();
 		                    draw();
 		                }
 			    		
@@ -2641,6 +2713,7 @@ $(document).ready(function(){
 			playSound("stop");
 			clearInterval(interval);
 		} else {
+			updateUndoHistory();
 			clearInterval(interval);
 			playSound("choochoo");
 			skip = 10;
@@ -2797,6 +2870,7 @@ $(document).ready(function(){
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
 					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]);
+					updateUndoHistory();
 					secondaryCaption = undefined;
 					captionX = undefined;
    				
@@ -2945,6 +3019,7 @@ $(document).ready(function(){
 	    				if (getEC(startXTile, startYTile) == undefined) { //dont put ec on top of current ec
 							if (isDrawingEngine) new EC(startXTile, startYTile, "enginebasic", orientation, "", 20, 0.5);
 							if (isDrawingCar) new EC(startXTile, startYTile, "carbasic", orientation, "", 0, 0.5);
+							updateUndoHistory();
 							buildTrains();
 						}
 					}
@@ -3007,7 +3082,7 @@ $(document).ready(function(){
 		    		}
 		    	}
 	    	}
-			
+			updateUndoHistory();			
     		draw();
     	}
     	
@@ -3356,9 +3431,9 @@ $(document).ready(function(){
 
 		var highScore = 0;
 		text = "highscore-" + currentTrackSet + "-" + (currentTrackNumber);
-		console.log ("textHS="+text);
+//		console.log ("textHS="+text);
 		if (localStorage.getObject(text)) highScore = localStorage.getObject(text);
-		console.log("current="+currentTrackScore+" HS="+highScore);
+//		console.log("current="+currentTrackScore+" HS="+highScore);
 		if (currentTrackScore > highScore) {
 			console.log("New high score");
 			newHighScore = true;
@@ -4453,11 +4528,11 @@ $(document).ready(function(){
 	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
 		var strTrx= JSON.stringify(trx)
-		//console.log("    trx[]=\'"+strTrx+"\'\;");
+		console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
-		//var decompressed= decompress(compressed);
-		//console.log("decomptrx[]=\'"+decompressed+"\'\;");
+		var decompressed= decompress(compressed);
+		console.log("decomptrx[]=\'"+decompressed+"\'\;");
 	}
 
 	function loadTrack() { //load tracks from the trx array
@@ -4489,6 +4564,7 @@ $(document).ready(function(){
 //                console.log("trackName="+trackName);
 //                console.log("trackDescription="+trackDescription);
 				openTrxJSON(decompress(strTrxD));
+				updateUndoHistory();
 				buildTrains();
 				draw();
             }
@@ -5444,6 +5520,7 @@ $(document).ready(function(){
 					ctx.scale(zoomScale, zoomScale);
 					drawTrack(tracks[mi(currentXTile,currentYTile)]);
 					ctx.restore();
+					updateUndoHistory();
 				}
 			}
 			
