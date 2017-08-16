@@ -294,7 +294,7 @@ $(document).ready(function(){
 	
 	//buttonArrays - used to store the order in which buttons are displayed in captions
 	var buttonsStation = [["none","pickdrop","supply","dump"],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"],["home","greentunnel","redtunnel","bluetunnel"]];
- 	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareless","comparegreater"]];
+ 	var buttonsWye = [["sprung", "lazy","alternate", "random"],["prompt","compareless","comparegreater"]];
 // 	var buttonsCargoTypes = [["blocks","numbers","colors"],["uppercase","lowercase"],["binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray
  	var buttonsCargoTypes = [["numbers","uppercase","lowercase","colors"],["blocks","binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray and be in same order as cargoValues
 
@@ -302,6 +302,7 @@ $(document).ready(function(){
 	console.log("load images");
 	// load buttons for title screens
 
+	var imgBadgeIcon = new Image(); imgBadgeIcon.src = 'img/ribbon-small.png';
 	var imgArrowIcon = new Image(); imgArrowIcon.src = 'img/arrow-icon.png';
 	var imgLockedIcon = new Image(); imgLockedIcon.src = 'img/lockedIcon.png';
 	var imgUnlockedIcon = new Image(); imgUnlockedIcon.src = 'img/unlockedIcon.png';
@@ -344,6 +345,7 @@ $(document).ready(function(){
 	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/renders/CaptionButtons/lesser.png';
 	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/renders/CaptionButtons/prompt.png';
 	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/renders/CaptionButtons/sprung.png';
+	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/renders/CaptionButtons/prompt.png';
 
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
 	var imgEngine = [];
@@ -554,6 +556,26 @@ $(document).ready(function(){
 		imgTrackWyeLeftPromptR[i].src = name;
 	}
 
+	var imgTrackWyeLeftRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeLeftRandomL[i] = new Image();
+		var name = 'img/renders/TrackWyeLeft-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeLeftRandomL[i].src = name;
+	}
+
+	var imgTrackWyeLeftRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeLeftRandomR[i] = new Image();
+		var name = 'img/renders/TrackWyeLeft-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeLeftRandomR[i].src = name;
+	}
+
 	var imgTrackWyeLeftSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftSprungL[i] = new Image();
@@ -676,6 +698,26 @@ $(document).ready(function(){
 		imgTrackWyeRightPromptR[i].src = name;
 	}
 
+	var imgTrackWyeRightRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRightRandomL[i] = new Image();
+		var name = 'img/renders/TrackWyeRight-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRightRandomL[i].src = name;
+	}
+
+	var imgTrackWyeRightRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRightRandomR[i] = new Image();
+		var name = 'img/renders/TrackWyeRight-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRightRandomR[i].src = name;
+	}
+
 	var imgTrackWyeRightSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightSprungL[i] = new Image();
@@ -795,6 +837,26 @@ $(document).ready(function(){
 		name += (i+1);
 		name += '.png';
 		imgTrackWyePromptR[i].src = name;
+	}
+
+	var imgTrackWyeRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRandomL[i] = new Image();
+		var name = 'img/renders/TrackWye-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRandomL[i].src = name;
+	}
+
+	var imgTrackWyeRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRandomR[i] = new Image();
+		var name = 'img/renders/TrackWye-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRandomR[i].src = name;
 	}
 
 	var imgTrackWyeSprungL = [];
@@ -1220,6 +1282,7 @@ $(document).ready(function(){
 	//many diagonals through maze and pickup bunny
 	trxLevels['Trainee'][10]='TRXv1.0:[{"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",JK},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"1,4":{B1,A4,LE,C2,DG,I"supply",Jtrue},"1,5":{B1,A5,LY,C0,DG,I"","cargo":{"value":0,L["stuffedanimals","bunny"]},JK},"0,2":{B0,A2,L"track45",C3,DG,I"",Jtrue},"-1,4":{B-1,A4,LF,C2,DG,I"",Jtrue},"-1,3":{B-1,A3,LF,C6,DG,I"",JK},"4,3":{B4,A3,LF,C2,DG,I"",Jtrue},"4,-4":{B4,A-4,LW,C4,DG,I"",Jtrue},"2,-6":{B2,A-6,LF,C6,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C5,DG,I"",Jtrue},"1,3":{B1,A3,LE,C2,DG,I"",Jtrue},"2,3":{B2,A3,L"track45",C2,DG,I"",Jtrue},"3,2":{B3,A2,L"track45",C1,DG,I"",Jtrue},"3,1":{B3,A1,LE,C0,DG,I"",Jtrue},"3,0":{B3,A0,L"track45",C0,DG,I"",Jtrue},"6,0":{B6,A0,L"track45",C0,DG,I"",Jtrue},"6,1":{B6,A1,L"track45",C1,DG,I"",Jtrue},"5,2":{B5,A2,L"track45",C5,DG,I"",Jtrue},"5,3":{B5,A3,L"track45",C1,DG,I"",Jtrue},"3,5":{B3,A5,LF,C2,DG,I"",Jtrue},"3,4":{B3,A4,LF,C6,DG,I"",Jtrue},"4,4":{B4,A4,LE,C2,DG,I"",Jtrue},"5,-2":{B5,A-2,L"track45",C5,DG,I"",Jtrue},"6,-3":{B6,A-3,L"track45",C1,DG,I"",Jtrue},"5,-6":{B5,A-6,L"track45",C0,DG,I"",Jtrue},"4,-7":{B4,A-7,L"track45",C7,DG,I"",Jtrue},"3,-7":{B3,A-7,LE,C6,DG,I"",Jtrue},"2,-7":{B2,A-7,L"track45",C6,DG,I"",Jtrue},"2,-4":{B2,A-4,LE,C7,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C3,DG,I"",Jtrue},"2,-2":{B2,A-2,LE,C3,DG,I"",Jtrue},"-3,1":{B-3,A1,LE,C4,DG,I"",Jtrue},"-3,2":{B-3,A2,LE,C4,DG,I"",Jtrue},"-3,3":{B-3,A3,LE,C4,DG,I"",Jtrue},"-1,2":{B-1,A2,LE,C7,DG,I"",Jtrue},"-3,4":{B-3,A4,LE,C4,DG,I"",Jtrue},"-3,5":{B-3,A5,LF,C4,DG,I"",Jtrue},"-2,5":{B-2,A5,LE,C2,DG,I"",Jtrue},"-1,5":{B-1,A5,LE,C2,DG,I"",Jtrue},"0,5":{B0,A5,LE,C2,DG,I"",Jtrue},"2,5":{B2,A5,LE,C6,DG,I"",Jtrue},"1,1":{B1,A1,LE,C2,DG,I"",Jtrue},"0,1":{B0,A1,L"track45",C3,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C7,DG,I"",Jtrue},"4,0":{B4,A0,LE,C3,DG,I"",Jtrue},"1,-6":{B1,A-6,LF,C0,DG,I"",Jtrue},"1,-5":{B1,A-5,LE,C4,DG,I"",Jtrue},"1,-4":{B1,A-4,LF,C2,DG,I"",Jtrue},"0,-4":{B0,A-4,LF,C4,DG,I"",Jtrue},"0,-5":{B0,A-5,LE,C0,DG,I"",Jtrue},"0,-6":{B0,A-6,LF,C6,DG,I"",Jtrue},"6,-4":{B6,A-4,LE,C0,DG,I"",Jtrue},"6,-5":{B6,A-5,L"track45",C0,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":null,JK,O[],P[]}]]';
 	bestTrackTime['Trainee-10'] = 9105;
+	trxLevels['Trainee'][10] = trxLevels['Trainee'][1]
 	
 	openTrxJSON(decompress(trxLevels['Trainee'][1]));
 	updateUndoHistory();
@@ -1505,7 +1568,7 @@ $(document).ready(function(){
 		this.type = type || "trackstraight";
 		this.orientation = orientation || 0;
 		this.state = state || "left"; //left or right
-		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareless, comparegreater
+		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareless, comparegreater, random
 		//for TrackStraight- subtype can be increment, decrement, add, subtract, divide, multiply, sligshot, catapult
 		this.cargo = undefined;// a reference to a Cargo object carried by this track
 		this.immutable = false; //can this track be deleted or changed
@@ -1647,6 +1710,7 @@ $(document).ready(function(){
 	      radius[side] = radius[side] || defaultRadius[side];
 	    }
 	  }
+	  ctx.lineWidth = 1;
 	  ctx.beginPath();
 	  ctx.moveTo(x + radius.tl, y);
 	  ctx.lineTo(x + width - radius.tr, y);
@@ -1724,6 +1788,9 @@ $(document).ready(function(){
 						break;
 					case "lazy":
 						name += "lazy";
+						break;
+					case "random":
+						name += "random";
 						break;
 					default:
 						name += "lazy";
@@ -1820,6 +1887,9 @@ $(document).ready(function(){
 				break;
 			case "Captionalternate":
 				ctx.drawImage(imgCaptionAlternate, 0, -11);
+				break;
+			case "Captionrandom":
+				ctx.drawImage(imgCaptionRandom, 0, -11);
 				break;
 			case "Captioncomparegreater":
 				ctx.drawImage(imgCaptionGreater, 0, -11);
@@ -1933,6 +2003,12 @@ $(document).ready(function(){
 			case "trackwyeright-prompt-r":
 				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
+			case "trackwyeright-random-r":
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "trackwyeright-random-l":
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
 			case "trackwyeleft-alternate-l":
 				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
@@ -1961,6 +2037,12 @@ $(document).ready(function(){
 				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
 			case "trackwyeleft-prompt-r":
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "trackwyeleft-random-l":
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "trackwyeleft-random-r":
 				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
 			case "trackwyeleft-sprung-l":
@@ -2003,6 +2085,12 @@ $(document).ready(function(){
 				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
 			case "trackwye-prompt-r":
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "trackwye-random-l":
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				break;
+			case "trackwye-random-r":
 				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
 				break;
 			case "trackcross":
@@ -2379,7 +2467,7 @@ $(document).ready(function(){
 			}
 		} else if (interactionState == 'Choose track') {
 			// loop through button positions to see if clicked in button
-			for (i=1; i<9; i++) {
+			for (i=1; i<11; i++) {
 				index = "track "+ i;
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
 					text = currentTrackSet + "-" + i; 
@@ -3429,6 +3517,19 @@ $(document).ready(function(){
 		width = canvasWidth*0.7;
 		height = canvasHeight*0.4;
 
+		//draw badge ???
+		if (currentTrackNumber == 10 && currentTrackScore > 0) {
+			console.log ("Draw badge");
+			y = canvas Height * 0.3;
+			ctx.fillStyle = starColor;
+			ctx.fillRect(x-width/2,y+height*1.1,width,height*0.3);
+			ctx.font = "28px Arial";
+			ctx.fillStyle = fontColor;
+			ctx.textAlign = 'center';
+			ctx.fillText("Congratulations! You are now a "+currentTrackSet, x, y+height+0.17*height);
+			ctx.drawImage (imgBadgeIcon, x- imgBadgeIcon.width/2-width/2, y+height*.5);
+		}
+
 		var highScore = 0;
 		text = "highscore-" + currentTrackSet + "-" + (currentTrackNumber);
 //		console.log ("textHS="+text);
@@ -3450,7 +3551,7 @@ $(document).ready(function(){
 		ctx.font = "26px Arial";
 		message = ".";
 		if (newHighScore) {
-			console.log ("NewHS");
+//			console.log ("NewHS");
 			message = ". New high score!";
 		}
 		ctx.fillText("High score = "+highScore+message, x, y-0.05*height);
@@ -3480,6 +3581,7 @@ $(document).ready(function(){
 				drawStar (x+0.35*width-imgStar.width/2, y-0.38*height-imgStar.height/2, 200);
 				if (animationFrame == 300) playSound ("tada3");
 			}
+			
 		}
 		if (animationFrame<304) animationFrame+=2.5;
 	}
@@ -4191,6 +4293,13 @@ $(document).ready(function(){
 		tracks = trxOpen[0];
 		engines = trxOpen[1];
 		cars = trxOpen[2];
+		
+		//turn on octagons if not on and trx contain octagons
+		if (!useOctagons) {
+			for (var key in tracks) {
+				if (tracks[key].orientation %2 == 1) useOctagons = true;
+			}
+		}
 	}
 
  //// BEGIN code for dialog box for new user
@@ -4670,6 +4779,17 @@ $(document).ready(function(){
 					if (startTrack.state == "left") startTrack.state = "right";
 					else startTrack.state = "left";
 					playSound("switch");
+				}
+				
+				//check for random wye on exiting tile
+				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "random" && oriDif == 0 && isFirstCarInTrain(ec)) {
+					console.log("Random wye");
+					if (Math.random() < 0.5) {
+						console.log("switch");
+						if (tracks[mi(ec.gridx,ec.gridy)].state == "left") tracks[mi(ec.gridx,ec.gridy)].state = "right";
+						else tracks[mi(ec.gridx,ec.gridy)].state = "left";
+						playSound("switch");
+					}
 				}
 				
 				//check for compareless or comparegreater on engine entering tile
