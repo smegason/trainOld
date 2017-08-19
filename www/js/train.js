@@ -102,6 +102,7 @@ $(document).ready(function(){
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = true;
+ 			console.log("command down");
  		}
  		else if (event.keyCode == 90) {
  			if (shiftIsPressed && commandIsPressed) redoTrx();
@@ -124,7 +125,7 @@ $(document).ready(function(){
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = false;
- //			console.log("command up");
+ 			console.log("command up");
  		}
 	});          
 	// "constants"
@@ -303,6 +304,7 @@ $(document).ready(function(){
 	// load buttons for title screens
 
 	var imgBadgeIcon = new Image(); imgBadgeIcon.src = 'img/ribbon-small.png';
+	var imgBadgeIconSmall = new Image(); imgBadgeIconSmall.src = 'img/ribbon-smaller.png';
 	var imgArrowIcon = new Image(); imgArrowIcon.src = 'img/arrow-icon.png';
 	var imgLockedIcon = new Image(); imgLockedIcon.src = 'img/lockedIcon.png';
 	var imgUnlockedIcon = new Image(); imgUnlockedIcon.src = 'img/unlockedIcon.png';
@@ -1247,7 +1249,11 @@ $(document).ready(function(){
 	swap['"trackcargo"'] 	= 'Y';
 	swap['"blocks"'] 		= 'Z';
 	
-	
+	///trx
+	trxHelloWorld ='TRXv1.0:[{"-3,-4":{B-3,A-4,LF,C6,DG,I"",JK},"-2,-4":{B-2,A-4,LE,C6,DG,I"",JK},"-1,-4":{B-1,A-4,LE,C2,DG,I"",JK},"0,-4":{B0,A-4,LE,C2,DG,I"",JK},"2,-4":{B2,A-4,LE,C2,DG,I"",JK},"3,-4":{B3,A-4,LF,C0,DG,I"",JK},"1,-4":{B1,A-4,LE,C6,DG,I"",JK},"-2,0":{B-2,A0,LE,C6,DG,I"",JK},"-1,0":{B-1,A0,LE,C6,DG,I"",JK},"0,0":{B0,A0,LE,C6,DG,I"",JK},"1,0":{B1,A0,LE,C6,DG,I"",JK},"2,0":{B2,A0,LE,C6,DG,I"",JK},"3,0":{B3,A0,LF,C2,DG,I"",JK},"3,-3":{B3,A-3,LE,C4,DG,I"",JK},"3,-2":{B3,A-2,LE,C4,DG,I"",JK},"3,-1":{B3,A-1,LE,C0,DG,I"slingshot",JK},"-3,-3":{B-3,A-3,LE,C4,DG,I"slingshot",JK},"-3,-2":{B-3,A-2,LE,C4,DG,I"",JK},"-3,-1":{B-3,A-1,LE,C4,DG,I"",JK},"-3,0":{B-3,A0,LF,C4,DG,I"",JK}},[{B-3,A-4,LM,C6,D"",Q20,R0.5,JK,O[],P[]},{B3,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B2,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":7,L["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},JK,O[],P[]},{B0,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-1,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B1,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":4,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-1,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B0,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":17,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B1,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":14,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B2,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":22,L["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},JK,O[],P[]},{B-2,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":14,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-2,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":3,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]}]]';
+
+]},{"gridx":3,"gridy":0,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5,"immutable":false,"tunnelfrom":[],"tunnelto":[]}],[{"gridx":2,"gridy":-4,"type":"carbasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":7,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},"immutable":false,"tunnelfrom":[],"tunnelto":[]},{"gridx":0,"gridy":-4,"type":"carbasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},"immutable":false,"tunnelfrom":[]	
+
 	//////// trx for levels
 	var trxLevels = [];
 	var bestTrackTime = [];
@@ -1523,15 +1529,16 @@ $(document).ready(function(){
 	var trainerLevelLocked = []; //show lock icon on levels page for each trainer level
 	var unlockedTrx = []; // e.g. unlockedTrx['Trainee-1'] = true if unlocked, in not unlocked then undefined or false
 	for (i=0; i<trainerLevelNames.length; i++) {
-		trainerLevelLocked[trainerLevelNames[i]] = true;	
+		trainerLevelLocked[trainerLevelNames[i+1]] = false;	
 		text= trainerLevelNames[i] + "-1"; //unlocked first trx of each level so place to start
 		unlockedTrx[text] = true;
-		for (j=0; j<10; j++) { //check if high score > 0 . If so unlock
+		for (j=1; j<=10; j++) { //check if high score > 0 . If so unlock
 			var highScore = 0;
 			text = "highscore-" + trainerLevelNames[i] + "-" + j;
 			if (localStorage.getObject(text)) highScore = localStorage.getObject(text);
 			text = trainerLevelNames[i] + "-" + j;
 			if (highScore > 0) unlockedTrx[text] = true;
+			else trainerLevelLocked[trainerLevelNames[i+1]] = true;	//lock the next level unless all tracks on this level are unlocked
 		}
 	}
 	trainerLevelLocked['Trainee'] = false; //unlock first level so somewhere to start
@@ -1659,18 +1666,23 @@ $(document).ready(function(){
 		var maxY=5;
 		if (interactionState == 'Levels') maxY=4;
 		for (x=0; x<2; x++) {
-			for (y=0; y<maxY; y++) {
-				var text, unlocked;
-				index = x*maxY + y +1;
+			for (y=maxY-1; y>=0; y--) {
+				var text, unlocked, badge;
+				var index = x*maxY + y +1;
 				if (interactionState == 'Levels') {
-					text = trainerLevelNames[x*maxY+y+1];
+					text = trainerLevelNames[index+1];
+					badge = !trainerLevelLocked[text];
+					text = trainerLevelNames[index];
 					unlocked = !trainerLevelLocked[text];
 				} else {
 					text = currentTrackSet + "-" + index;
 					unlocked = unlockedTrx[text];
 					text = "track "+index;
+					badge = false;
 				}
+				//badge = true;
 				drawTextButton((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight, text, !unlocked, unlocked, buttonColor, buttonBorderColor);
+				if (badge) ctx.drawImage(imgBadgeIconSmall, (x*2-1)*0.25*canvasWidth+0.5*canvasWidth+0.12*canvasWidth, 0.23*canvasHeight+y*0.12*canvasHeight);
 				buttonDimLevels[text] = new box((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight);
 			}
 		}
@@ -2342,10 +2354,11 @@ $(document).ready(function(){
 
 	}
 
-	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords
+	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords ???
 		//this object is stored by JSON.stringify so no functions allowed in object
 		this.value = value || 0; //integer. numeric value of cargo for enums
-		this.type = type || cargoValues[0]; //reference to array of values. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
+//		this.type = type || cargoValues[0]; //reference to array of values. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
+		this.type = type || 0; //integer. Text name of type is cargoValues[type][0]. Index of cargoValues to type. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
 
 		//cargos.push(this);
 	}
@@ -2434,9 +2447,16 @@ $(document).ready(function(){
 				calculateLayout();
 				draw();
 			}	
+			else if (buttonDims['HelloWorld'] && buttonDims['HelloWorld'].inside(mouseX, mouseY)) {
+				console.log("Hello World"); //???
+				interactionState = 'Freeplay';
+				openTrxJSON(decompress(trxHelloWorld));
+				updateUndoHistory();
+				buildTrains();
+			}
 			else if (buttonDims['About'].inside(mouseX, mouseY)) {
 				ctx.fillStyle = aboutColor;
-				ctx.fillRect (0,0,canvasWidth,0.6*canvasHeight);
+				ctx.fillRect (0,0,canvasWidth,0.63*canvasHeight);
 				ctx.font = "20px Arial";
 				ctx.textAlign = 'center'; 
 				ctx.fillStyle = fontColor;
@@ -2448,6 +2468,10 @@ $(document).ready(function(){
 				    ctx.fillText(lines[i], x, y);
 				    y += lineHeight;
 				}
+				ctx.fillStyle = "blue";
+				y += 15;
+				ctx.fillText('"Hello World"', x, y);
+				buttonDims['HelloWorld'] = new box(x, y, 100, 20);
 			}	
 		} else if (interactionState == 'Levels') {
 			// loop through button positions to see if clicked in button
@@ -2633,7 +2657,7 @@ $(document).ready(function(){
 			    	}
 			    	
 			    	//check if erase button down
-			    	if (getButton("Eraser")) if (getButton("Eraser").down) {
+			    	if (getButton("Eraser") && getButton("Eraser").down) {
 			    		if (!commandIsPressed) {
 				    		isErasing = true;
 							var worldPoint = screenToWorld(mouseX, mouseY); 
@@ -2957,7 +2981,7 @@ $(document).ready(function(){
 					var col= Math.floor(nCols*fracX);
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
-					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]);
+					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]); //should this just be value or object ???
 					updateUndoHistory();
 					secondaryCaption = undefined;
 					captionX = undefined;
@@ -3519,15 +3543,15 @@ $(document).ready(function(){
 
 		//draw badge ???
 		if (currentTrackNumber == 10 && currentTrackScore > 0) {
-			console.log ("Draw badge");
-			y = canvas Height * 0.3;
+			//console.log ("Draw badge");
+			y = canvasHeight * 0.35;
 			ctx.fillStyle = starColor;
-			ctx.fillRect(x-width/2,y+height*1.1,width,height*0.3);
-			ctx.font = "28px Arial";
+			ctx.fillRect(x-width/2,y+height*0.7,width,height*0.3);
+			ctx.font = "bold 28px Arial";
 			ctx.fillStyle = fontColor;
 			ctx.textAlign = 'center';
-			ctx.fillText("Congratulations! You are now a "+currentTrackSet, x, y+height+0.17*height);
-			ctx.drawImage (imgBadgeIcon, x- imgBadgeIcon.width/2-width/2, y+height*.5);
+			ctx.fillText("Congratulations! You are now a "+currentTrackSet, x, y+0.85*height);
+			ctx.drawImage (imgBadgeIcon, x- imgBadgeIcon.width/2-width*0.55, y+height*.5);
 		}
 
 		var highScore = 0;
@@ -3562,13 +3586,17 @@ $(document).ready(function(){
 		ctx.font = "40px Arial";
 		if (currentTrackScore == 0) {
 			ctx.fillText("Crash!!!", x, y-0.3*height);
-			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", true, false, buttonColorGreen, buttonBorderColorGreen);
-			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0,0); //box is zero so can't click
+			if (currentTrackNumber<10) {
+				drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", true, false, buttonColorGreen, buttonBorderColorGreen);
+				buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0,0); //box is zero so can't click
+			}
 //			if (animationFrame == 0) {console.log("Failure"); playSound("failure");}
 		} else {
 			ctx.fillText("Success!!!", x, y-0.3*height);
-			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", false, true, buttonColorGreen, buttonBorderColorGreen);
-			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+			if (currentTrackNumber<10) {
+				drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", false, true, buttonColorGreen, buttonBorderColorGreen);
+				buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+			}
 			
 			//draw star
 			drawStar(x-0.35*width-imgStar.width/2, y-0.35*height-imgStar.height/2, 0);
@@ -4722,7 +4750,7 @@ $(document).ready(function(){
 				//check for lazy wyes
 				var oriDif = (ec.orientation - tracks[mi(ec.gridx,ec.gridy)].orientation +8)%8;
 				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "lazy") {
-					//console.log("Lazy wye. Ori dif="+oriDif);
+					console.log("Lazy wye. Ori dif="+oriDif);
 					var state = tracks[mi(ec.gridx,ec.gridy)].state;
 					switch 	(tracks[mi(ec.gridx,ec.gridy)].type) {
 						case "trackwyeleft":
@@ -4974,15 +5002,11 @@ $(document).ready(function(){
 						do {
 							curX += stepX;
 							curY += stepY;
-							if (curX<0 || curY<0 || curX>=numTilesX || curY>=numTilesY) { // exit loop if goes off screen
-								tempCargo = undefined;
-							} else {
-								if (tracks[mi(curX,curY)] == undefined) new Track(curX, curY, "trackblank");
-								track = tracks[mi(curX,curY)];
-								temp2cargo = track.cargo;
-								track.cargo = tempCargo;
-								tempCargo=temp2cargo;
-							}
+							if (tracks[mi(curX,curY)] == undefined) new Track(curX, curY, "trackblank");
+							track = tracks[mi(curX,curY)];
+							temp2cargo = track.cargo;
+							track.cargo = tempCargo;
+							tempCargo=temp2cargo;
 						} while (tempCargo);
 					}
 					

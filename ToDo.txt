@@ -1,10 +1,13 @@
 To Do:
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
--browse: add launch from thumbnail, and up down votes, and voting for online version, pagiate browse.php
+-browse: add up down votes, and voting for online version, pagiate browse.php
+=put browse in train.js or same page so works on ipad
 -remake trx for each level
-
--earn badge
+-slingshot doesn't need trackCargo (unless type specific?)
+-secondary caption off screen
+-drag copy shows wrong when dragging but places right
 -render random wye (3 types) and caption button
+-should ec.cargo not be reference to cargo item but cargo type and cargo value
 
 
 Bug-
