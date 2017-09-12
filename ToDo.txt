@@ -3,18 +3,22 @@ To Do:
 -browse: add up down votes, and voting for online version, pagiate browse.php
 =put browse in train.js or same page so works on ipad
 -remake trx for each level
--slingshot doesn't need trackCargo (unless type specific?)
 -secondary caption off screen
 -drag copy shows wrong when dragging but places right
 -render random wye (3 types) and caption button
--should ec.cargo not be reference to cargo item but cargo type and cargo value
-
+-increment by whatever number is on cargotrack
 
 Bug-
+-if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405
 -copy when zoomed doesn't work
 -some weird bug where can't add cargo and makes immutable
 -station on diagonal straight doesn't work
 -jumps track. e.g. trainee 9
+-trackCargo doesn't work diagonally
+-cant draw car on wye
+-on move track need to copy to buffer before overwriting in case overlap
+-if click toolbutton switches to immutable
+-shrink trackcargo image because overlaps
 
 New features:
 High prioirty-
@@ -25,7 +29,6 @@ High prioirty-
 -render cargoShapes line, triangle...octagon
 
 Low priority-
--animate stations performing their action: catapult and slignshot cargo moving, slide on off for supply, dump, pickDrop
 -optimize draw(). It currently redraws everything rather than just what has changed
 
 -SERVER

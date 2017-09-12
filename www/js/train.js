@@ -1,10 +1,10 @@
 Storage.prototype.setObject = function(key, value) {
-    this.setItem(key, JSON.stringify(value));
+    this.setItem(key, JSON.stringify(JSON.decycle(value)));
 }
 
 Storage.prototype.getObject = function(key) {
     var value = this.getItem(key);
-    return value && JSON.parse(value);
+    return value && JSON.retrocycle(JSON.parse(value));
 }
 	
 
@@ -89,7 +89,7 @@ $(document).ready(function(){
  	var optionIsPressed = false;
  	var commandIsPressed = false;
  	window.addEventListener('keydown', function(event) {
- 		console.log ("Key="+event.keyCode);
+// 		console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
  		else if (event.keyCode == 16) { //pan
@@ -312,6 +312,7 @@ $(document).ready(function(){
 	var imgSaveIcon = new Image(); imgSaveIcon.src = 'img/saveicon.png';
 	var imgDownloadIcon = new Image(); imgDownloadIcon.src = 'img/downloadicon.png';
 	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
+	var imgPoof = new Image(); imgPoof.src = 'img/poof-small.png';
     var imgTitleScreen = new Image();
     imgTitleScreen.onload = function() { console.log("Height: " + this.height); draw();}
     imgTitleScreen.src = 'img/titlePage4.png';
@@ -1218,6 +1219,7 @@ $(document).ready(function(){
 	sounds["tada3"] = new Audio("sound/tada-a.wav");
 	sounds["failure"] = new Audio("sound/failure.wav");
 	sounds["open"] = new Audio("sound/open.wav");
+	sounds["save"] = new Audio("sound/save.wav");
 
 	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
 	//swap array for "TRXv1.0:"
@@ -1250,9 +1252,7 @@ $(document).ready(function(){
 	swap['"blocks"'] 		= 'Z';
 	
 	///trx
-	trxHelloWorld ='TRXv1.0:[{"-3,-4":{B-3,A-4,LF,C6,DG,I"",JK},"-2,-4":{B-2,A-4,LE,C6,DG,I"",JK},"-1,-4":{B-1,A-4,LE,C2,DG,I"",JK},"0,-4":{B0,A-4,LE,C2,DG,I"",JK},"2,-4":{B2,A-4,LE,C2,DG,I"",JK},"3,-4":{B3,A-4,LF,C0,DG,I"",JK},"1,-4":{B1,A-4,LE,C6,DG,I"",JK},"-2,0":{B-2,A0,LE,C6,DG,I"",JK},"-1,0":{B-1,A0,LE,C6,DG,I"",JK},"0,0":{B0,A0,LE,C6,DG,I"",JK},"1,0":{B1,A0,LE,C6,DG,I"",JK},"2,0":{B2,A0,LE,C6,DG,I"",JK},"3,0":{B3,A0,LF,C2,DG,I"",JK},"3,-3":{B3,A-3,LE,C4,DG,I"",JK},"3,-2":{B3,A-2,LE,C4,DG,I"",JK},"3,-1":{B3,A-1,LE,C0,DG,I"slingshot",JK},"-3,-3":{B-3,A-3,LE,C4,DG,I"slingshot",JK},"-3,-2":{B-3,A-2,LE,C4,DG,I"",JK},"-3,-1":{B-3,A-1,LE,C4,DG,I"",JK},"-3,0":{B-3,A0,LF,C4,DG,I"",JK}},[{B-3,A-4,LM,C6,D"",Q20,R0.5,JK,O[],P[]},{B3,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B2,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":7,L["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},JK,O[],P[]},{B0,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-1,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B1,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":4,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-1,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":11,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B0,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":17,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B1,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":14,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B2,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":22,L["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},JK,O[],P[]},{B-2,A-4,LN,C6,D"",Q20,R0.5,"cargo":{"value":14,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]},{B-2,A0,LN,C2,D"",Q20,R0.5,"cargo":{"value":3,L["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},JK,O[],P[]}]]';
-
-]},{"gridx":3,"gridy":0,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5,"immutable":false,"tunnelfrom":[],"tunnelto":[]}],[{"gridx":2,"gridy":-4,"type":"carbasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":7,"type":["uppercase","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]},"immutable":false,"tunnelfrom":[],"tunnelto":[]},{"gridx":0,"gridy":-4,"type":"carbasic","orientation":6,"state":"","speed":20,"position":0.5,"cargo":{"value":11,"type":["lowercase","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]},"immutable":false,"tunnelfrom":[]	
+	trxHelloWorld ='TRXv1.0:[{"-5,0":{B-5,A0,LE,C4,DG,I"",JK},"-5,1":{B-5,A1,LT,C4,DH,IU,JK},"-4,1":{B-4,A1,LE,C2,DG,I"",JK},"3,1":{B3,A1,LE,C6,DG,I"",JK},"2,1":{B2,A1,LE,C6,DG,I"",JK},"1,1":{B1,A1,LE,C6,DG,I"",JK},"0,1":{B0,A1,LE,C6,DG,I"",JK},"-1,1":{B-1,A1,LE,C6,DG,I"",JK},"-2,1":{B-2,A1,LE,C6,DG,I"",JK},"-3,1":{B-3,A1,LE,C6,DG,I"",JK},"5,1":{B5,A1,LE,C6,DG,I"",JK},"4,1":{B4,A1,LE,C6,DG,I"",JK},"2,2":{B2,A2,LE,C6,DG,I"",JK},"1,2":{B1,A2,LE,C6,DG,I"",JK},"0,2":{B0,A2,LE,C6,DG,I"",JK},"-1,2":{B-1,A2,LE,C6,DG,I"",JK},"-2,2":{B-2,A2,LE,C6,DG,I"",JK},"-3,2":{B-3,A2,LF,C6,DG,I"",JK},"-3,3":{B-3,A3,LE,C4,DG,I"slingshot",JK},"-3,4":{B-3,A4,LS,C4,DH,IU,JK},"-3,5":{B-3,A5,LF,C4,DG,I"",JK},"-2,5":{B-2,A5,LE,C2,DG,I"",JK},"-1,5":{B-1,A5,LE,C2,DG,I"",JK},"0,5":{B0,A5,LE,C2,DG,I"",JK},"1,5":{B1,A5,LE,C2,DG,I"",JK},"2,5":{B2,A5,LE,C2,DG,I"",JK},"3,5":{B3,A5,LV,C4,DG,IU,JK},"3,4":{B3,A4,LE,C0,DG,I"slingshot",JK},"3,3":{B3,A3,LS,C0,DH,IU,JK},"3,2":{B3,A2,LF,C0,DG,I"",JK},"4,3":{B4,A3,LE,C2,DG,I"",JK},"5,3":{B5,A3,LE,C2,DG,I"",JK},"6,3":{B6,A3,LF,C0,DG,I"",JK},"6,4":{B6,A4,LE,C4,DG,I"",JK},"6,5":{B6,A5,LF,C2,DG,I"",JK},"5,5":{B5,A5,LE,C6,DG,I"",JK},"4,5":{B4,A5,LE,C6,DG,I"",JK},"-4,4":{B-4,A4,LE,C6,DG,I"",JK},"-5,4":{B-5,A4,LF,C4,DG,I"",JK},"-5,3":{B-5,A3,LE,C0,DG,I"",JK},"-5,2":{B-5,A2,LE,C0,DG,I"",JK},"-2,0":{B-2,A0,LE,C2,DG,I"",JK},"-1,0":{B-1,A0,LE,C6,DG,I"",JK},"0,0":{B0,A0,LE,C6,DG,I"",JK},"1,-3":{B1,A-3,LT,C6,DH,IU,JK},"1,-2":{B1,A-2,LE,C4,DG,I"increment",JK},"1,-1":{B1,A-1,LF,C4,DG,I"",JK},"1,0":{B1,A0,LE,C6,DG,I"",JK},"2,-4":{B2,A-4,LY,C0,DG,I"","cargo":{"value":3,L0},JK},"2,-3":{B2,A-3,LS,C2,DG,IX,JK},"2,-2":{B2,A-2,LE,C0,DG,I"increment",JK},"2,0":{B2,A0,LE,C6,DG,I"",JK},"3,-4":{B3,A-4,LY,C0,DG,I"","cargo":{"value":0,L0},JK},"3,-3":{B3,A-3,LE,C6,DG,I"dump",JK},"3,-2":{B3,A-2,LY,C0,DG,I"","cargo":{"value":1,L0},JK},"3,0":{B3,A0,LE,C6,DG,I"",JK},"4,-2":{B4,A-2,LE,C0,DG,I"increment",JK},"5,-2":{B5,A-2,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"5,-3":{B5,A-3,LE,C6,DG,I"dump",JK},"4,-3":{B4,A-3,LS,C2,DH,IX,JK},"-4,-3":{B-4,A-3,LE,C6,DG,I"supply",JK},"-5,-3":{B-5,A-3,LF,C6,DG,I"",JK},"4,-4":{B4,A-4,LY,C0,DG,I"","cargo":{"value":3,L4},JK},"-4,-4":{B-4,A-4,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"-3,-3":{B-3,A-3,LT,C6,DG,IU,JK},"-3,-2":{B-3,A-2,LE,C4,DG,I"",JK},"-3,-1":{B-3,A-1,LE,C4,DG,I"",JK},"-3,0":{B-3,A0,LF,C4,DG,I"",JK},"-2,-3":{B-2,A-3,LE,C6,DG,I"supply",JK},"-2,-4":{B-2,A-4,LY,C0,DG,I"","cargo":{"value":1,L0},JK},"-1,-3":{B-1,A-3,LE,C2,DG,I"",JK},"2,-1":{B2,A-1,LF,C2,DG,I"",JK},"4,-1":{B4,A-1,LE,C4,DG,I"",JK},"4,0":{B4,A0,LF,C2,DG,I"",JK},"5,-4":{B5,A-4,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"6,-3":{B6,A-3,LF,C0,DG,I"",JK},"6,-2":{B6,A-2,LE,C0,DG,I"",JK},"6,-1":{B6,A-1,LE,C0,DG,I"",JK},"6,0":{B6,A0,LE,C4,DG,I"",JK},"6,1":{B6,A1,LF,C2,DG,I"",JK},"0,-3":{B0,A-3,LE,C2,DG,I"",JK},"-5,-1":{B-5,A-1,LE,C0,DG,I"",JK},"-5,-2":{B-5,A-2,LE,C0,DG,I"supply",JK},"-4,-2":{B-4,A-2,LY,C0,DG,I"","cargo":{"value":0,L1},JK},"0,-2":{B0,A-2,LY,C0,DG,I"","cargo":{"value":0,L1},JK}},[{B-2,A2,LM,C6,D"",Q20,R0.5,JK,O[],P[]},{B2,A5,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-1,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":14,L2},JK,O[],P[]},{B0,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B1,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B2,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":4,L2},JK,O[],P[]},{B3,A2,LN,C0,D"",Q20,R0.5,"cargo":{"value":7,L1},JK,O[],P[]},{B1,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":22,L1},JK,O[],P[]},{B0,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":14,L2},JK,O[],P[]},{B-1,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":17,L2},JK,O[],P[]},{B-2,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B-3,A5,LN,C4,D"",Q20,R0.5,"cargo":{"value":3,L2},JK,O[],P[]}]]';
 
 	//////// trx for levels
 	var trxLevels = [];
@@ -1290,9 +1290,9 @@ $(document).ready(function(){
 	bestTrackTime['Trainee-10'] = 9105;
 	trxLevels['Trainee'][10] = trxLevels['Trainee'][1]
 	
-	openTrxJSON(decompress(trxLevels['Trainee'][1]));
-	updateUndoHistory();
-	buildTrains();
+//	openTrxJSON(decompress(trxLevels['Trainee'][1]));
+	//updateUndoHistory();
+	//buildTrains();
 /*	trxLevels['Trainee'] = [];
 	//draw single gap straight
 	trxLevels['Trainee'][1] ='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedanimals","bunny"]}}]]';
@@ -1585,7 +1585,7 @@ $(document).ready(function(){
 		console.log("Update undo history. Index="+undoCurrentIndex);
 	 	var trx = [tracks, engines, cars];
 		undoCurrentIndex += 1;
-		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(trx));
+		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(JSON.decycle(trx)));
 	}
 
 	function undoTrx() {
@@ -2354,21 +2354,18 @@ $(document).ready(function(){
 
 	}
 
-	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords ???
+	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords 
 		//this object is stored by JSON.stringify so no functions allowed in object
 		this.value = value || 0; //integer. numeric value of cargo for enums
-//		this.type = type || cargoValues[0]; //reference to array of values. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
 		this.type = type || 0; //integer. Text name of type is cargoValues[type][0]. Index of cargoValues to type. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
-
-		//cargos.push(this);
 	}
 	
-	function drawCargo(obj, rotation) { //draws cargo for obj= car or track
-		if (obj == undefined || obj.cargo == undefined) return;
+	function drawCargo(obj, rotation) { //draws cargo for obj= car or track. Animated is drawn on one pass because not relative to ctx translate/rotate
+		if (obj == undefined || obj.cargo == undefined || obj.cargo.isanimating) return;
 		
 		//draws relative to current tile so after ctx has been translated and rotated to draw ec or tile
 		var imgCargo = imgCargoNumbers;
-		switch (obj.cargo.type[0]) {
+		switch (cargoValues[obj.cargo.type][0]) {
 			case "numbers":
 				imgCargo = imgCargoNumbers;
 				break;
@@ -2402,15 +2399,111 @@ $(document).ready(function(){
 		
 		var value = obj.cargo.value;
 		var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
-		if (obj.cargo.type[0] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
+		if (cargoValues[obj.cargo.type] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
 		if (obj.type == "trackcargo" || obj.type == "trackblank") frame = 16;
-		try {
-			ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
-		} catch (err) {
-			console.log("ERROR image not loaded. type="+obj.cargo.type[0]+" value="+value+" frame="+frame);
+		
+		ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
+	}
+
+	function drawCargoAnimated(obj, rot) { //draws cargo for obj= car or track. Animated is drawn on one pass because not relative to ctx translate/rotate
+		if (obj == undefined || obj.cargo == undefined || obj.cargo.isanimating != true) return;
+		
+		var rotation = 0;
+		if (rot) rotation = rot; 
+		
+		var imgCargo = imgCargoNumbers;
+		switch (cargoValues[obj.cargo.type][0]) {
+			case "numbers":
+				imgCargo = imgCargoNumbers;
+				break;
+			case "uppercase":
+				imgCargo = imgCargoUppercase;
+				break;
+			case "lowercase":
+				imgCargo = imgCargoLowercase;
+				break;
+			case "colors":
+				imgCargo = imgCargoColors;
+				break;
+			case "safariAnimals":
+				imgCargo = imgCargoSafariAnimals;
+				break;
+			case "dinosaurs":
+				imgCargo = imgCargoDinosaurs;
+				break;
+			case "stuffedanimals":
+				imgCargo = imgCargoStuffedAnimals;
+				break;
+			case "binary":
+				imgCargo = imgCargoBinary;
+				break;
+			case "blocks":
+				imgCargo = imgCargoBlocks;
+				break;
+			default:
+				console.log ("ERROR-cargotype not found");
+		}
+		
+		//animate cargo
+		var xOffset = 0, yOffset = 0;
+		var fraction = obj.cargo.animatedframes/obj.cargo.animatetotalframes;
+		if (fraction>1) fraction = 1;
+		var opacity = 1;
+		if (obj.cargo && obj.cargo.animatetype == "supply") fraction = 1-fraction;
+		xOffset = tileWidth*zoomScale*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
+		yOffset = tileWidth*tileRatio*zoomScale*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
+		obj.cargo.animatedframes++;
+		
+		if (obj.cargo.animatedframes > obj.cargo.animatetotalframes) {
+			if (obj.cargo.animatetype == "dump" || obj.cargo.animatetype == "dump-poof") {
+				if (obj.cargo.animatedframes > obj.cargo.animatetotalframes*2) {
+					obj.cargo.isanimating = false;
+					obj.cargo = undefined;
+					return;
+				} else {
+					opacity = 1-(obj.cargo.animatedframes-obj.cargo.animatetotalframes)/obj.cargo.animatetotalframes; //fade once on station
+//					console.log ("Opacity="+opacity);
+				}
+			} else { // for "move" and "supply"	
+				obj.cargo.isanimating = false;
+				if (obj.cargo.animatetype == "move" || obj.cargo.animatetype == "move-spin") { //???
+					obj.cargo.animateendobj.cargo = obj.cargo;
+					obj.cargo = undefined;
+				} 
+				return;
+			}
+		}
+		
+		var value = obj.cargo.value;
+		//var endFrame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
+		var endFrame = obj.cargo.animateendobj.orientation*8;
+		if (cargoValues[obj.cargo.type] == "dinosaurs") endFrame = (endFrame+32)%64; //flip dinos because rendered wrong
+		if (obj.cargo && (obj.cargo.animatetype == "dump" || obj.cargo.animatetype == "dump-poof")) endFrame = obj.cargo.animatestartobj.orientation*8;
+		if (obj.cargo.animateendobj.type == "trackcargo" || obj.cargo.animateendobj.type == "trackblank") endFrame = 16;
+		
+		var startFrame = obj.cargo.animatestartobj.orientation*8;
+		if (obj.cargo.animatestartobj.type == "trackcargo" || obj.cargo.animatestartobj.type == "trackblank") startFrame = 16;
+		
+		var frame = startFrame + Math.round(fraction*(endFrame-startFrame));
+		if (obj.cargo && (obj.cargo.animatetype == "spin" || obj.cargo.animatetype == "move-spin")) frame = startFrame + Math.round(fraction*64);
+		frame %=64;
+//		console.log("Frame="+frame+" frac="+Math.round(fraction*64));
+		
+		if (obj.cargo.animatetype != "ontrackcargo") {
+			ctx.save();
+			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth*zoomScale+xOffset;
+			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio*zoomScale+yOffset
+			ctx.translate(translateX, translateY); //center origin on tile
+	    	ctx.globalAlpha = opacity;
+	//		console.log("offset="+xOffset+","+yOffset+" opacity="+opacity+" translate="+translateX+","+translateY);
+			if (obj.cargo.animatedframes > obj.cargo.animatetotalframes && obj.cargo.animatetype == "dump-poof") ctx.drawImage(imgPoof, -imgTrackWidth/2+15, -imgTrackWidth/2+10);
+			else ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
+	    	ctx.restore();
 		}
 	}
 	
+
+
 ///////////////////////////////////////	
 	function getButton(name) { //returns button in toolbar with text name
 		var toolButtons = getCurrentToolButtons();
@@ -2436,7 +2529,7 @@ $(document).ready(function(){
     function onClickDown (mouseX, mouseY, e) { //for handling both mouse and touch events
     	var worldMouse = screenToWorld(mouseX, mouseY);
     	var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
-        //console.log("onClickDown mouse="+mouseX+","+mouseY+" world="+worldMouse.xtile+","+worldMouse.ytile+" screenMouse="+screenMouse.x+","+screenMouse.y);
+//        console.log("onClickDown mouse="+mouseX+","+mouseY+" world="+worldMouse.xtile+","+worldMouse.ytile+" screenMouse="+screenMouse.x+","+screenMouse.y);
 		if (interactionState == 'TitleScreen') {
 			if (buttonDims['Levels'].inside(mouseX, mouseY)) {
 				interactionState = 'Levels';
@@ -2448,11 +2541,12 @@ $(document).ready(function(){
 				draw();
 			}	
 			else if (buttonDims['HelloWorld'] && buttonDims['HelloWorld'].inside(mouseX, mouseY)) {
-				console.log("Hello World"); //???
+				console.log("Hello World"); 
 				interactionState = 'Freeplay';
 				openTrxJSON(decompress(trxHelloWorld));
 				updateUndoHistory();
 				buildTrains();
+				pushPlayButton();
 			}
 			else if (buttonDims['About'].inside(mouseX, mouseY)) {
 				ctx.fillStyle = aboutColor;
@@ -2572,7 +2666,7 @@ $(document).ready(function(){
 			    	if (mouseX > buttonCaptionX && mouseX < (buttonCaptionX+3*tileWidth) && mouseYWorld > buttonCaptionY && mouseYWorld < (buttonCaptionY+3*tileWidth)) {
 			    		//inside caption
 			    		var nBin = 3*Math.floor((mouseYWorld-buttonCaptionY)/tileWidth) + Math.floor((mouseX-buttonCaptionX)/tileWidth);
-			    		//console.log ("Clicked in button caption. bin=" + nBin);
+			    		console.log ("Clicked in button caption. bin=" + nBin);
 			    		if (getButton("Save").down) {
 			    			console.log("Save");
 				  			//getButton("Save").down = false;
@@ -2591,7 +2685,7 @@ $(document).ready(function(){
 			    		draw();
 			    	}
 			    }
-			    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
+			    //console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
 			    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
 			    	var worldMouse = screenToWorld(mouseX, mouseY);
 	       			var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
@@ -2643,13 +2737,14 @@ $(document).ready(function(){
 						var worldPoint = screenToWorld(mouseX, mouseY); 
 						var gridx = Math.floor(worldPoint.xtile); 
 						var gridy = Math.floor(worldPoint.ytile);
-		                console.log("gridx="+gridx+"tracks length="+tracks.length);
+		                console.log("gridx="+gridx+" gridy"+gridy);
 			    		if (tracks[mi(gridx,gridy)] == undefined || tracks[mi(gridx,gridy)] == null) {
 				    		//if no track at that location then add TrackBlank with "A"
 			    			console.log("Empty grid, add blank Track");
 			    			new Track(gridx, gridy, "trackblank");
-			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,cargoValues[1]);
+			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,1);
 		                    updateUndoHistory();
+		                    //console.log("DRAW");
 		                    draw();
 		                }
 			    		
@@ -2941,7 +3036,7 @@ $(document).ready(function(){
 	});
     
     function onClickUp(mouseX, mouseY, e) {
-        //console.log ("onClickUp");
+//        console.log ("onClickUp");
         if (!showToolBar) return; //if toolbar hidden then ignore events
 		isPanning = false;
 		isZooming = false;
@@ -2981,7 +3076,7 @@ $(document).ready(function(){
 					var col= Math.floor(nCols*fracX);
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
-					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]); //should this just be value or object ???
+					currentCaptionedObject.cargo = new Cargo(i,iCargo); 
 					updateUndoHistory();
 					secondaryCaption = undefined;
 					captionX = undefined;
@@ -2998,7 +3093,7 @@ $(document).ready(function(){
 					var fracY = (worldPoint.ytile- (captionY+0.1))/(captionHeight-0.2);
    				
    					//which caption was cliked in
-                    //console.log("Captioned object="+currentCaptionedObject.type);
+                   // console.log("Captioned object="+currentCaptionedObject.type);
     				switch (currentCaptionedObject.type) {
     					case "enginebasic":
 	    					//adjust speed
@@ -3055,8 +3150,8 @@ $(document).ready(function(){
 	  						currentCaptionedObject.subtype = buttonsStation[row][col];
  						 	if (!(currentCaptionedObject.subtype == "redtunnel" ||
  						 	      currentCaptionedObject.subtype == "bluetunnel" ||
- 						 	      currentCaptionedObject.subtype == "increment" ||
- 						 	      currentCaptionedObject.subtype == "decrement" ||
+ 						 	      //currentCaptionedObject.subtype == "increment" ||
+ 						 	      //currentCaptionedObject.subtype == "decrement" ||
  						 	      currentCaptionedObject.subtype == "greentunnel"))
  						 	        addTrackCargo(currentCaptionedObject);
  							break;
@@ -3074,7 +3169,7 @@ $(document).ready(function(){
 					}
 						
 	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
-                //console.log("Select object for new caption");
+                	//console.log("Select object for new caption. objecttype="+tracks[mi(gridx,gridy)].type);
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -3093,6 +3188,7 @@ $(document).ready(function(){
 				    		 || tracks[mi(gridx,gridy)].type == "trackcargo"|| tracks[mi(gridx,gridy)].type == "trackblank") {
 				    			currentCaptionedObject = tracks[mi(gridx,gridy)];
 					    		captionX = undefined;
+					    		console.log("Captioned object="+tracks[mi(gridx,gridy)]+" xy="+gridx+","+gridy);
 				    		}
 				    	} 
 	    				
@@ -3111,7 +3207,7 @@ $(document).ready(function(){
 	    	draw();
 	    }
     	if (isDrawingEngine || isDrawingCar) {
-    		console.log("Drawing engine");
+    		//console.log("Drawing engine");
     		//make engine at startpoint in direction from down to up
 
     		if (startXPoint != undefined) {
@@ -3119,7 +3215,7 @@ $(document).ready(function(){
     			var startXTile = Math.floor(mouseWorld.xtile); 
     			var startYTile = Math.floor(mouseWorld.ytile);
     			var distSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseY),2);
-    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
+//    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
 				if (tracks[mi(startXTile,startYTile)] && distSq>10 && 
 				(tracks[mi(startXTile,startYTile)].type == "trackstraight" ||
 				 tracks[mi(startXTile,startYTile)].type == "track45" ||
@@ -3208,14 +3304,22 @@ $(document).ready(function(){
 	
 	function addTrackCargo(track) { //adds a new TrackCargo for the given track. The new TrackCargo will be behind the inset so one tile away
 		step = getTrackCargoStep(track);
-		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)]) if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)].type == "trackcargo") return;
+		cargoTrack = tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)];
+		if (cargoTrack &&	cargoTrack.type == "trackcargo") return;
 		
-		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)] && track.type == "trackstraight" && !tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)]) {
-			track.orientation = (track.orientation +4)%8;// rotate track
-			new Track(track.gridx-step.stepX, track.gridy-step.stepY, "trackcargo");
-			console.log("Rotate track then cargo");
-		} else {
-			//make new TrackCargo
+		if (cargoTrack && track.type == "trackstraight") {
+			 if (!tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)]) { //blocked in one way but not other so rotate and new trackcargo
+				track.orientation = (track.orientation +4)%8;// rotate track
+				new Track(track.gridx-step.stepX, track.gridy-step.stepY, "trackcargo");
+				console.log("Rotate track then new cargo");
+			} else if (tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)].type == "trackcargo") { //blocked in one way and trackcargo in other way so rotate and reuse trackcargo
+				track.orientation = (track.orientation +4)%8;// rotate track
+				console.log("Rotate track then reuse cargo");
+			} else {  //blocked both ways so make new trackcargo to replace something else
+				new Track(track.gridx+step.stepX, track.gridy+step.stepY, "trackcargo");
+				console.log("new track cargo");
+			}
+		} else { //make new TrackCargo over empty spot
 			new Track(track.gridx+step.stepX, track.gridy+step.stepY, "trackcargo");
 			console.log("new track cargo");
 		} 		
@@ -3504,6 +3608,7 @@ $(document).ready(function(){
 		drawAllTracks();
 		drawAllEnginesAndCars();
 		drawAllTunnels();
+		drawAllCargoAnimated();
 		
 		if (showToolBar) {
 			drawCaption();
@@ -3511,6 +3616,7 @@ $(document).ready(function(){
 		}
 		
         ctx.restore();
+//		drawAllCargoAnimated();
 
 		if (showToolBar) { //toolbar doesn't zoom
 			drawSelection();
@@ -3541,7 +3647,7 @@ $(document).ready(function(){
 		width = canvasWidth*0.7;
 		height = canvasHeight*0.4;
 
-		//draw badge ???
+		//draw badge
 		if (currentTrackNumber == 10 && currentTrackScore > 0) {
 			//console.log ("Draw badge");
 			y = canvasHeight * 0.35;
@@ -3624,7 +3730,8 @@ $(document).ready(function(){
 		ctx.scale(scale, scale);
 		ctx.drawImage(imgStar, 0, 0);
 		ctx.restore();
-	}			
+	}	
+			
 	function drawAllTracks() {
 		var upperLeftWorld = screenToWorld(0, 0);
 		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
@@ -3635,6 +3742,25 @@ $(document).ready(function(){
 		}	
 	}	
 
+	function drawAllCargoAnimated() { //draws only cargo that is being animated
+		//draw all track cargo
+		var upperLeftWorld = screenToWorld(0, 0);
+		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
+		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
+			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				drawCargoAnimated(tracks[mi(Math.floor(i),Math.floor(j))]);
+//				drawCargoAnimated(tracks[mi(Math.floor(i),Math.floor(j))]);
+			}
+		}	
+		
+		//draw all EC cargo
+		var ECs = engines.concat(cars);
+		for (var i=0; i<ECs.length; i++) {
+			drawCargoAnimated(ECs[i]);
+///			drawCargoAnimated(ECs[i]);
+		}
+	}
+	
 	function drawAllTunnels() {
 		for (var key in tracks) {
 		    if (tracks[key].subtype == "redtunnel" || tracks[key].subtype == "greentunnel" || tracks[key].subtype == "bluetunnel") {;
@@ -4015,7 +4141,7 @@ $(document).ready(function(){
 			captionY = retVal.gridy;
 		}
 
-		if (captionX == -1) return;
+		//if (captionX == -1) return;
 				
 		var obj = getCenter(currentCaptionedObject);
 		//console.log("objx="+obj.X+" objy="+obj.Y);
@@ -4053,7 +4179,7 @@ $(document).ready(function(){
 			captionSecondaryX = retVal.gridx;
 			captionSecondaryY = retVal.gridy;
 		}
-		if (captionX == -1) return;
+		//if (captionX == -1) return;
 				
 		//console.log("capX="+captionX+","+captionY+" captionWidth="+captionWidth+","+captionHeight);
 		drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, (captionX+captionWidth/2)*tileWidth, (captionY+captionHeight/2)*tileWidth, true);
@@ -4296,6 +4422,7 @@ $(document).ready(function(){
 //		localStorage.setObject('trx-tracks'+nBin, tracks);
 //		localStorage.setObject('trx-engines'+nBin, engines);
 //		localStorage.setObject('trx-cars'+nBin, cars);
+		playSound("save");
 		draw();
 	}
 	
@@ -4317,7 +4444,7 @@ $(document).ready(function(){
 	}
 
 	function openTrxJSON(string) { //opens trx stored in JSON string 
-		var trxOpen = JSON.parse(string);
+		var trxOpen = JSON.retrocycle(JSON.parse(string));
 		tracks = trxOpen[0];
 		engines = trxOpen[1];
 		cars = trxOpen[2];
@@ -4424,8 +4551,7 @@ $(document).ready(function(){
 	function uploadTrackGet() { // uses GET
 		console.log ("Function Upload track");
  		var trx = [tracks, engines, cars];
-		var strTrx = compress(JSON.stringify(trx));
-
+		var strTrx = compress(JSON.stringify(JSON.decycle(trx)));
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
      	valid = valid && checkLength( trackdescription, "trackdescription", 6, 300 );
@@ -4455,7 +4581,7 @@ $(document).ready(function(){
 	function uploadTrackPost() { //uses POST to upload longer tracks
 		console.log ("Function Upload track POST");
  		var trx = [tracks, engines, cars];
-		var strTrx = compress(JSON.stringify(trx));
+		var strTrx = compress(JSON.stringify(JSON.decycle(trx)));
 
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
@@ -4664,7 +4790,7 @@ $(document).ready(function(){
  	
 	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
-		var strTrx= JSON.stringify(trx)
+		var strTrx= compress(JSON.stringify(JSON.decycle(trx)));
 		console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
@@ -4712,12 +4838,18 @@ $(document).ready(function(){
  	}
 	
 	function interpretAll() {
-		for (var i=0; i<engines.length; i++) {
+/*		for (var i=0; i<engines.length; i++) {
 			if (!modalTrack) interpret(engines[i]);
 		}
 
 		for (var i=0; i<cars.length; i++) {
 			if (!modalTrack) interpret(cars[i]);
+		} */
+		for (var t=0; t<trains.length; t++) { //iterate through trains to see if leading edge is too close to another car
+			var train = trains[t];
+			for (c=train.length-1; c>=0; c--) { // go through train backwards so wye doesn't switch under a car
+				if (!modalTrack) interpret (train[c]);
+			}
 		}
 	}
 	
@@ -4824,11 +4956,11 @@ $(document).ready(function(){
 				var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
 				if ((tracks[mi(ec.gridx,ec.gridy)].subtype == "compareless" || tracks[mi(ec.gridx,ec.gridy)].subtype == "comparegreater") && oriDif == 0 && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined && isFirstCarInTrain(ec)) {
 					//iterate through train to find first car with same type as switch cargo type. Use it for comparison
-					console.log("COmpare greater less");
+//					console.log("COmpare greater less");
 					var train = getTrain(ec);
 					var car;
 					for (var c=1; c<train.length && car == undefined;  c++) {
-						if (train[c].cargo) if (train[c].cargo.type[0] == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0]) car = train[c];
+						if (train[c].cargo) if (train[c].cargo.type == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type) car = train[c];
 					}
 					
 					if (car) {
@@ -4898,116 +5030,128 @@ $(document).ready(function(){
 				if (ec.position >= 0.5 && ec.position < 0.5+ec.speed/1000 /*&& ec.type == "carbasic"*/) { //perform action when car reaches middle of track
 					//console.log("detect stations");
 					// pickup cargo lying on track (not on station)
-				/*	if (ec.cargo == undefined && tracks[mi(ec.gridx,ec.gridy)].cargo != undefined && tracks[mi(ec.gridx,ec.gridy)].type == "supply") {
+					if (ec.cargo == undefined && tracks[mi(ec.gridx,ec.gridy)].cargo != undefined && ec.type == "carbasic") {
 						//move cargo
 						ec.cargo = tracks[mi(ec.gridx,ec.gridy)].cargo;
 						tracks[mi(ec.gridx,ec.gridy)].cargo = undefined;
-					} */
+					} 
 					
 					var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
+					var cargoLength;
+					if (ec.cargo !=undefined) cargoLength = cargoValues[ec.cargo.type].length-1;
 
 					//divide cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "divide") {
 						console.log("Divide");
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so divide
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so divide
 								playSound("divide");
 								ec.cargo.value = Math.round(ec.cargo.value / tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							console.log("Transfer to empty");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							//animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo,0,0,0,0,0,"ontrackcargo");
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 					
 					//multiply cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "multiply") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so multiply
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so multiply
 								playSound("multiply");
-								ec.cargo.value = (ec.cargo.value * tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value * tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//subtract cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "subtract") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so subtract
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so subtract
 								playSound("subtract");
-								ec.cargo.value = (ec.cargo.value - tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value + (ec.cargo.type.length-1))%(ec.cargo.type.length-1);
-								//console.log("len="+ec.cargo.type.length+" testmod="+ 2%10+" ecval="+ec.cargo.value+" trackval="+tracks[mi(ec.gridx,ec.gridy)].cargo.value);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value - tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value + cargoLength)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//add cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "add") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so add
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so add
 								playSound("add");
-								ec.cargo.value = (ec.cargo.value + tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value + tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//catapult cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "catapult") {
+						console.log("Catapult switch");
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo so catapult ec cargo and remove number from station and cargo from car
 							playSound("catapult");
 							var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
-							var stepX = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.cos(angle));
-							var stepY = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.sin(angle));
+							var value = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value;
+							if (cargoValues[tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type][0] == "blocks") value++;
+							var stepX = value * Math.round(Math.cos(angle));
+							var stepY = value * Math.round(Math.sin(angle));
 							//console.log("stepX="+stepX+" stepY="+stepY)
 							if (tracks[mi(ec.gridx+stepX,ec.gridy+stepY)] == undefined) new Track (ec.gridx+stepX, ec.gridy+stepY, "trackblank");
-							tracks[mi(ec.gridx+stepX,ec.gridy+stepY)].cargo = ec.cargo; //catapult
-							ec.cargo = undefined;
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+stepX,ec.gridy+stepY)], "move-spin");
+							//tracks[mi(ec.gridx+stepX,ec.gridy+stepY)].cargo = ec.cargo; //catapult
+							//ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)],tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)],"dump");
 						} else { // station does not have cargo so transfer cargo if its a number
-							if (ec.cargo.type[0] == "numbers") {
+							console.log("Value type="+cargoValues[ec.cargo.type][0]);
+							if (cargoValues[ec.cargo.type][0] == "numbers" || cargoValues[ec.cargo.type][0] == "blocks") {
+								console.log("Wind up catapult");
 								playSound("catapultWindup");
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-								ec.cargo = undefined;
+//								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+//								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump"); 
+								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move");
 							}
 						}
 					} 
 
 					//slingshot cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "slingshot") {
-						playSound("slingshot");
-						var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
-						var stepX = Math.round(Math.cos(angle));
-						var stepY = Math.round(Math.sin(angle));
-						
-						var curX = ec.gridx;
-						var curY = ec.gridy;
-						var tempCargo = ec.cargo;
-						ec.cargo = undefined;
-						
-						//push cargo in away from station until free square
-						do {
-							curX += stepX;
-							curY += stepY;
-							if (tracks[mi(curX,curY)] == undefined) new Track(curX, curY, "trackblank");
-							track = tracks[mi(curX,curY)];
-							temp2cargo = track.cargo;
-							track.cargo = tempCargo;
-							tempCargo=temp2cargo;
-						} while (tempCargo);
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) { //type specific
+							playSound("slingshot");
+							var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
+							var stepX = Math.round(Math.cos(angle));
+							var stepY = Math.round(Math.sin(angle));
+							
+							var curX = ec.gridx;
+							var curY = ec.gridy;
+							var loops = 0; //???
+	
+							do {
+								var nextX = curX + stepX;
+								var nextY = curY + stepY;
+								if (tracks[mi(nextX,nextY)] == undefined) new Track(nextX, nextY, "trackblank");
+								if (loops == 0) {
+									first = false;
+									animateCargo(ec, tracks[mi(nextX,nextY)], "move", 15-loops);
+								} else animateCargo(tracks[mi(curX,curY)], tracks[mi(nextX,nextY)], "move", 15-loops);
+								curX = nextX;
+								curY = nextY;
+								loops++;
+							} while (tracks[mi(curX,curY)].cargo);
+						}							
 					}
 					
 					//pickdrop cargo
@@ -5017,35 +5161,12 @@ $(document).ready(function(){
 						//if station has cargo and car doesn't, then swap station cargo to car
 						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
 							playSound("pickdrop");
-							ec.cargo = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo; //move cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "move"); 
 						}
 						//if car has cargo and station doesn't, then swap car cargo to station
 						else if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
-							//check for bunny
-/*							if (ec.cargo.type[1] == "bunny") {
-								playSound("home");
-								console.log("Bunny delivered successfully");
-								index = currentTrackSet + "-" + (currentTrackNumber+1);
-								console.log("trx unlocked for index=" + index);
-								unlockedTrx[index] = true;
-								animationFrame = 0;
-								interactionState = 'StarScreen';
-								text = currentTrackSet + "-" + (currentTrackNumber);
-								bestTime = 1;
-								if (bestTrackTime[text]) bestTime= bestTrackTime[text];
-								var d = new Date();
-								now = d.getTime();
-								currentTrackTime = now - startTimePlay;
-								currentTrackScore = Math.round(1000*bestTrackTime[text]/currentTrackTime);
-								newHighScore = false;
-								if (currentTrackScore>1000) currentTrackScore = 1000; 
-								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
-							} else {
-*/								playSound("pickdropreverse");
-						//	}
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							playSound("pickdropreverse");
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					}
 					
@@ -5074,44 +5195,82 @@ $(document).ready(function(){
 								if (currentTrackScore>1000) currentTrackScore = 1000; 
 								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
 							}
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump"); 
 						}
 					}
 					
 					//dump cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "dump") {
-						playSound("dump");
-						ec.cargo = undefined;
+						//dump only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							playSound("dump");
+							//ec.cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump-poof"); 
+						}
 					}
 					
 					//increment cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "increment") {
-						playSound("increment");
-						ec.cargo.value++;
-						//console.log("Increment lnegth="+ ec.cargo.type.length);
-						ec.cargo.value %= ec.cargo.type.length-1;
+						//increment only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							playSound("increment");
+							ec.cargo.value++;
+							ec.cargo.value %= cargoValues[ec.cargo.type].length-1;
+							animateCargo(ec, ec, "spin", 8);
+						}
 					}
 					
 					//decrement cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "decrement") {
 						playSound("decrement");
-						ec.cargo.value--;
-						ec.cargo.value %= ec.cargo.type.length-1;
+						//decrement only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							ec.cargo.value--;
+							ec.cargo.value += cargoValues[ec.cargo.type].length-1;
+							ec.cargo.value %= cargoValues[ec.cargo.type].length-1;
+							console.log("Value="+ec.cargo.value);
+							animateCargo(ec, ec, "spin", 8);
+						}
 					}
 					
 					//supply station
-					if (ec.type == "carbasic" && tracks[mi(ec.gridx,ec.gridy)].subtype == "supply") {
-						//if station has cargo and car doesn't, then copy station cargo to car
-						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
-							playSound("supply");
-							ec.cargo = jQuery.extend({},tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo); //copy cargo
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "supply") {
+						//increment uniqueid each time train passes for use to ensure that cargo only added once per train per pass
+						if (isFirstCarInTrain(ec)  && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid) tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid += 1;
+							else tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid = 1000*(ec.gridx+step.stepX) + 1000000*ec.gridy+step.stepY;
+//							console.log ("First car. Uniqueid="+tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid);
 						}
-						//if car has cargo and station doesn't, then moce car cargo to station
-						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
-							playSound("supply");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo;
-							ec.cargo == undefined;
+
+						if (ec.type == "carbasic") {
+							//if station has cargo and car doesn't, then copy station cargo to car
+							if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
+								//only add once per train each trip
+								var addedBefore = false;
+								var train = getTrain(ec);
+//								console.log("Train length="+train.length);
+								for (var i=0; i<train.length; i++) {
+									if (train[i].cargo && train[i].cargo.uniqueid && train[i].cargo.uniqueid == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid) {
+										addedBefore = true;
+//										console.log ("Added before is true. i="+i);
+									}
+								}
+								if (!addedBefore) {
+									playSound("supply");
+									ec.cargo = new Cargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type); //copy cargo
+									//ec.cargo = jQuery.extend({},tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo); //copy cargo
+									ec.cargo.uniqueid = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid;
+									animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "supply"); 
+								}
+							}
+							
+							
+							//if car has cargo and station doesn't, then move car cargo to station
+							if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
+								playSound("supply");
+								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move");
+							}
 						}
 					}
 
@@ -5167,8 +5326,7 @@ $(document).ready(function(){
 						//if car has cargo and station doesn't, then swap car cargo to station
 						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("supply");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					}
 				}
@@ -5176,6 +5334,34 @@ $(document).ready(function(){
 		}
 		
 	}	
+	
+	function animateCargo (startObj, endObj, type, frames) {
+		startObj.cargo.isanimating = true;
+		startObj.cargo.animatestartobj = startObj;
+		startObj.cargo.animateendobj = endObj;	
+		var defaultFrames = 15;
+		startObj.cargo.animatetype = type || "straight";
+		startObj.cargo.animatetotalframes = frames || defaultFrames;
+		startObj.cargo.animatedframes = 0;
+	}
+	
+/*	function animateCargo (cargo, startX, startY, ori, endX, endY, type, frames) { //moves cargo along path (type=straight or arc) from start to end 
+		//type
+		// "ontrackcargo"- hides cargo untl "totrackcargo" is done animating
+		// "totrackcargo"- for cargo going from car to trackcargo
+		// "dump"- for cargo going from car to trackcargo
+		cargo.isanimating = true;
+		cargo.animatestartx = startX;
+		cargo.animatestarty = startY;
+		cargo.startframe = ori*8;
+		cargo.animateendx = endX;
+		cargo.animateendy = endY;
+		cargo.animatetype = type || "straight";
+		var defaultFrames = 10;
+		cargo.animatetotalframes = frames || defaultFrames;
+		cargo.animatedframes = 0;
+		//console.log(cargo);
+} */
 	
 	function playSound(name) { // play sound for the named event
 		if (sounds[name]) {
@@ -5199,13 +5385,13 @@ $(document).ready(function(){
 	}
 	
 	function reverseOrientation(ec) { //flips the orientation of the ec so it is going the other way on the track. For track straight just ori+=4
-		console.log("ReverseOri");
+		//console.log("ReverseOri");
 		var track=tracks[mi(ec.gridx,ec.gridy)];
 		for (var dif=1; dif<8; dif++) {
 			var oriCheck = (ec.orientation+dif)%8;
 			if (ec.speed >=0) oriCheck = (oriCheck+4)%8; //add 4 since orientation is based on orientation when entering
 			if (trackConnects(track, oriCheck)) {
-				console.log("Found reverse ori. original ori="+ec.orientation+" new ori="+(ec.orientation+dif)%8);
+//				console.log("Found reverse ori. original ori="+ec.orientation+" new ori="+(ec.orientation+dif)%8);
 				ec.orientation = (oriCheck+4)%8;
 				return;
 			}
@@ -5244,7 +5430,10 @@ $(document).ready(function(){
 	function getNextTrack(ec) {
 		//console.log("getNextTrack");
 		var track = tracks[mi(ec.gridx,ec.gridy)];
-		if (!track) console.log("ERROR no track found for getNextTrack ec.gridx="+ec.gridx+" y="+ec.gridy);
+		if (!track) {
+			console.log("ERROR no track found for getNextTrack ec.gridx="+ec.gridx+" y="+ec.gridy);
+			return;
+		}
 		var type = getTypeForWye(ec, track);
 		var gridx=0, gridy=0;
 		var orientation = ec.orientation;
@@ -6006,3 +6195,181 @@ $(document).ready(function(){
 	}
 		
 });
+
+/*
+    cycle.js
+    2017-02-07
+    Public Domain.
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+*/
+
+// The file uses the WeakMap feature of ES6.
+
+/*jslint es6, eval */
+
+/*property
+    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
+    retrocycle, set, stringify, test
+*/
+
+if (typeof JSON.decycle !== "function") {
+    JSON.decycle = function decycle(object, replacer) {
+        "use strict";
+
+// Make a deep copy of an object or array, assuring that there is at most
+// one instance of each object or array in the resulting structure. The
+// duplicate references (which might be forming cycles) are replaced with
+// an object of the form
+
+//      {"$ref": PATH}
+
+// where the PATH is a JSONPath string that locates the first occurance.
+
+// So,
+
+//      var a = [];
+//      a[0] = a;
+//      return JSON.stringify(JSON.decycle(a));
+
+// produces the string '[{"$ref":"$"}]'.
+
+// If a replacer function is provided, then it will be called for each value.
+// A replacer function receives a value and returns a replacement value.
+
+// JSONPath is used to locate the unique object. $ indicates the top level of
+// the object or array. [NUMBER] or [STRING] indicates a child element or
+// property.
+
+        var objects = new WeakMap();     // object to path mappings
+
+        return (function derez(value, path) {
+
+// The derez function recurses through the object, producing the deep copy.
+
+            var old_path;   // The path of an earlier occurance of value
+            var nu;         // The new object or array
+
+// If a replacer function was provided, then call it to get a replacement value.
+
+            if (replacer !== undefined) {
+                value = replacer(value);
+            }
+
+// typeof null === "object", so go on if this value is really an object but not
+// one of the weird builtin objects.
+
+            if (
+                typeof value === "object" && value !== null &&
+                !(value instanceof Boolean) &&
+                !(value instanceof Date) &&
+                !(value instanceof Number) &&
+                !(value instanceof RegExp) &&
+                !(value instanceof String)
+            ) {
+
+// If the value is an object or array, look to see if we have already
+// encountered it. If so, return a {"$ref":PATH} object. This uses an
+// ES6 WeakMap.
+
+                old_path = objects.get(value);
+                if (old_path !== undefined) {
+                    return {$ref: old_path};
+                }
+
+// Otherwise, accumulate the unique value and its path.
+
+                objects.set(value, path);
+
+// If it is an array, replicate the array.
+
+                if (Array.isArray(value)) {
+                    nu = [];
+                    value.forEach(function (element, i) {
+                        nu[i] = derez(element, path + "[" + i + "]");
+                    });
+                } else {
+
+// If it is an object, replicate the object.
+
+                    nu = {};
+                    Object.keys(value).forEach(function (name) {
+                        nu[name] = derez(
+                            value[name],
+                            path + "[" + JSON.stringify(name) + "]"
+                        );
+                    });
+                }
+                return nu;
+            }
+            return value;
+        }(object, "$"));
+    };
+}
+
+
+if (typeof JSON.retrocycle !== "function") {
+    JSON.retrocycle = function retrocycle($) {
+        "use strict";
+
+// Restore an object that was reduced by decycle. Members whose values are
+// objects of the form
+//      {$ref: PATH}
+// are replaced with references to the value found by the PATH. This will
+// restore cycles. The object will be mutated.
+
+// The eval function is used to locate the values described by a PATH. The
+// root object is kept in a $ variable. A regular expression is used to
+// assure that the PATH is extremely well formed. The regexp contains nested
+// * quantifiers. That has been known to have extremely bad performance
+// problems on some browsers for very long strings. A PATH is expected to be
+// reasonably short. A PATH is allowed to belong to a very restricted subset of
+// Goessner's JSONPath.
+
+// So,
+//      var s = '[{"$ref":"$"}]';
+//      return JSON.retrocycle(JSON.parse(s));
+// produces an array containing a single element which is the array itself.
+
+        var px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\([\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
+
+        (function rez(value) {
+
+// The rez function walks recursively through the object looking for $ref
+// properties. When it finds one that has a value that is a path, then it
+// replaces the $ref object with a reference to the value that is found by
+// the path.
+
+            if (value && typeof value === "object") {
+                if (Array.isArray(value)) {
+                    value.forEach(function (element, i) {
+                        if (typeof element === "object" && element !== null) {
+                            var path = element.$ref;
+                            if (typeof path === "string" && px.test(path)) {
+                                value[i] = eval(path);
+                            } else {
+                                rez(element);
+                            }
+                        }
+                    });
+                } else {
+                    Object.keys(value).forEach(function (name) {
+                        var item = value[name];
+                        if (typeof item === "object" && item !== null) {
+                            var path = item.$ref;
+                            if (typeof path === "string" && px.test(path)) {
+                                value[name] = eval(path);
+                            } else {
+                                rez(item);
+                            }
+                        }
+                    });
+                }
+            }
+        }($));
+        return $;
+    };
+}
