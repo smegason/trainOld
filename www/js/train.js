@@ -4735,7 +4735,8 @@ $(document).ready(function(){
 	
  	function downloadTrackDialog() {
 		console.log("Browse Tracks dialog");
-		downloadTrack();
+		window.open("https://train-hub.org/train/www/browse.php", "_self");
+		//downloadTrack();
 /*	
 	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
 	      autoOpen: false,
