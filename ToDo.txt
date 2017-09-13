@@ -4,9 +4,7 @@ To Do:
 =put browse in train.js or same page so works on ipad
 -remake trx for each level
 -secondary caption off screen
--drag copy shows wrong when dragging but places right
 -render random wye (3 types) and caption button
--increment by whatever number is on cargotrack
 
 Bug-
 -if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405

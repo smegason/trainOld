@@ -1825,7 +1825,9 @@ $(document).ready(function(){
 			ctx.rect(-0.5*tileWidth, -0.5*tileWidth, tileWidth, tileWidth);
 		}
 		
-		drawCargo(track, Math.PI/4*track.orientation);
+		var cargoOri = Math.PI/4*track.orientation;
+		if (track.type == "trackblank") cargoOri = 16;
+		drawCargo(track, cargoOri);
 					
 		ctx.restore();
 	
@@ -2450,8 +2452,10 @@ $(document).ready(function(){
 		if (fraction>1) fraction = 1;
 		var opacity = 1;
 		if (obj.cargo && obj.cargo.animatetype == "supply") fraction = 1-fraction;
-		xOffset = tileWidth*zoomScale*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
-		yOffset = tileWidth*tileRatio*zoomScale*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
+		xOffset = tileWidth*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
+		yOffset = tileWidth*tileRatio*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
+//		xOffset = tileWidth*zoomScale*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
+//		yOffset = tileWidth*tileRatio*zoomScale*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
 		obj.cargo.animatedframes++;
 		
 		if (obj.cargo.animatedframes > obj.cargo.animatetotalframes) {
@@ -2491,8 +2495,10 @@ $(document).ready(function(){
 		
 		if (obj.cargo.animatetype != "ontrackcargo") {
 			ctx.save();
-			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth*zoomScale+xOffset;
-			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio*zoomScale+yOffset
+			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth+xOffset;
+			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio+yOffset
+//			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth*zoomScale+xOffset;
+//			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio*zoomScale+yOffset
 			ctx.translate(translateX, translateY); //center origin on tile
 	    	ctx.globalAlpha = opacity;
 	//		console.log("offset="+xOffset+","+yOffset+" opacity="+opacity+" translate="+translateX+","+translateY);
@@ -3749,7 +3755,6 @@ $(document).ready(function(){
 		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
 			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
 				drawCargoAnimated(tracks[mi(Math.floor(i),Math.floor(j))]);
-//				drawCargoAnimated(tracks[mi(Math.floor(i),Math.floor(j))]);
 			}
 		}	
 		
@@ -3757,7 +3762,6 @@ $(document).ready(function(){
 		var ECs = engines.concat(cars);
 		for (var i=0; i<ECs.length; i++) {
 			drawCargoAnimated(ECs[i]);
-///			drawCargoAnimated(ECs[i]);
 		}
 	}
 	
@@ -3857,7 +3861,7 @@ $(document).ready(function(){
 	    var endX = screenPoint.x;
 	    var endY = screenPoint.y;
 	    if (isMoving) {
-	    	console.log("startMoveYTile="+startMoveYTile+" endMoveYTile="+endMoveYTile);
+	    	//console.log("startMoveYTile="+startMoveYTile+" endMoveYTile="+endMoveYTile);
 	    	var startScreen= worldToScreen(startMoveXTile, startMoveYTile);
 	    	var endScreen= worldToScreen(endMoveXTile, endMoveYTile);
     		startX = startX + (endScreen.x - startScreen.x);
@@ -3877,27 +3881,28 @@ $(document).ready(function(){
 			var upperLeftSelectYTile = Math.round(Math.min(startSelectYTile, endSelectYTile));
 			var lowerRightSelectXTile = Math.round(Math.max(startSelectXTile, endSelectXTile)); 
 			var lowerRightSelectYTile = Math.round(Math.max(startSelectYTile, endSelectYTile));
-    		console.log("IsMoving drag:start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+//    		console.log("IsMoving drag:start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+
+			ctx.save();
+			var screenCenter = worldToScreen(centerTileX, centerTileY);
+			ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
+			ctx.translate(tileWidth*zoomScale*(endMoveXTile - startMoveXTile), tileWidth*tileRatio*zoomScale*(endMoveYTile - startMoveYTile)); 
+			ctx.scale(zoomScale, zoomScale);
 	    	for (gridx= upperLeftSelectXTile; gridx<lowerRightSelectXTile; gridx++) {
 		    	for (gridy= upperLeftSelectYTile; gridy<lowerRightSelectYTile; gridy++) {
 					//translate
-					ctx.save();
-					///ctx.translate(startX-mouseX, startY-mouseY); //center origin on tile
 					//ctx.translate(startX-startSelectXTile*tileWidth, startY-startSelectYTile*tileWidth); //center origin on tile
-					ctx.translate(startX, startY); //center origin on tile
-			        var screenCenter = worldToScreen(centerTileX, centerTileY);
-					//ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
-					ctx.scale(zoomScale, zoomScale);
+					///ctx.translate(startX, startY); //center origin on tile
 		    		//draw track 
-		    		console.log ("Drag draw x="+gridx+","+gridy+"  track="+tracks[mi(gridx,gridy)]);
+		    		//console.log ("Drag draw x="+gridx+","+gridy+"  track="+tracks[mi(gridx,gridy)]);
 		    		drawTrack(tracks[mi(gridx,gridy)]);
 		    		//draw EC
 		    		var ec=getEC(gridx,gridy);
 		    		drawEC(ec);
-		    		
-		    		ctx.restore();
 		    	}
 	    	}
+    		ctx.restore();
+
 	    }
 	}
 	
