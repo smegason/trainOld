@@ -66,6 +66,7 @@ Cache-Control:public;
 				echo "\n<td>";
 				echo "<h2>".$trackName."</h2>";
 				echo "<h3> by ".$trainusername."</h3>";
+				echo "<p>TrackID=".$trackID."</p>";
 				echo "<p>".$trackDescription."</p>";
 				echo "<p><a target='_blank' href='".$url2."'>Launch</a></p>";
 //				echo "<p>Trx=".$row['track']."</p>";
