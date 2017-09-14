@@ -3549,7 +3549,7 @@ $(document).ready(function(){
     }
         
     function calculateLayout() {
-    	if (resizeCanvas) {
+    //	if (resizeCanvas) {
 	        windowWidth = window.innerWidth; //maximize canvas to screen or device
 	        windowHeight = window.innerHeight;
 	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
@@ -3558,7 +3558,7 @@ $(document).ready(function(){
 	        canvas.height = windowHeight;// * pixelRatio;
 	        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
 	        canvas.style.height = windowHeight + 'px';
-	    }
+	  //  }
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
         toolBarHeight = canvasHeight; //height of toolbar in pixels
