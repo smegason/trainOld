@@ -1,6 +1,7 @@
 To Do:
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -Test browse on ipad
+-remove cancel from dialog boxes, it gives error
 
 -browse: add up down votes, and voting for online version, pagiate browse.php
 -remake trx for each level

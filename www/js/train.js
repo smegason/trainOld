@@ -282,8 +282,11 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
-	var currentUserID = 1; // userID for uploading tracks to database
-	var currentUsername = "X"; // username for uploading tracks to database
+	var currentUserID = localStorage.getObject('currentUserID');
+	var currentUsername = localStorage.setObject('currentUsername');
+	if (!currentUserID) currentUserID = 1;
+	if (!currentUsername) currentUsername = "X";
+	console.log("Current user="+currentUsername+" ID="+currentUserID);
 		
 	var trainerLevelNames = ['Hobo', 'Trainee', 'Caboose captain', 'Breakman', 'Switchman', 'Conductor', 'Engineer', 'Yard Master', 'Train Master'];
 	var currentTrackSet; // text name of current track set. Must be one of above trainerLevelNames
@@ -4557,6 +4560,11 @@ $(document).ready(function(){
 		                currentUserID = retArray[1];
 		                currentUsername = retArray[2];
 		                console.log("Successfully logged in username="+currentUsername+", and userID="+currentUserID);
+		                
+		                //store locally
+		                localStorage.setObject('currentUserID', currentUserID);
+		                localStorage.setObject('currentUsername', currentUsername);
+
 		            }
 	            }
 	        };
@@ -4683,9 +4691,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Create an account": newUser,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4711,9 +4719,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Sign-in user": signinUser,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4739,9 +4747,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Forgot Password": forgotPassword,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4796,9 +4804,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Upload Track": uploadTrackPost,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
