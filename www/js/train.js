@@ -143,6 +143,7 @@ $(document).ready(function(){
  	// scale=percent Zoom level of canvas. 100%=normal
  	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position. Can't be too long for URL though...
  	// trackID=111  Display trx with the given trackID
+ 	// showBrowse=0 hide or show the browse iframe
  	
  	//console.log ("href=" + location.href);
  	var params, data;
@@ -182,6 +183,11 @@ $(document).ready(function(){
 			if (data["toolbar"]==0) {
 				showToolBar = false;
 				interactionState = 'Freeplay';
+			}
+		}
+		if (data["showBrowse"]) {
+			if (data["showBrowse"]==0) {
+				$('browseframe').hide();
 			}
 		}
 		
