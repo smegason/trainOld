@@ -155,7 +155,7 @@ $(document).ready(function(){
 		}
 	}
 	console.log("HIDE frame browse");
-	parent.$('#browseframeid').hide();
+	//parent.$('#browseframeid').hide();
 	var objx = document.getElementById('browseframeid');
 	console.log(objx);
 	objx = parent.document.getElementById('browseframeid');
