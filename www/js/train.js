@@ -312,6 +312,7 @@ $(document).ready(function(){
 	var imgSaveIcon = new Image(); imgSaveIcon.src = 'img/saveicon.png';
 	var imgDownloadIcon = new Image(); imgDownloadIcon.src = 'img/downloadicon.png';
 	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
+	var imgSigninIcon = new Image(); imgSigninIcon.src = 'img/kids.png';
 	var imgPoof = new Image(); imgPoof.src = 'img/poof-small.png';
     var imgTitleScreen = new Image();
     imgTitleScreen.onload = function() { console.log("Height: " + this.height); draw();}
@@ -1505,23 +1506,24 @@ $(document).ready(function(){
 	toolButtonsLevels.push(new ToolButton(buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home", 2));
 	
 	// make Toolbar for Freeplay
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
 
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
 
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Octagon"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear"));
-	if (debugMode) toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Write"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Octagon"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear"));
+	if (debugMode) toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Write"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Signin"));
 	
 	//download trx for a trackID passed through URL
 	if (passedTrackID) downloadTrackID(passedTrackID);
@@ -1623,7 +1625,7 @@ $(document).ready(function(){
 	
 	function decompress (compressedTrx) {
 		if (!compressedTrx) return;
-		var decompressedTrx= compressedTrx.replace("TRXv1.0:", "");
+		var decompressedTrx = compressedTrx.replace("TRXv1.0:", "");
 		for (var key in swap) {
 		    decompressedTrx = decompressedTrx.replace(new RegExp(swap[key], 'g'), key);
 		}
@@ -2900,6 +2902,9 @@ $(document).ready(function(){
 				  		case "Octagon":
 				  			getButton("Octagon").down = !getButton("Octagon").down;
 				  			useOctagons = getButton("Octagon").down;
+				  			break;
+				  		case "Signin":
+				  			signinUserDialog();
 				  		default:
 				  			console.log("button not found");
 				  	}
@@ -4796,7 +4801,7 @@ $(document).ready(function(){
  	
 	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
-		var strTrx= compress(JSON.stringify(JSON.decycle(trx)));
+		var strTrx= JSON.stringify(JSON.decycle(trx));
 		console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
@@ -6009,7 +6014,7 @@ $(document).ready(function(){
 				case "Write":
 					ctx.fillStyle = fontColor;
 					ctx.font = "20px Arial";
-					ctx.fillText("Write",11,45);
+					ctx.fillText("Write",17,45);
 					break;
 				case "Cargo":
 					ctx.drawImage(imgCargoUppercase[0][14], -8,3);
@@ -6163,6 +6168,9 @@ $(document).ready(function(){
 					break;
 				case "Upload":
 					ctx.drawImage(imgUploadIcon,5,7);
+					break;
+				case "Signin":
+					ctx.drawImage(imgSigninIcon,5,7);
 					break;
 	
 			}

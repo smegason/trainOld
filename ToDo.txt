@@ -1,7 +1,8 @@
 To Do:
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
+-Test browse on ipad
+
 -browse: add up down votes, and voting for online version, pagiate browse.php
-=put browse in train.js or same page so works on ipad
 -remake trx for each level
 -secondary caption off screen
 -render random wye (3 types) and caption button
