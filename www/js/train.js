@@ -3549,6 +3549,7 @@ $(document).ready(function(){
     }
         
     function calculateLayout() {
+    	return;
     	if (resizeCanvas) {
 	        windowWidth = window.innerWidth;
 	        windowHeight = window.innerHeight;
