@@ -3553,7 +3553,7 @@ $(document).ready(function(){
 	        windowWidth = window.innerWidth; //maximize canvas to screen or device
 	        windowHeight = window.innerHeight;
 	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
-	        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+	        console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
 	        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
 	        canvas.height = windowHeight;// * pixelRatio;
 	        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
