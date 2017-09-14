@@ -156,6 +156,8 @@ $(document).ready(function(){
 	}
 	console.log("HIDE frame browse");
 	$('#browseframeid').hide();
+	var objx = document.getElementById('browseframeid');
+	console.log(objx);
 
 	var buttonDims = [];
 	var buttonDimLevels = [];
