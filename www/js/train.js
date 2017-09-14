@@ -199,8 +199,8 @@ $(document).ready(function(){
 	console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
    
-    var windowWidth = 100;
-    var windowHeight = 100;
+    var windowWidth = 1000;
+    var windowHeight = 750;
     var pixelRatio = 1; /// get pixel ratio of device
 
 	var ctx = canvas.getContext("2d");
@@ -3549,10 +3549,9 @@ $(document).ready(function(){
     }
         
     function calculateLayout() {
-    	return;
     	if (resizeCanvas) {
-	        windowWidth = window.innerWidth;
-	        windowHeight = window.innerHeight;
+//	        windowWidth = window.innerWidth; //maximize canvas to screen or device
+//	        windowHeight = window.innerHeight;
 	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
 	        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
 	        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
