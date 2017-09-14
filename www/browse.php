@@ -23,7 +23,6 @@ Cache-Control:public;
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="js/train.js" type="text/javascript"></script>
 -->
-		<img src=img/trainLogo.png>
         <h1>Browse Tracks</h1>
 		<?php
 		include 'php/connect.php';
@@ -65,10 +64,10 @@ Cache-Control:public;
 				echo "\n<tr>";
 				echo "\n<td>";
 				echo "<h2>".$trackName."</h2>";
-				echo "<h3> by ".$trainusername."</h3>";
-				echo "<p>TrackID=".$trackID."</p>";
+				echo "<i> by ".$trainusername."</i>";
+//				echo "<p>TrackID=".$trackID."</p>";
 				echo "<p>".$trackDescription."</p>";
-				echo "<p><a target='_self' href='".$url2."'>Launch</a></p>";
+				echo "<p><a target='trainframe' href='".$url2."'>Launch</a></p>";
 //				echo "<p>Trx=".$row['track']."</p>";
 //				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td>";
@@ -76,7 +75,7 @@ Cache-Control:public;
 				echo "\n<td class='style24' style='width: 400px'>";
 //				echo "row=".$i;
 				echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
-				echo "\n<iframe src='".$url."' width='400' height='250' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
+				echo "\n<iframe src='".$url."' width='300' height='200' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
 				echo '</div>';
 				echo "\n</td>";
 				echo "</tr>";
