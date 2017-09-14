@@ -3550,8 +3550,8 @@ $(document).ready(function(){
         
     function calculateLayout() {
     	if (resizeCanvas) {
-//	        windowWidth = window.innerWidth; //maximize canvas to screen or device
-//	        windowHeight = window.innerHeight;
+	        windowWidth = window.innerWidth; //maximize canvas to screen or device
+	        windowHeight = window.innerHeight;
 	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
 	        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
 	        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
