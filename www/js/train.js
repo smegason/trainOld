@@ -154,12 +154,6 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-	console.log("HIDE frame browse");
-	//parent.$('#browseframeid').hide();
-	var objx = parent.document.getElementById('browseframeid');
-	console.log(objx);
-	objx.height = 0;
-	//objx.hide();
 
 	var buttonDims = [];
 	var buttonDimLevels = [];
@@ -192,10 +186,15 @@ $(document).ready(function(){
 			}
 		}
 		if (data["showBrowse"]) {
-			if (data["showBrowse"]==0) {
-				console.log("Hide browse frame");
-				$('browseframe').hide();
-			}
+			var objx = parent.document.getElementById('browseframeid');
+			if (data["showBrowse"]==0) objx.height = 0;
+			else objx.height = 750;
+		}
+		
+		if (data["showTrain"]) {
+			var objx = parent.document.getElementById('trainframeid');
+			if (data["showTrain"]==0) objx.height = 0;
+			else objx.height = 750;
 		}
 		
 		if (data["trackID"]) {
@@ -2891,7 +2890,14 @@ $(document).ready(function(){
 				        	}
 				  			break;
 				  		case "Download":
-				  			downloadTrackDialog();
+							var iframeBrowse = parent.document.getElementById('browseframeid');
+							if (iframeBrowse) {
+								iframeBrowse.height = 750;
+								var iframeTrain = parent.document.getElementById('trainframeid');
+								if (iframeTrain) iframeTrain.height = 0;
+							} else {
+								downloadTrackDialog();
+							}
 				  			break;
 				  		case "Clear":
 				  			//tracks.length=0;
@@ -4753,7 +4759,6 @@ $(document).ready(function(){
 	
  	function downloadTrackDialog() {
 		console.log("Browse Tracks dialog");
-		window.open("https://train-hub.org/train/www/browse.php", "_self");
 		//downloadTrack();
 /*	
 	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
