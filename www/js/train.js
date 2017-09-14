@@ -154,7 +154,7 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-				$('browseframe').hide();
+				$('#browseframe').hide();
 
 	var buttonDims = [];
 	var buttonDimLevels = [];
