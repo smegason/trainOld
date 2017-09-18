@@ -8,7 +8,7 @@ To Do:
 -all blend files being copied to ipad app. Need to trim.
 -splash screen for ipad
 -always landscape on ipad
-
+-Display username when signed in
 
 -browse: add up down votes (or just likes), and voting for online version, pagiate browse.php, add more search options (just text for all fields?)
 -remake trx for each level

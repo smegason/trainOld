@@ -4649,7 +4649,7 @@ $(document).ready(function(){
 			var img    = canvas.toDataURL("image/png");
 			//document.write('<img src="'+img+'"/>');
 			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
-			console.log("params="+params);
+			//console.log("params="+params);
 			http.open("POST", url, true);
 			
 			//Send the proper header information along with the request
