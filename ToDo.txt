@@ -1,9 +1,16 @@
 To Do:
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -Test browse on ipad
--remove cancel from dialog boxes, it gives error
+-convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
+   Need to split all variables in common and instance specific--really everything but imgs.
+-OR just use thumbnails in db. Would need to make thumbnail during upload process
+-icon for app
+-all blend files being copied to ipad app. Need to trim.
+-splash screen for ipad
+-always landscape on ipad
 
--browse: add up down votes, and voting for online version, pagiate browse.php
+
+-browse: add up down votes (or just likes), and voting for online version, pagiate browse.php, add more search options (just text for all fields?)
 -remake trx for each level
 -secondary caption off screen
 -render random wye (3 types) and caption button

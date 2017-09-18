@@ -236,6 +236,7 @@ $(document).ready(function(){
 	var engines = [];
 	var cars = [];
 	var trains = []
+	var poofs = []; //used for animating explosions after crash
 	var modalTrack; // used to store value of the current modal track. Used for wye prompts so know which wye to change after mouse interaction
 	
 	var useOctagons = false; //use square or octagon shaped tiles for drawing
@@ -2525,6 +2526,23 @@ $(document).ready(function(){
 		}
 	}
 	
+	function drawAllPoofs() {
+		for (var i=0; i<poofs.length; i++) {
+			var poof = poofs[i];
+			ctx.save();
+			var translateX=(0.5+poof.gridx)*tileWidth;
+			var translateY=(0.5+poof.gridy)*tileWidth*tileRatio
+			ctx.translate(translateX, translateY); 
+	    	ctx.globalAlpha = 1 - poof.animatedframes / poof.animatetotalframes;
+			ctx.drawImage(imgPoof, -imgTrackWidth/2+15, -imgTrackWidth/2+10);
+	    	ctx.restore();
+	    	poof.animatedframes++;
+	    	if (poof.animatedframes > poof.animatetotalframes) {
+	    		poofs.splice(i,1);
+	    		poof = undefined;
+	    	}
+		}	
+	}
 
 
 ///////////////////////////////////////	
@@ -2885,7 +2903,7 @@ $(document).ready(function(){
 				  			getButton("Save").down = false;
 				  			break;
 				  		case "Upload":
-				        	if (currentUserID == 1) {
+\				        	if (currentUserID == 1) {
 					        	uploadTrackDialog()
 				        		signinUserDialog();
 				        	} else {
@@ -3642,6 +3660,7 @@ $(document).ready(function(){
 		drawAllEnginesAndCars();
 		drawAllTunnels();
 		drawAllCargoAnimated();
+		drawAllPoofs();
 		
 		if (showToolBar) {
 			drawCaption();
@@ -4627,7 +4646,9 @@ $(document).ready(function(){
       	if ( valid ) {
 			var http = new XMLHttpRequest();
 			var url = "php/uploadTrackPost.php";
-			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
+			var img    = canvas.toDataURL("image/png");
+			//document.write('<img src="'+img+'"/>');
+			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
 			console.log("params="+params);
 			http.open("POST", url, true);
 			
@@ -4888,6 +4909,25 @@ $(document).ready(function(){
 				if (!modalTrack) interpret (train[c]);
 			}
 		}
+		
+		// see if ec crashed into another ec -- todo probably slower than could be
+		for (var t=0; t<trains.length; t++) { //iterate through trains
+			var train = trains[t];
+			for (var c=train.length-1; c>=0; c--) {
+				for (var t2=0; t2<trains.length; t2++) { //iterate through trains
+					var train2 = trains[t2];
+					for (var c2=train2.length-1; c2>=0; c2--) {
+						//console.log("t=",train[c].gridx+","+train[c].gridy+" t2="+train2[c2].gridx+","+train2[c2].gridy);
+						if (train[c] != train2[c2] && train[c].gridx == train2[c2].gridx && train[c].gridy == train2[c2].gridy) {
+							console.log ("CRASH ecs");
+							crash(train[c]);
+							crash(train2[c2]);
+						}
+					}
+				}
+			}
+		}
+		
 	}
 	
 	function interpret(ec) { //interprets an engine or car one iteration (moves engine or car down track)
@@ -4916,6 +4956,18 @@ $(document).ready(function(){
 				ec.gridy = next.gridy;
 				ec.orientation = next.orientation;
 
+				//check for crashes with other ecs
+/*				for (var t=0; t<trains.length; t++) { //iterate through trains
+					var train = trains[t];
+					for (var c=train.length-1; c>=0; c--) {
+						if (train[c] != ec && train[c].gridx == ec.gridx && train[c].gridy == ec.gridy) {
+							console.log ("CRASH ecs");
+							crash(ec);
+							crash(train[c]);
+						}
+					}
+				}*/
+				
 				//check for lazy wyes
 				var oriDif = (ec.orientation - tracks[mi(ec.gridx,ec.gridy)].orientation +8)%8;
 				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "lazy") {
@@ -5382,6 +5434,16 @@ $(document).ready(function(){
 		startObj.cargo.animatedframes = 0;
 	}
 	
+	function animatePoof (gridx, gridy, frames) {
+		var poof = {};
+		var defaultFrames = 15;
+		poof.gridx = gridx;
+		poof.gridy = gridy;
+		poof.animatetotalframes = frames || defaultFrames;
+		poof.animatedframes = 0;
+		poofs.push(poof);
+	}
+	
 /*	function animateCargo (cargo, startX, startY, ori, endX, endY, type, frames) { //moves cargo along path (type=straight or arc) from start to end 
 		//type
 		// "ontrackcargo"- hides cargo untl "totrackcargo" is done animating
@@ -5625,6 +5687,7 @@ $(document).ready(function(){
 		
 		playSound("crash");
 		console.log ("Engine crashed at gridx="+ ec.gridx + " gridy=" + ec.gridy);
+		animatePoof(ec.gridx, ec.gridy);
 		if (interactionState == 'Try level') { 
 			console.log ("Crashed on levels");
 			interactionState = 'StarScreen';
@@ -5638,6 +5701,7 @@ $(document).ready(function(){
 			//delete train if crashes
 			var nEngine;
 			var train = getTrain(ec);
+			if (!train) return;
 			console.log("Train length="+train.length);
 			for (var i=0; i<train.length; i++) {
 				if (train[i].type == "enginebasic") nEngine = i;
@@ -5645,7 +5709,8 @@ $(document).ready(function(){
 				deleteEC(train[i]);
 			}
 			trains.splice(i,1);
-		}		
+		}
+		buildTrains();		
 	}
 	
 	function deleteEC(ecdel) { //removes engines and cars from their arrays
