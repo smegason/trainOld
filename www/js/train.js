@@ -2903,7 +2903,7 @@ $(document).ready(function(){
 				  			getButton("Save").down = false;
 				  			break;
 				  		case "Upload":
-\				        	if (currentUserID == 1) {
+				        	if (currentUserID == 1) {
 					        	uploadTrackDialog()
 				        		signinUserDialog();
 				        	} else {
