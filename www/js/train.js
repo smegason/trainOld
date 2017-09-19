@@ -188,13 +188,13 @@ $(document).ready(function(){
 		if (data["showBrowse"]) {
 			var objx = parent.document.getElementById('browseframeid');
 			if (data["showBrowse"]==0) objx.height = 0;
-			else objx.height = 750;
+			else objx.height = 250;//750;
 		}
 		
 		if (data["showTrain"]) {
 			var objx = parent.document.getElementById('trainframeid');
 			if (data["showTrain"]==0) objx.height = 0;
-			else objx.height = 750;
+			else objx.height = 250;//750;
 		}
 		
 		if (data["trackID"]) {
@@ -211,8 +211,8 @@ $(document).ready(function(){
 	console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
    
-    var windowWidth = 1000;
-    var windowHeight = 750;
+    var windowWidth = 333;//1000;
+    var windowHeight = 250;//750;
     var pixelRatio = 1; /// get pixel ratio of device
 
 	var ctx = canvas.getContext("2d");
@@ -4647,9 +4647,11 @@ $(document).ready(function(){
 			var http = new XMLHttpRequest();
 			var url = "php/uploadTrackPost.php";
 			var img    = canvas.toDataURL("image/png");
+			var img2 = "test";
 			//document.write('<img src="'+img+'"/>');
-			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
-			//console.log("params="+params);
+			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img2);
+//			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
+			console.log("params="+params);
 			http.open("POST", url, true);
 			
 			//Send the proper header information along with the request
