@@ -78,7 +78,7 @@ Cache-Control:public;
 //				echo "row=".$i;
 	//			echo "<div id='outerdiv".$i."' style='width:400px; overflow-x:hidden;'>";
 //				echo "\n<iframe src='".$url."' width='300' height='200' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
-				echo "\n<br>Image= </br>";
+				echo "\n<br>Image=<img src='"+$imgPreview+"'> </br>";
 //				echo "</div>";
 				echo "\n</td>";
 				echo "</tr>";
