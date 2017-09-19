@@ -52,6 +52,7 @@ Cache-Control:public;
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
 				$trainusername = $row['userName'];
+				$imgPreview = $row['imgPreview'];
 				$encodedTrx = ($row['track']);
 				$encodedTrx = str_replace(",", "%2C", $encodedTrx);  // ,
 				$encodedTrx = str_replace(":", "%3A", $encodedTrx); // :
