@@ -4647,10 +4647,10 @@ $(document).ready(function(){
 			var http = new XMLHttpRequest();
 			var url = "php/uploadTrackPost.php";
 			var img    = canvas.toDataURL("image/png");
-			var img2 = "test";
+//			var img2 = "test";
 			//document.write('<img src="'+img+'"/>');
-			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img2);
-//			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
+//			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img2);
+			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img);
 			console.log("params="+params);
 			http.open("POST", url, true);
 			
