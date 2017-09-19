@@ -25,7 +25,8 @@ $userID = htmlspecialchars($_POST["userID"]);
 $trx = htmlspecialchars($_POST['trx']);
 $trackName = htmlspecialchars($_POST['trackName']);
 $trackDescription = htmlspecialchars($_POST['trackDescription']);
-echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription;
+$imgPreview = htmlspecialchars($_POST['imgPreview']);
+echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription.", imgPreview=".$imgPreview;
 
 $con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
