@@ -65,7 +65,7 @@ Cache-Control:public;
 				echo "\n<tr>";
 				echo "\n<td>";
 				echo "<h2>".$trackName."</h2>";
-				echo "<i> byyyy ".$trainusername."</i>";
+				echo "<i> by ".$trainusername."</i>";
 //				echo "<p>TrackID=".$trackID."</p>";
 				echo "<p>".$trackDescription."</p>";
 //				echo "<p>DDD".$imgPreview."</p>";

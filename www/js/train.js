@@ -4650,7 +4650,8 @@ $(document).ready(function(){
 			
 			//shrink image of canvas
 			var destCtx = canvas2.getContext('2d');
-			destCtx.drawImage(canvas, 0, 0, 50,50);
+			//destCtx.drawImage(canvas, 0, 0, 50,50);
+			destCtx.drawImage(imgPoof,5,5);
 			var img    = canvas2.toDataURL("image/png");
 //			var img2 = "test";
 			//document.write('<img src="'+img+'"/>');
