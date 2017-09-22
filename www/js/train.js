@@ -361,7 +361,7 @@ $(document).ready(function(){
 	var imgStar = new Image(); imgStar.src = 'img/star.png';
 		
 	//load images for buttons in captions for choosing station type
-	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
+	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/'+imgfolder+'/CaptionButtons/none.png';
 	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/'+imgfolder+'/CaptionButtons/add.png';
 	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/'+imgfolder+'/CaptionButtons/catapult.png';
 	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/'+imgfolder+'/CaptionButtons/decrement.png';
