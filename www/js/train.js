@@ -199,8 +199,10 @@ $(document).ready(function(){
 		
 		if (data["showTrain"]) { ///////
 			var objx = parent.document.getElementById('trainframeid');
-			if (data["showTrain"]==0) objx.height = 0;
-			else objx.height = 750;
+			if (objx) {
+				if (data["showTrain"]==0) objx.height = 0;
+				else objx.height = 750;
+			}
 		}
 		
 		if (data["trackID"]) {
@@ -1885,318 +1887,318 @@ $(document).ready(function(){
         var cargoOffsetY = -26;
 		switch (name) {
 			case "Captionblocks":
-                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Caption1":
-                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionuppercase":
-                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "CaptionA":
-                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionlowercase":
-				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiona":
-				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncolors":
-				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionwhite":
-				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondinosaurs":
-				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionraptor":
-				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionstuffedanimals":
-				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbunny":
-				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionnumbers":
-				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Caption0":
-				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbinary":
-				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionyes":
-				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionnone":
-				ctx.drawImage(imgCaptionNone, 0, -11);
+				ctx.drawImage(imgCaptionNone, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionalternate":
-				ctx.drawImage(imgCaptionAlternate, 0, -11);
+				ctx.drawImage(imgCaptionAlternate, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionrandom":
-				ctx.drawImage(imgCaptionRandom, 0, -11);
+				ctx.drawImage(imgCaptionRandom, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncomparegreater":
-				ctx.drawImage(imgCaptionGreater, 0, -11);
+				ctx.drawImage(imgCaptionGreater, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionlazy":
-				ctx.drawImage(imgCaptionLazy, 0, -11);
+				ctx.drawImage(imgCaptionLazy, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncompareless":
-				ctx.drawImage(imgCaptionLesser, 0, -11);
+				ctx.drawImage(imgCaptionLesser, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionprompt":
-				ctx.drawImage(imgCaptionPrompt, 0, -11);
+				ctx.drawImage(imgCaptionPrompt, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsprung":
-				ctx.drawImage(imgCaptionSprung, 0, -11);
+				ctx.drawImage(imgCaptionSprung, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionadd":
-				ctx.drawImage(imgCaptionAdd, 0, -11);
+				ctx.drawImage(imgCaptionAdd, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncatapult":
-				ctx.drawImage(imgCaptionCatapult, 0, -11);
+				ctx.drawImage(imgCaptionCatapult, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondecrement":
-				ctx.drawImage(imgCaptionDecrement, 0, -11);
+				ctx.drawImage(imgCaptionDecrement, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondivide":
-				ctx.drawImage(imgCaptionDivide, 0, -11);
+				ctx.drawImage(imgCaptionDivide, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondump":
-				ctx.drawImage(imgCaptionDump, 0, -11);
+				ctx.drawImage(imgCaptionDump, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionincrement":
-				ctx.drawImage(imgCaptionIncrement, 0, -11);
+				ctx.drawImage(imgCaptionIncrement, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionmultiply":
-				ctx.drawImage(imgCaptionMultiply, 0, -11);
+				ctx.drawImage(imgCaptionMultiply, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionhome":
-				ctx.drawImage(imgCaptionHome, 0, -11);
+				ctx.drawImage(imgCaptionHome, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionredtunnel":
-				ctx.drawImage(imgCaptionRedTunnel, -4, -5);
+				ctx.drawImage(imgCaptionRedTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiongreentunnel":
-				ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
+				ctx.drawImage(imgCaptionGreenTunnel, -4, -4,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbluetunnel":
-				ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
+				ctx.drawImage(imgCaptionBlueTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionpickdrop":
-				ctx.drawImage(imgCaptionPickDrop, 0, -11);
+				ctx.drawImage(imgCaptionPickDrop, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionslingshot":
-				ctx.drawImage(imgCaptionSlingshot, 0, -11);
+				ctx.drawImage(imgCaptionSlingshot, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsubtract":
-				ctx.drawImage(imgCaptionSubtract, 0, -11);
+				ctx.drawImage(imgCaptionSubtract, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsupply":
-				ctx.drawImage(imgCaptionSupply, 0, -11);
+				ctx.drawImage(imgCaptionSupply, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "track90":
-				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "track45":
-				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "tracksquareSE": //draw the little squares between diagonal tracks 
-				ctx.drawImage(imgTrackDiagonalSquare[7], 0, 0);
+				ctx.drawImage(imgTrackDiagonalSquare[7], 0, 0,imgTrackWidth,imgTrackWidth);
 				break;
 			case "tracksquareSW": //draw the little squares between diagonal tracks 
-				ctx.drawImage(imgTrackDiagonalSquare[1], 0, 0);
+				ctx.drawImage(imgTrackDiagonalSquare[1], 0, 0,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackstraight":
 				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-				ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-alternate-l":
-				ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-alternate-r":
-				ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-lazy-l":
-				ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-lazy-r":
-				ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-less-l":
-				ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-less-r":
-				ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-greater-l":
-				ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-greater-r":
-				ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-sprung-l":
-				ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-sprung-r":
-				ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-prompt-l":
-				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-prompt-r":
-				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-random-r":
-				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-random-l":
-				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-alternate-l":
-				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-alternate-r":
-				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-lazy-l":
-				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-lazy-r":
-				ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-less-l":
-				ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-less-r":
-				ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-greater-l":
-				ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-greater-r":
-				ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-prompt-l":
-				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-prompt-r":
-				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-random-l":
-				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-random-r":
-				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-sprung-l":
-				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-sprung-r":
-				ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-alternate-l":
-				ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-alternate-r":
-				ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-less-l":
-				ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-less-r":
-				ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-lazy-l":
-				ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-lazy-r":
-				ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-greater-l":
-				ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-greater-r":
-				ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-sprung-l":
-				ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-sprung-r":
-				ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-prompt-l":
-				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-prompt-r":
-				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-random-l":
-				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-random-r":
-				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackcross":
 				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-				ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackblank":
 				break;
 			case "trackcargo":
 				var oriRot = ori%2;
-				ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "increment":
-				ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "decrement":
-				ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "add":
-				ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "subtract":
-				ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "multiply":
-				ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "divide":
-				ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "catapult":
-				ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "slingshot":
-				ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "supply":
-				ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "pickdrop":
-				ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "dump":
-				ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "home":
-				ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "redtunnel":
-				ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "greentunnel":
-				ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "bluetunnel":
-				ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "speedController":
 			 	//draw engine speed controller
@@ -2374,13 +2376,13 @@ $(document).ready(function(){
 		if (ec.type == "enginebasic") {
 			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
 			var frame = (ec.orientation/8*imgEngine.length  + Math.round(rotation/(2*Math.PI/imgEngine.length)) +imgEngine.length)%imgEngine.length;
-			ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2);
+			ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2,imgTrackWidth,imgTrackWidth);
 			//console.log("Draw engine frame="+frame);
 					
 		} else	if (ec.type == "carbasic") {
 			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
 			var frame = (ec.orientation/8*imgCar.length*2  + Math.round(rotation/(2*Math.PI/imgCar.length/2)) +imgCar.length)%imgCar.length;
-			ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2);
+			ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2,imgTrackWidth,imgTrackWidth);
 		} else {
 			console.log ("EC is not an instance of anything");
 		}
@@ -2440,7 +2442,7 @@ $(document).ready(function(){
 		if (cargoValues[obj.cargo.type] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
 		if (obj.type == "trackcargo" || obj.type == "trackblank") frame = 16;
 		
-		ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
+		ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 	}
 
 	function drawCargoAnimated(obj, rot) { //draws cargo for obj= car or track. Animated is drawn on one pass because not relative to ctx translate/rotate
@@ -2539,7 +2541,7 @@ $(document).ready(function(){
 	    	ctx.globalAlpha = opacity;
 	//		console.log("offset="+xOffset+","+yOffset+" opacity="+opacity+" translate="+translateX+","+translateY);
 			if (obj.cargo.animatedframes > obj.cargo.animatetotalframes && obj.cargo.animatetype == "dump-poof") ctx.drawImage(imgPoof, -imgTrackWidth/2+15, -imgTrackWidth/2+10);
-			else ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
+			else ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 	    	ctx.restore();
 		}
 	}
@@ -6117,7 +6119,7 @@ $(document).ready(function(){
 					}
 					break;
 				case "Track":
-					ctx.drawImage(imgTrackStraight[1], -10,-10);
+					ctx.drawImage(imgTrackStraight[1], -10,-10,imgTrackWidth,imgTrackWidth);
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -6133,7 +6135,7 @@ $(document).ready(function(){
 					ctx.fillText("Write",17,45);
 					break;
 				case "Cargo":
-					ctx.drawImage(imgCargoUppercase[0][14], -8,3);
+					ctx.drawImage(imgCargoUppercase[0][14], -8,3,imgTrackWidth,imgTrackWidth);
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -6184,7 +6186,7 @@ $(document).ready(function(){
 					break;
 				case "Engine":
 					// engine icon
-					ctx.drawImage(imgEngine[46], offset,offset);
+					ctx.drawImage(imgEngine[46], offset,offset,imgTrackWidth,imgTrackWidth);
 					//drawCrosshair(width,height);
 					/*ctx.beginPath();
 					ctx.moveTo(0.4*width,0.4*height);
@@ -6203,7 +6205,7 @@ $(document).ready(function(){
 					}
 					break;
 				case "Car":
-					ctx.drawImage(imgCar[14], offset,offset);
+					ctx.drawImage(imgCar[14], offset,offset,imgTrackWidth,imgTrackWidth);
 					//drawCrosshair(width,height);
 					/*ctx.beginPath();
 					ctx.moveTo(0.375*width,0.45*height);
