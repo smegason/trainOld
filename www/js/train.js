@@ -155,7 +155,9 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-
+	console.log("Data="+data);
+	console.log (location.href);
+	
 	var buttonDims = [];
 	var buttonDimLevels = [];
 	var showTitleScreen = true;
@@ -169,6 +171,9 @@ $(document).ready(function(){
 	var panStartX, panStartY, zoomStartX, zoomStartY, startZoomScale; 
 	var startTimePlay; //time when play pressed
 	var animationFrame = 0; //used for keeping track of frames for animation of star after successfully completing track
+	var imgfolder = "renders100";
+	var iconscale = 1;
+	
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -189,19 +194,31 @@ $(document).ready(function(){
 		if (data["showBrowse"]) {
 			var objx = parent.document.getElementById('browseframeid');
 			if (data["showBrowse"]==0) objx.height = 0;
-			else objx.height = 250;//750;
+			else objx.height = 750;
 		}
 		
-		if (data["showTrain"]) {
+		if (data["showTrain"]) { ///////
 			var objx = parent.document.getElementById('trainframeid');
 			if (data["showTrain"]==0) objx.height = 0;
-			else objx.height = 250;//750;
+			else objx.height = 750;
 		}
 		
 		if (data["trackID"]) {
 			passedTrackID = data["trackID"];
 			interactionState = 'Freeplay';
 		}
+		
+		if (data["iconscale"]) {
+			iconscale = data["iconscale"];
+			if (iconscale == 0.25) imgfolder = "renders25";
+			else if (iconscale == 0.5) imgfolder = "renders50";
+			else if (iconscale == 4) imgfolder = "renders400";
+			else {
+				imgfolder = "renders100";
+				iconscale = 1;
+			}
+		}
+		console.log("imgfolder="+imgfolder);
 		
 		if (data["scale"]) {
 			zoomScale = data["scale"]/100;
@@ -212,8 +229,8 @@ $(document).ready(function(){
 	console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
    
-    var windowWidth = 333;//1000;
-    var windowHeight = 250;//750;
+    var windowWidth = 1000;
+    var windowHeight = 750;
     var pixelRatio = 1; /// get pixel ratio of device
 
 	var ctx = canvas.getContext("2d");
@@ -343,36 +360,36 @@ $(document).ready(function(){
 		
 	//load images for buttons in captions for choosing station type
 	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
-	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/renders/CaptionButtons/add.png';
-	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/renders/CaptionButtons/catapult.png';
-	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/renders/CaptionButtons/decrement.png';
-	var imgCaptionDivide = new Image(); imgCaptionDivide.src = 'img/renders/CaptionButtons/divide.png';
-	var imgCaptionDump = new Image(); imgCaptionDump.src = 'img/renders/CaptionButtons/dump.png';
-	var imgCaptionIncrement = new Image(); imgCaptionIncrement.src = 'img/renders/CaptionButtons/increment.png';
-	var imgCaptionMultiply = new Image(); imgCaptionMultiply.src = 'img/renders/CaptionButtons/multiply.png';
-	var imgCaptionPickDrop = new Image(); imgCaptionPickDrop.src = 'img/renders/CaptionButtons/pickDrop.png';
-	var imgCaptionSlingshot = new Image(); imgCaptionSlingshot.src = 'img/renders/CaptionButtons/slingshot.png';
-	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
-	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
-	var imgCaptionHome = new Image(); imgCaptionHome.src = 'img/renders/CaptionButtons/home.png';
-	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/renders/CaptionButtons/greenTunnel.png';
-	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/renders/CaptionButtons/redTunnel.png';
-	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/renders/CaptionButtons/blueTunnel.png';
+	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/'+imgfolder+'/CaptionButtons/add.png';
+	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/'+imgfolder+'/CaptionButtons/catapult.png';
+	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/'+imgfolder+'/CaptionButtons/decrement.png';
+	var imgCaptionDivide = new Image(); imgCaptionDivide.src = 'img/'+imgfolder+'/CaptionButtons/divide.png';
+	var imgCaptionDump = new Image(); imgCaptionDump.src = 'img/'+imgfolder+'/CaptionButtons/dump.png';
+	var imgCaptionIncrement = new Image(); imgCaptionIncrement.src = 'img/'+imgfolder+'/CaptionButtons/increment.png';
+	var imgCaptionMultiply = new Image(); imgCaptionMultiply.src = 'img/'+imgfolder+'/CaptionButtons/multiply.png';
+	var imgCaptionPickDrop = new Image(); imgCaptionPickDrop.src = 'img/'+imgfolder+'/CaptionButtons/pickDrop.png';
+	var imgCaptionSlingshot = new Image(); imgCaptionSlingshot.src = 'img/'+imgfolder+'/CaptionButtons/slingshot.png';
+	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/'+imgfolder+'/CaptionButtons/subtract.png';
+	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/'+imgfolder+'/CaptionButtons/supply.png';
+	var imgCaptionHome = new Image(); imgCaptionHome.src = 'img/'+imgfolder+'/CaptionButtons/home.png';
+	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/'+imgfolder+'/CaptionButtons/greenTunnel.png';
+	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/'+imgfolder+'/CaptionButtons/redTunnel.png';
+	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/'+imgfolder+'/CaptionButtons/blueTunnel.png';
 
 	//load images for buttons in captions for choosing wye type
-	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
-	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/renders/CaptionButtons/greater.png';
-	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/renders/CaptionButtons/lazy.png';
-	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/renders/CaptionButtons/lesser.png';
-	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/renders/CaptionButtons/prompt.png';
-	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/renders/CaptionButtons/sprung.png';
-	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/renders/CaptionButtons/prompt.png';
+	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/'+imgfolder+'/CaptionButtons/alternate.png';
+	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/'+imgfolder+'/CaptionButtons/greater.png';
+	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/'+imgfolder+'/CaptionButtons/lazy.png';
+	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/'+imgfolder+'/CaptionButtons/lesser.png';
+	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
+	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/'+imgfolder+'/CaptionButtons/sprung.png';
+	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
 
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
 	var imgEngine = [];
 	for (var i=0; i<64; i++) {
 		imgEngine[i] = new Image();
-		var name = 'img/renders/Engine/00';
+		var name = 'img/'+imgfolder+'/Engine/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -385,7 +402,7 @@ $(document).ready(function(){
 	var imgCar = [];
 	for (var i=0; i<32; i++) { //cars are symetrical front to back so just need 32 instead of 64 angles
 		imgCar[i] = new Image();
-		var name = 'img/renders/Car/00';
+		var name = 'img/'+imgfolder+'/Car/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -398,7 +415,7 @@ $(document).ready(function(){
 	var imgTrackStraight = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackStraight[i] = new Image();
-		var name = 'img/renders/TrackStraight/00';
+		var name = 'img/'+imgfolder+'/TrackStraight/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -409,7 +426,7 @@ $(document).ready(function(){
 	var imgTrackDiagonalSquare = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackDiagonalSquare[i] = new Image();
-		var name = 'img/renders/TrackDiagonalSquare/00';
+		var name = 'img/'+imgfolder+'/TrackDiagonalSquare/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -419,7 +436,7 @@ $(document).ready(function(){
 	var imgTrack90 = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrack90[i] = new Image();
-		var name = 'img/renders/Track90/00';
+		var name = 'img/'+imgfolder+'/Track90/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -429,7 +446,7 @@ $(document).ready(function(){
 	var imgTrack45 = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrack45[i] = new Image();
-		var name = 'img/renders/Track45/00';
+		var name = 'img/'+imgfolder+'/Track45/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -439,7 +456,7 @@ $(document).ready(function(){
 	var imgTrackCross = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackCross[i] = new Image();
-		var name = 'img/renders/TrackCross/00';
+		var name = 'img/'+imgfolder+'/TrackCross/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -449,7 +466,7 @@ $(document).ready(function(){
 	var imgRedTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgRedTunnel[i] = new Image();
-		var name = 'img/renders/TunnelRed/00';
+		var name = 'img/'+imgfolder+'/TunnelRed/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -459,7 +476,7 @@ $(document).ready(function(){
 	var imgGreenTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgGreenTunnel[i] = new Image();
-		var name = 'img/renders/TunnelGreen/00';
+		var name = 'img/'+imgfolder+'/TunnelGreen/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -469,7 +486,7 @@ $(document).ready(function(){
 	var imgBlueTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgBlueTunnel[i] = new Image();
-		var name = 'img/renders/TunnelBlue/00';
+		var name = 'img/'+imgfolder+'/TunnelBlue/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -480,7 +497,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -490,7 +507,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -500,7 +517,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLazyL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -510,7 +527,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLazyR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -520,7 +537,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLesserL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -530,7 +547,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLesserR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -540,7 +557,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -550,7 +567,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -560,7 +577,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftPromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftPromptL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -570,7 +587,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftPromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftPromptR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -580,7 +597,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftRandomL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -590,7 +607,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftRandomR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -600,7 +617,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftSprungL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -610,7 +627,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftSprungR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -622,7 +639,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -632,7 +649,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -642,7 +659,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLazyL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -652,7 +669,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLazyR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -662,7 +679,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLesserL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -672,7 +689,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLesserR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -682,7 +699,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -692,7 +709,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -702,7 +719,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightPromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightPromptL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -712,7 +729,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightPromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightPromptR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -722,7 +739,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightRandomL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -732,7 +749,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightRandomR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -742,7 +759,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightSprungL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -752,7 +769,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightSprungR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -763,7 +780,7 @@ $(document).ready(function(){
 	var imgTrackWyeAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWye-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -773,7 +790,7 @@ $(document).ready(function(){
 	var imgTrackWyeAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWye-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -783,7 +800,7 @@ $(document).ready(function(){
 	var imgTrackWyeLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLazyL[i] = new Image();
-		var name = 'img/renders/TrackWye-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -793,7 +810,7 @@ $(document).ready(function(){
 	var imgTrackWyeLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLazyR[i] = new Image();
-		var name = 'img/renders/TrackWye-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -803,7 +820,7 @@ $(document).ready(function(){
 	var imgTrackWyeLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLesserL[i] = new Image();
-		var name = 'img/renders/TrackWye-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -813,7 +830,7 @@ $(document).ready(function(){
 	var imgTrackWyeLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLesserR[i] = new Image();
-		var name = 'img/renders/TrackWye-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -823,7 +840,7 @@ $(document).ready(function(){
 	var imgTrackWyeGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWye-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -833,7 +850,7 @@ $(document).ready(function(){
 	var imgTrackWyeGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWye-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -843,7 +860,7 @@ $(document).ready(function(){
 	var imgTrackWyePromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyePromptL[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -853,7 +870,7 @@ $(document).ready(function(){
 	var imgTrackWyePromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyePromptR[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -863,7 +880,7 @@ $(document).ready(function(){
 	var imgTrackWyeRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRandomL[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -873,7 +890,7 @@ $(document).ready(function(){
 	var imgTrackWyeRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRandomR[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -883,7 +900,7 @@ $(document).ready(function(){
 	var imgTrackWyeSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeSprungL[i] = new Image();
-		var name = 'img/renders/TrackWye-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -893,7 +910,7 @@ $(document).ready(function(){
 	var imgTrackWyeSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeSprungR[i] = new Image();
-		var name = 'img/renders/TrackWye-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -903,7 +920,7 @@ $(document).ready(function(){
 	var imgTrackCargo = [];
 	for (var i=0; i<2; i++) { //one for each orientation
 		imgTrackCargo[i] = new Image();
-		var name = 'img/renders/TrackCargo/00';
+		var name = 'img/'+imgfolder+'/TrackCargo/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -915,7 +932,7 @@ $(document).ready(function(){
 	var imgStationIncrement = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationIncrement[i] = new Image();
-		var name = 'img/renders/StationIncrement/00';
+		var name = 'img/'+imgfolder+'/StationIncrement/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -925,7 +942,7 @@ $(document).ready(function(){
 	var imgStationDecrement = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDecrement[i] = new Image();
-		var name = 'img/renders/StationDecrement/00';
+		var name = 'img/'+imgfolder+'/StationDecrement/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -935,7 +952,7 @@ $(document).ready(function(){
 	var imgStationSupply = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSupply[i] = new Image();
-		var name = 'img/renders/StationSupply/00';
+		var name = 'img/'+imgfolder+'/StationSupply/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -945,7 +962,7 @@ $(document).ready(function(){
 	var imgStationDump = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDump[i] = new Image();
-		var name = 'img/renders/StationDump/00';
+		var name = 'img/'+imgfolder+'/StationDump/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -955,7 +972,7 @@ $(document).ready(function(){
 	var imgStationSlingshot = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSlingshot[i] = new Image();
-		var name = 'img/renders/StationSlingshot/00';
+		var name = 'img/'+imgfolder+'/StationSlingshot/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -965,7 +982,7 @@ $(document).ready(function(){
 	var imgStationCatapult = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationCatapult[i] = new Image();
-		var name = 'img/renders/StationCatapult/00';
+		var name = 'img/'+imgfolder+'/StationCatapult/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -975,7 +992,7 @@ $(document).ready(function(){
 	var imgStationMultiply = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationMultiply[i] = new Image();
-		var name = 'img/renders/StationMultiply/00';
+		var name = 'img/'+imgfolder+'/StationMultiply/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -985,7 +1002,7 @@ $(document).ready(function(){
 	var imgStationDivide = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDivide[i] = new Image();
-		var name = 'img/renders/StationDivide/00';
+		var name = 'img/'+imgfolder+'/StationDivide/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -995,7 +1012,7 @@ $(document).ready(function(){
 	var imgStationAdd = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationAdd[i] = new Image();
-		var name = 'img/renders/StationAdd/00';
+		var name = 'img/'+imgfolder+'/StationAdd/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -1005,7 +1022,7 @@ $(document).ready(function(){
 	var imgStationSubtract = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSubtract[i] = new Image();
-		var name = 'img/renders/StationSubtract/00';
+		var name = 'img/'+imgfolder+'/StationSubtract/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -1015,7 +1032,7 @@ $(document).ready(function(){
 	var imgStationPickDrop = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationPickDrop[i] = new Image();
-		var name = 'img/renders/StationPickDrop/00';
+		var name = 'img/'+imgfolder+'/StationPickDrop/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -1025,7 +1042,7 @@ $(document).ready(function(){
 	var imgStationHome = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationHome[i] = new Image();
-		var name = 'img/renders/StationHome/00';
+		var name = 'img/'+imgfolder+'/StationHome/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -1038,8 +1055,8 @@ $(document).ready(function(){
 		imgCargoStuffedAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoStuffedAnimals[j][i] = new Image();
-//			var name = 'img/renders/CargoBear/00';
-			var name = 'img/renders/CargoBunny/00';
+//			var name = 'img/'+imgfolder+'/CargoBear/00';
+			var name = 'img/'+imgfolder+'/CargoBunny/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1057,7 +1074,7 @@ $(document).ready(function(){
 		imgCargoLowercase[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoLowercase[j][i] = new Image();
-			var name = 'img/renders/CargoLowercase/Cargo-' + lowercase.charAt(j) + '/00';
+			var name = 'img/'+imgfolder+'/CargoLowercase/Cargo-' + lowercase.charAt(j) + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1071,7 +1088,7 @@ $(document).ready(function(){
 		imgCargoUppercase[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoUppercase[j][i] = new Image();
-			var name = 'img/renders/CargoUppercase/Cargo-' + uppercase.charAt(j) + '/00';
+			var name = 'img/'+imgfolder+'/CargoUppercase/Cargo-' + uppercase.charAt(j) + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1086,7 +1103,7 @@ $(document).ready(function(){
 		imgCargoDinosaurs[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoDinosaurs[j][i] = new Image();
-			var name = 'img/renders/CargoDinosaurs/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoDinosaurs/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1101,8 +1118,8 @@ $(document).ready(function(){
 		imgCargoBinary[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoBinary[j][i] = new Image();
-			var name = 'img/renders/CargoBinary/Cargo-' + j + '/00';
-//			var name = 'img/renders/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoBinary/Cargo-' + j + '/00';
+//			var name = 'img/'+imgfolder+'/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1118,7 +1135,7 @@ $(document).ready(function(){
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoBlocks[j][i] = new Image();
 			jp = j+1; //blocks start at 1 instead of 0
-			var name = 'img/renders/CargoBlocks/Cargo-' + jp + '/00';
+			var name = 'img/'+imgfolder+'/CargoBlocks/Cargo-' + jp + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1133,7 +1150,7 @@ $(document).ready(function(){
 		imgCargoNumbers[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoNumbers[j][i] = new Image();
-			var name = 'img/renders/CargoNumbers/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoNumbers/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1148,7 +1165,7 @@ $(document).ready(function(){
 		imgCargoColors[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoColors[j][i] = new Image();
-			var name = 'img/renders/CargoColors/Cargo-' + gColors[j] + '/00';
+			var name = 'img/'+imgfolder+'/CargoColors/Cargo-' + gColors[j] + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1162,7 +1179,7 @@ $(document).ready(function(){
 		imgCargoSafariAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoSafariAnimals[j][i] = new Image();
-			var name = 'img/renders/CargoSafariAnimals/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoSafariAnimals/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
