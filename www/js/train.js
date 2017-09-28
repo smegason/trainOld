@@ -214,6 +214,7 @@ $(document).ready(function(){
 			iconscale = data["iconscale"];
 			if (iconscale == 0.25) imgfolder = "renders25";
 			else if (iconscale == 0.5) imgfolder = "renders50";
+			else if (iconscale == 2) imgfolder = "renders200";
 			else if (iconscale == 4) imgfolder = "renders400";
 			else {
 				imgfolder = "renders100";
