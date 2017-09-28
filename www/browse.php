@@ -23,7 +23,6 @@ Cache-Control:public;
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="js/train.js" type="text/javascript"></script>
 -->
-		<img src=img/trainLogo.png>
         <h1>Browse Tracks</h1>
 		<?php
 		include 'php/connect.php';
@@ -53,30 +52,36 @@ Cache-Control:public;
 				$trackName = $row['trackName'];
 				$trackDescription = $row['trackDescription'];
 				$trainusername = $row['userName'];
+//				$imgPreview = $row['imgPreview'];
 				$encodedTrx = ($row['track']);
 				$encodedTrx = str_replace(",", "%2C", $encodedTrx);  // ,
 				$encodedTrx = str_replace(":", "%3A", $encodedTrx); // :
 //				$url= "train.html?resize=0&toolbar=0&trx=".$encodedTrx;
-				$url= "train.html?resize=0&toolbar=0&scale=35&trackID=".$trackID;
-				$url2= "train.html?trackID=".$trackID;
+				$url= "train.html?resize=0&toolbar=0&scale=35&trackID=".$trackID."&iconscale=0.25";
+				$url2= "train.html?trackID=".$trackID."&showBrowse=0&showTrain=1&";
 				//echo "url=".$url;
 //				$url= 'train.html?resize=0&toolbar=0&trx=[[[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A1%2C"gridy"%3A1%2C"type":"Track90"%2C"orientation":6%2C"state":"left"%2C"subtype":""}%2C{"gridx":1%2C"gridy"%3A2%2C"type"%3A"Track90"%2C"orientation"%3A4%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2C{"gridx"%3A2%2C"gridy"%3A1%2C"type"%3A"Track90"%2C"orientation"%3A0%2C"state"%3A"left"%2C"subtype"%3A""}%2C{"gridx"%3A2%2C"gridy"%3A2%2C"type"%3A"Track90"%2C"orientation"%3A2%2C"state"%3A"left"%2C"subtype"%3A""}%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]%2C[null%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull]]%2C[]%2C[]]';
 								
 				echo "\n<tr>";
 				echo "\n<td>";
 				echo "<h2>".$trackName."</h2>";
-				echo "<h3> by ".$trainusername."</h3>";
+				echo "<i> by ".$trainusername."</i>";
+//				echo "<p>TrackID=".$trackID."</p>";
 				echo "<p>".$trackDescription."</p>";
-				echo "<p><a target='_blank' href='".$url2."'>Launch</a></p>";
+//				echo "<p>DDD".$imgPreview."</p>";
+				echo "<p><a target='trainframe' href='".$url2."'>Launch</a></p>";
 //				echo "<p>Trx=".$row['track']."</p>";
 //				echo "<p>encTrx=".$encodedTrx."</p>";
 				echo "</td>";
 
-				echo "\n<td class='style24' style='width: 400px'>";
+				echo "\n<td class='style24' style='width: 300px'>";
 //				echo "row=".$i;
-				echo '<div id="outerdiv'.$i.'" style="width:400px; overflow-x:hidden;">';
-				echo "\n<iframe src='".$url."' width='400' height='250' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
-				echo '</div>';
+				echo "<div id='outerdiv".$i."' style='width:300px; overflow-x:hidden;'>";
+				echo "\n<iframe src='".$url."' width='300' height='200' frameborder='0' id='inneriframe".$i."' scrolling='no' > </iframe>";
+//				echo "\nImage= <img src='";
+//				echo $imgPreview;
+//				echo "'> </br>";
+				echo "</div>";
 				echo "\n</td>";
 				echo "</tr>";
 				

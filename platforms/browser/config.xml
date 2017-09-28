@@ -4,7 +4,7 @@
     <description>
         Train is a completely visual programming language for 2-6 year olds.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
+    <author email="megason@hms.harvard.edu" href="https://train-hub.org">
         Sean Megason, Harvard University
     </author>
     <content src="index.html" />

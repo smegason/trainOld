@@ -21,11 +21,15 @@
     <feature name="Console">
         <param name="ios-package" value="CDVLogger" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="ios-package" value="CDVSplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <name>Train</name>
     <description>
         Train is a completely visual programming language for 2-6 year olds.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
+    <author email="megason@hms.harvard.edu" href="https://train-hub.org">
         Sean Megason, Harvard University
     </author>
     <content src="index.html" />
@@ -36,8 +40,10 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <icon src="res/icon.png" />
     <allow-intent href="itms:*" />
     <allow-intent href="itms-apps:*" />
+    <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
     <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="BackupWebStorage" value="cloud" />
     <preference name="DisallowOverscroll" value="false" />

@@ -25,14 +25,15 @@ $userID = htmlspecialchars($_POST["userID"]);
 $trx = htmlspecialchars($_POST['trx']);
 $trackName = htmlspecialchars($_POST['trackName']);
 $trackDescription = htmlspecialchars($_POST['trackDescription']);
-echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription;
+$imgPreview = htmlspecialchars($_POST['imgPreview']);
+echo "<br>userID=".$userID.", trx=".$trx.", trackName=".$trackName.", trackDescription=".$trackDescription.", imgPreview=".$imgPreview;
 
 $con = mysqli_connect('localhost',$dbroot,$dbpassword,$dbname);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
 
-$sql = "INSERT INTO tracks (userID, track, trackName, trackDescription) VALUES ('".$userID."', '".$trx."', '".$trackName."', '".$trackDescription."')";
+$sql = "INSERT INTO tracks (userID, track, trackName, trackDescription, imgPreview) VALUES ('".$userID."', '".$trx."', '".$trackName."', '".$trackDescription."', '".$imgPreview."')";
 echo "<br>sql=".$sql;
 $result = mysqli_query($con,$sql);
 echo "<br>result=".$result;

@@ -23,6 +23,14 @@ module.exports = [
         "clobbers": [
             "cordova.logger"
         ]
+    },
+    {
+        "id": "cordova-plugin-splashscreen.SplashScreen",
+        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "pluginId": "cordova-plugin-splashscreen",
+        "clobbers": [
+            "navigator.splashscreen"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -30,7 +38,8 @@ module.exports.metadata =
 {
     "cordova-plugin-whitelist": "1.3.0",
     "cordova-plugin-dialogs": "1.3.1-dev",
-    "cordova-plugin-console": "1.0.4"
+    "cordova-plugin-console": "1.0.4",
+    "cordova-plugin-splashscreen": "4.0.3"
 };
 // BOTTOM OF METADATA
 });

@@ -1,10 +1,10 @@
 Storage.prototype.setObject = function(key, value) {
-    this.setItem(key, JSON.stringify(value));
+    this.setItem(key, JSON.stringify(JSON.decycle(value)));
 }
 
 Storage.prototype.getObject = function(key) {
     var value = this.getItem(key);
-    return value && JSON.parse(value);
+    return value && JSON.retrocycle(JSON.parse(value));
 }
 	
 
@@ -89,7 +89,7 @@ $(document).ready(function(){
  	var optionIsPressed = false;
  	var commandIsPressed = false;
  	window.addEventListener('keydown', function(event) {
- 		console.log ("Key="+event.keyCode);
+// 		console.log ("Key="+event.keyCode);
         if (!showToolBar) return; //if toolbar hidden then ignore events
 
  		else if (event.keyCode == 16) { //pan
@@ -102,6 +102,7 @@ $(document).ready(function(){
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = true;
+ 			console.log("command down");
  		}
  		else if (event.keyCode == 90) {
  			if (shiftIsPressed && commandIsPressed) redoTrx();
@@ -124,7 +125,7 @@ $(document).ready(function(){
  		}
  		else if (event.keyCode == 224) {
  			commandIsPressed = false;
- //			console.log("command up");
+ 			console.log("command up");
  		}
 	});          
 	// "constants"
@@ -133,6 +134,7 @@ $(document).ready(function(){
 
 	//globals
     var canvas = $("#canvas")[0];
+    var canvas2 = $("#canvas2")[0];
  
  	//passed params
  	// options:
@@ -142,6 +144,7 @@ $(document).ready(function(){
  	// scale=percent Zoom level of canvas. 100%=normal
  	// trx=URIencoded(JSONstringified(trx)   If pass a trx it will display this in the trx[1] position. Can't be too long for URL though...
  	// trackID=111  Display trx with the given trackID
+ 	// showBrowse=0 hide or show the browse iframe
  	
  	//console.log ("href=" + location.href);
  	var params, data;
@@ -152,7 +155,9 @@ $(document).ready(function(){
 			data[params[x].split('=')[0]] = params[x].split('=')[1];
 		}
 	}
-
+	console.log("Data="+data);
+	console.log (location.href);
+	
 	var buttonDims = [];
 	var buttonDimLevels = [];
 	var showTitleScreen = true;
@@ -166,6 +171,9 @@ $(document).ready(function(){
 	var panStartX, panStartY, zoomStartX, zoomStartY, startZoomScale; 
 	var startTimePlay; //time when play pressed
 	var animationFrame = 0; //used for keeping track of frames for animation of star after successfully completing track
+	var imgfolder = "renders100";
+	var iconscale = 1;
+	
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -183,11 +191,37 @@ $(document).ready(function(){
 				interactionState = 'Freeplay';
 			}
 		}
+		if (data["showBrowse"]) {
+			var objx = parent.document.getElementById('browseframeid');
+			if (data["showBrowse"]==0) objx.height = 0;
+			else objx.height = 750;
+		}
+		
+		if (data["showTrain"]) { ///////
+			var objx = parent.document.getElementById('trainframeid');
+			if (objx) {
+				if (data["showTrain"]==0) objx.height = 0;
+				else objx.height = 750;
+			}
+		}
 		
 		if (data["trackID"]) {
 			passedTrackID = data["trackID"];
 			interactionState = 'Freeplay';
 		}
+		
+		if (data["iconscale"]) {
+			iconscale = data["iconscale"];
+			if (iconscale == 0.25) imgfolder = "renders25";
+			else if (iconscale == 0.5) imgfolder = "renders50";
+			else if (iconscale == 2) imgfolder = "renders200";
+			else if (iconscale == 4) imgfolder = "renders400";
+			else {
+				imgfolder = "renders100";
+				iconscale = 1;
+			}
+		}
+		console.log("imgfolder="+imgfolder);
 		
 		if (data["scale"]) {
 			zoomScale = data["scale"]/100;
@@ -198,8 +232,8 @@ $(document).ready(function(){
 	console.log ("resize="+resizeCanvas);
 	//console.log("trx="+passedTrx);
    
-    var windowWidth = 100;
-    var windowHeight = 100;
+    var windowWidth = 1000;
+    var windowHeight = 750;
     var pixelRatio = 1; /// get pixel ratio of device
 
 	var ctx = canvas.getContext("2d");
@@ -223,6 +257,7 @@ $(document).ready(function(){
 	var engines = [];
 	var cars = [];
 	var trains = []
+	var poofs = []; //used for animating explosions after crash
 	var modalTrack; // used to store value of the current modal track. Used for wye prompts so know which wye to change after mouse interaction
 	
 	var useOctagons = false; //use square or octagon shaped tiles for drawing
@@ -269,8 +304,11 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
-	var currentUserID = 1; // userID for uploading tracks to database
-	var currentUsername = "X"; // username for uploading tracks to database
+	var currentUserID = localStorage.getObject('currentUserID');
+	var currentUsername = localStorage.setObject('currentUsername');
+	if (!currentUserID) currentUserID = 1;
+	if (!currentUsername) currentUsername = "X";
+	console.log("Current user="+currentUsername+" ID="+currentUserID);
 		
 	var trainerLevelNames = ['Hobo', 'Trainee', 'Caboose captain', 'Breakman', 'Switchman', 'Conductor', 'Engineer', 'Yard Master', 'Train Master'];
 	var currentTrackSet; // text name of current track set. Must be one of above trainerLevelNames
@@ -294,7 +332,7 @@ $(document).ready(function(){
 	
 	//buttonArrays - used to store the order in which buttons are displayed in captions
 	var buttonsStation = [["none","pickdrop","supply","dump"],["increment","decrement","slingshot","catapult"],["add","subtract","multiply","divide"],["home","greentunnel","redtunnel","bluetunnel"]];
- 	var buttonsWye = [["sprung", "lazy","alternate"],["prompt","compareless","comparegreater"]];
+ 	var buttonsWye = [["sprung", "lazy","alternate", "random"],["prompt","compareless","comparegreater"]];
 // 	var buttonsCargoTypes = [["blocks","numbers","colors"],["uppercase","lowercase"],["binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray
  	var buttonsCargoTypes = [["numbers","uppercase","lowercase","colors"],["blocks","binary","dinosaurs","stuffedanimals"]] //needs to match the 0th element of each cargo subarray and be in same order as cargoValues
 
@@ -302,6 +340,8 @@ $(document).ready(function(){
 	console.log("load images");
 	// load buttons for title screens
 
+	var imgBadgeIcon = new Image(); imgBadgeIcon.src = 'img/ribbon-small.png';
+	var imgBadgeIconSmall = new Image(); imgBadgeIconSmall.src = 'img/ribbon-smaller.png';
 	var imgArrowIcon = new Image(); imgArrowIcon.src = 'img/arrow-icon.png';
 	var imgLockedIcon = new Image(); imgLockedIcon.src = 'img/lockedIcon.png';
 	var imgUnlockedIcon = new Image(); imgUnlockedIcon.src = 'img/unlockedIcon.png';
@@ -309,6 +349,8 @@ $(document).ready(function(){
 	var imgSaveIcon = new Image(); imgSaveIcon.src = 'img/saveicon.png';
 	var imgDownloadIcon = new Image(); imgDownloadIcon.src = 'img/downloadicon.png';
 	var imgUploadIcon = new Image(); imgUploadIcon.src = 'img/uploadicon.png';
+	var imgSigninIcon = new Image(); imgSigninIcon.src = 'img/kids.png';
+	var imgPoof = new Image(); imgPoof.src = 'img/poof-small.png';
     var imgTitleScreen = new Image();
     imgTitleScreen.onload = function() { console.log("Height: " + this.height); draw();}
     imgTitleScreen.src = 'img/titlePage4.png';
@@ -320,36 +362,37 @@ $(document).ready(function(){
 	var imgStar = new Image(); imgStar.src = 'img/star.png';
 		
 	//load images for buttons in captions for choosing station type
-	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/renders/CaptionButtons/none.png';
-	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/renders/CaptionButtons/add.png';
-	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/renders/CaptionButtons/catapult.png';
-	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/renders/CaptionButtons/decrement.png';
-	var imgCaptionDivide = new Image(); imgCaptionDivide.src = 'img/renders/CaptionButtons/divide.png';
-	var imgCaptionDump = new Image(); imgCaptionDump.src = 'img/renders/CaptionButtons/dump.png';
-	var imgCaptionIncrement = new Image(); imgCaptionIncrement.src = 'img/renders/CaptionButtons/increment.png';
-	var imgCaptionMultiply = new Image(); imgCaptionMultiply.src = 'img/renders/CaptionButtons/multiply.png';
-	var imgCaptionPickDrop = new Image(); imgCaptionPickDrop.src = 'img/renders/CaptionButtons/pickDrop.png';
-	var imgCaptionSlingshot = new Image(); imgCaptionSlingshot.src = 'img/renders/CaptionButtons/slingshot.png';
-	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/renders/CaptionButtons/subtract.png';
-	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/renders/CaptionButtons/supply.png';
-	var imgCaptionHome = new Image(); imgCaptionHome.src = 'img/renders/CaptionButtons/home.png';
-	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/renders/CaptionButtons/greenTunnel.png';
-	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/renders/CaptionButtons/redTunnel.png';
-	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/renders/CaptionButtons/blueTunnel.png';
+	var imgCaptionNone = new Image(); imgCaptionNone.src = 'img/'+imgfolder+'/CaptionButtons/none.png';
+	var imgCaptionAdd = new Image(); imgCaptionAdd.src = 'img/'+imgfolder+'/CaptionButtons/add.png';
+	var imgCaptionCatapult = new Image(); imgCaptionCatapult.src = 'img/'+imgfolder+'/CaptionButtons/catapult.png';
+	var imgCaptionDecrement = new Image(); imgCaptionDecrement.src = 'img/'+imgfolder+'/CaptionButtons/decrement.png';
+	var imgCaptionDivide = new Image(); imgCaptionDivide.src = 'img/'+imgfolder+'/CaptionButtons/divide.png';
+	var imgCaptionDump = new Image(); imgCaptionDump.src = 'img/'+imgfolder+'/CaptionButtons/dump.png';
+	var imgCaptionIncrement = new Image(); imgCaptionIncrement.src = 'img/'+imgfolder+'/CaptionButtons/increment.png';
+	var imgCaptionMultiply = new Image(); imgCaptionMultiply.src = 'img/'+imgfolder+'/CaptionButtons/multiply.png';
+	var imgCaptionPickDrop = new Image(); imgCaptionPickDrop.src = 'img/'+imgfolder+'/CaptionButtons/pickDrop.png';
+	var imgCaptionSlingshot = new Image(); imgCaptionSlingshot.src = 'img/'+imgfolder+'/CaptionButtons/slingshot.png';
+	var imgCaptionSubtract = new Image(); imgCaptionSubtract.src = 'img/'+imgfolder+'/CaptionButtons/subtract.png';
+	var imgCaptionSupply = new Image(); imgCaptionSupply.src = 'img/'+imgfolder+'/CaptionButtons/supply.png';
+	var imgCaptionHome = new Image(); imgCaptionHome.src = 'img/'+imgfolder+'/CaptionButtons/home.png';
+	var imgCaptionGreenTunnel = new Image(); imgCaptionGreenTunnel.src = 'img/'+imgfolder+'/CaptionButtons/greenTunnel.png';
+	var imgCaptionRedTunnel = new Image(); imgCaptionRedTunnel.src = 'img/'+imgfolder+'/CaptionButtons/redTunnel.png';
+	var imgCaptionBlueTunnel = new Image(); imgCaptionBlueTunnel.src = 'img/'+imgfolder+'/CaptionButtons/blueTunnel.png';
 
 	//load images for buttons in captions for choosing wye type
-	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/renders/CaptionButtons/alternate.png';
-	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/renders/CaptionButtons/greater.png';
-	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/renders/CaptionButtons/lazy.png';
-	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/renders/CaptionButtons/lesser.png';
-	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/renders/CaptionButtons/prompt.png';
-	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/renders/CaptionButtons/sprung.png';
+	var imgCaptionAlternate = new Image(); imgCaptionAlternate.src = 'img/'+imgfolder+'/CaptionButtons/alternate.png';
+	var imgCaptionGreater = new Image(); imgCaptionGreater.src = 'img/'+imgfolder+'/CaptionButtons/greater.png';
+	var imgCaptionLazy = new Image(); imgCaptionLazy.src = 'img/'+imgfolder+'/CaptionButtons/lazy.png';
+	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/'+imgfolder+'/CaptionButtons/lesser.png';
+	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
+	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/'+imgfolder+'/CaptionButtons/sprung.png';
+	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
 
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
 	var imgEngine = [];
 	for (var i=0; i<64; i++) {
 		imgEngine[i] = new Image();
-		var name = 'img/renders/Engine/00';
+		var name = 'img/'+imgfolder+'/Engine/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -362,7 +405,7 @@ $(document).ready(function(){
 	var imgCar = [];
 	for (var i=0; i<32; i++) { //cars are symetrical front to back so just need 32 instead of 64 angles
 		imgCar[i] = new Image();
-		var name = 'img/renders/Car/00';
+		var name = 'img/'+imgfolder+'/Car/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -375,7 +418,7 @@ $(document).ready(function(){
 	var imgTrackStraight = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackStraight[i] = new Image();
-		var name = 'img/renders/TrackStraight/00';
+		var name = 'img/'+imgfolder+'/TrackStraight/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -386,7 +429,7 @@ $(document).ready(function(){
 	var imgTrackDiagonalSquare = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackDiagonalSquare[i] = new Image();
-		var name = 'img/renders/TrackDiagonalSquare/00';
+		var name = 'img/'+imgfolder+'/TrackDiagonalSquare/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -396,7 +439,7 @@ $(document).ready(function(){
 	var imgTrack90 = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrack90[i] = new Image();
-		var name = 'img/renders/Track90/00';
+		var name = 'img/'+imgfolder+'/Track90/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -406,7 +449,7 @@ $(document).ready(function(){
 	var imgTrack45 = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrack45[i] = new Image();
-		var name = 'img/renders/Track45/00';
+		var name = 'img/'+imgfolder+'/Track45/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -416,7 +459,7 @@ $(document).ready(function(){
 	var imgTrackCross = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackCross[i] = new Image();
-		var name = 'img/renders/TrackCross/00';
+		var name = 'img/'+imgfolder+'/TrackCross/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -426,7 +469,7 @@ $(document).ready(function(){
 	var imgRedTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgRedTunnel[i] = new Image();
-		var name = 'img/renders/TunnelRed/00';
+		var name = 'img/'+imgfolder+'/TunnelRed/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -436,7 +479,7 @@ $(document).ready(function(){
 	var imgGreenTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgGreenTunnel[i] = new Image();
-		var name = 'img/renders/TunnelGreen/00';
+		var name = 'img/'+imgfolder+'/TunnelGreen/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -446,7 +489,7 @@ $(document).ready(function(){
 	var imgBlueTunnel = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgBlueTunnel[i] = new Image();
-		var name = 'img/renders/TunnelBlue/00';
+		var name = 'img/'+imgfolder+'/TunnelBlue/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -457,7 +500,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -467,7 +510,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -477,7 +520,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLazyL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -487,7 +530,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLazyR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -497,7 +540,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLesserL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -507,7 +550,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftLesserR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -517,7 +560,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -527,7 +570,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -537,7 +580,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftPromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftPromptL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -547,17 +590,37 @@ $(document).ready(function(){
 	var imgTrackWyeLeftPromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftPromptR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
 		imgTrackWyeLeftPromptR[i].src = name;
 	}
 
+	var imgTrackWyeLeftRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeLeftRandomL[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeLeftRandomL[i].src = name;
+	}
+
+	var imgTrackWyeLeftRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeLeftRandomR[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeLeftRandomR[i].src = name;
+	}
+
 	var imgTrackWyeLeftSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftSprungL[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -567,7 +630,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftSprungR[i] = new Image();
-		var name = 'img/renders/TrackWyeLeft-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -579,7 +642,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -589,7 +652,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -599,7 +662,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLazyL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -609,7 +672,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLazyR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -619,7 +682,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLesserL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -629,7 +692,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightLesserR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -639,7 +702,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -649,7 +712,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -659,7 +722,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightPromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightPromptL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -669,17 +732,37 @@ $(document).ready(function(){
 	var imgTrackWyeRightPromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightPromptR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
 		imgTrackWyeRightPromptR[i].src = name;
 	}
 
+	var imgTrackWyeRightRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRightRandomL[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRightRandomL[i].src = name;
+	}
+
+	var imgTrackWyeRightRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRightRandomR[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRightRandomR[i].src = name;
+	}
+
 	var imgTrackWyeRightSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightSprungL[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -689,7 +772,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightSprungR[i] = new Image();
-		var name = 'img/renders/TrackWyeRight-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -700,7 +783,7 @@ $(document).ready(function(){
 	var imgTrackWyeAlternateL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeAlternateL[i] = new Image();
-		var name = 'img/renders/TrackWye-Alternate-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Alternate-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -710,7 +793,7 @@ $(document).ready(function(){
 	var imgTrackWyeAlternateR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeAlternateR[i] = new Image();
-		var name = 'img/renders/TrackWye-Alternate-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Alternate-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -720,7 +803,7 @@ $(document).ready(function(){
 	var imgTrackWyeLazyL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLazyL[i] = new Image();
-		var name = 'img/renders/TrackWye-Lazy-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lazy-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -730,7 +813,7 @@ $(document).ready(function(){
 	var imgTrackWyeLazyR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLazyR[i] = new Image();
-		var name = 'img/renders/TrackWye-Lazy-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lazy-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -740,7 +823,7 @@ $(document).ready(function(){
 	var imgTrackWyeLesserL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLesserL[i] = new Image();
-		var name = 'img/renders/TrackWye-Lesser-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lesser-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -750,7 +833,7 @@ $(document).ready(function(){
 	var imgTrackWyeLesserR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLesserR[i] = new Image();
-		var name = 'img/renders/TrackWye-Lesser-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Lesser-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -760,7 +843,7 @@ $(document).ready(function(){
 	var imgTrackWyeGreaterL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeGreaterL[i] = new Image();
-		var name = 'img/renders/TrackWye-Greater-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Greater-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -770,7 +853,7 @@ $(document).ready(function(){
 	var imgTrackWyeGreaterR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeGreaterR[i] = new Image();
-		var name = 'img/renders/TrackWye-Greater-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Greater-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -780,7 +863,7 @@ $(document).ready(function(){
 	var imgTrackWyePromptL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyePromptL[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -790,17 +873,37 @@ $(document).ready(function(){
 	var imgTrackWyePromptR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyePromptR[i] = new Image();
-		var name = 'img/renders/TrackWye-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
 		imgTrackWyePromptR[i].src = name;
 	}
 
+	var imgTrackWyeRandomL = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRandomL[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-L/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRandomL[i].src = name;
+	}
+
+	var imgTrackWyeRandomR = [];
+	for (var i=0; i<8; i++) { //one for each orientation
+		imgTrackWyeRandomR[i] = new Image();
+		var name = 'img/'+imgfolder+'/TrackWye-Prompt-R/00';
+		if (i<9) name += '0';
+		name += (i+1);
+		name += '.png';
+		imgTrackWyeRandomR[i].src = name;
+	}
+
 	var imgTrackWyeSprungL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeSprungL[i] = new Image();
-		var name = 'img/renders/TrackWye-Sprung-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Sprung-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -810,7 +913,7 @@ $(document).ready(function(){
 	var imgTrackWyeSprungR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeSprungR[i] = new Image();
-		var name = 'img/renders/TrackWye-Sprung-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Sprung-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -820,7 +923,7 @@ $(document).ready(function(){
 	var imgTrackCargo = [];
 	for (var i=0; i<2; i++) { //one for each orientation
 		imgTrackCargo[i] = new Image();
-		var name = 'img/renders/TrackCargo/00';
+		var name = 'img/'+imgfolder+'/TrackCargo/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -832,7 +935,7 @@ $(document).ready(function(){
 	var imgStationIncrement = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationIncrement[i] = new Image();
-		var name = 'img/renders/StationIncrement/00';
+		var name = 'img/'+imgfolder+'/StationIncrement/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -842,7 +945,7 @@ $(document).ready(function(){
 	var imgStationDecrement = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDecrement[i] = new Image();
-		var name = 'img/renders/StationDecrement/00';
+		var name = 'img/'+imgfolder+'/StationDecrement/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -852,7 +955,7 @@ $(document).ready(function(){
 	var imgStationSupply = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSupply[i] = new Image();
-		var name = 'img/renders/StationSupply/00';
+		var name = 'img/'+imgfolder+'/StationSupply/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -862,7 +965,7 @@ $(document).ready(function(){
 	var imgStationDump = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDump[i] = new Image();
-		var name = 'img/renders/StationDump/00';
+		var name = 'img/'+imgfolder+'/StationDump/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -872,7 +975,7 @@ $(document).ready(function(){
 	var imgStationSlingshot = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSlingshot[i] = new Image();
-		var name = 'img/renders/StationSlingshot/00';
+		var name = 'img/'+imgfolder+'/StationSlingshot/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -882,7 +985,7 @@ $(document).ready(function(){
 	var imgStationCatapult = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationCatapult[i] = new Image();
-		var name = 'img/renders/StationCatapult/00';
+		var name = 'img/'+imgfolder+'/StationCatapult/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -892,7 +995,7 @@ $(document).ready(function(){
 	var imgStationMultiply = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationMultiply[i] = new Image();
-		var name = 'img/renders/StationMultiply/00';
+		var name = 'img/'+imgfolder+'/StationMultiply/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -902,7 +1005,7 @@ $(document).ready(function(){
 	var imgStationDivide = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationDivide[i] = new Image();
-		var name = 'img/renders/StationDivide/00';
+		var name = 'img/'+imgfolder+'/StationDivide/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -912,7 +1015,7 @@ $(document).ready(function(){
 	var imgStationAdd = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationAdd[i] = new Image();
-		var name = 'img/renders/StationAdd/00';
+		var name = 'img/'+imgfolder+'/StationAdd/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -922,7 +1025,7 @@ $(document).ready(function(){
 	var imgStationSubtract = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationSubtract[i] = new Image();
-		var name = 'img/renders/StationSubtract/00';
+		var name = 'img/'+imgfolder+'/StationSubtract/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -932,7 +1035,7 @@ $(document).ready(function(){
 	var imgStationPickDrop = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationPickDrop[i] = new Image();
-		var name = 'img/renders/StationPickDrop/00';
+		var name = 'img/'+imgfolder+'/StationPickDrop/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -942,7 +1045,7 @@ $(document).ready(function(){
 	var imgStationHome = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgStationHome[i] = new Image();
-		var name = 'img/renders/StationHome/00';
+		var name = 'img/'+imgfolder+'/StationHome/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -955,8 +1058,8 @@ $(document).ready(function(){
 		imgCargoStuffedAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoStuffedAnimals[j][i] = new Image();
-//			var name = 'img/renders/CargoBear/00';
-			var name = 'img/renders/CargoBunny/00';
+//			var name = 'img/'+imgfolder+'/CargoBear/00';
+			var name = 'img/'+imgfolder+'/CargoBunny/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -974,7 +1077,7 @@ $(document).ready(function(){
 		imgCargoLowercase[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoLowercase[j][i] = new Image();
-			var name = 'img/renders/CargoLowercase/Cargo-' + lowercase.charAt(j) + '/00';
+			var name = 'img/'+imgfolder+'/CargoLowercase/Cargo-' + lowercase.charAt(j) + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -988,7 +1091,7 @@ $(document).ready(function(){
 		imgCargoUppercase[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoUppercase[j][i] = new Image();
-			var name = 'img/renders/CargoUppercase/Cargo-' + uppercase.charAt(j) + '/00';
+			var name = 'img/'+imgfolder+'/CargoUppercase/Cargo-' + uppercase.charAt(j) + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1003,7 +1106,7 @@ $(document).ready(function(){
 		imgCargoDinosaurs[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoDinosaurs[j][i] = new Image();
-			var name = 'img/renders/CargoDinosaurs/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoDinosaurs/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1018,8 +1121,8 @@ $(document).ready(function(){
 		imgCargoBinary[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoBinary[j][i] = new Image();
-			var name = 'img/renders/CargoBinary/Cargo-' + j + '/00';
-//			var name = 'img/renders/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoBinary/Cargo-' + j + '/00';
+//			var name = 'img/'+imgfolder+'/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1035,7 +1138,7 @@ $(document).ready(function(){
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoBlocks[j][i] = new Image();
 			jp = j+1; //blocks start at 1 instead of 0
-			var name = 'img/renders/CargoBlocks/Cargo-' + jp + '/00';
+			var name = 'img/'+imgfolder+'/CargoBlocks/Cargo-' + jp + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1050,7 +1153,7 @@ $(document).ready(function(){
 		imgCargoNumbers[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoNumbers[j][i] = new Image();
-			var name = 'img/renders/CargoNumbers/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoNumbers/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1065,7 +1168,7 @@ $(document).ready(function(){
 		imgCargoColors[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoColors[j][i] = new Image();
-			var name = 'img/renders/CargoColors/Cargo-' + gColors[j] + '/00';
+			var name = 'img/'+imgfolder+'/CargoColors/Cargo-' + gColors[j] + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1079,7 +1182,7 @@ $(document).ready(function(){
 		imgCargoSafariAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoSafariAnimals[j][i] = new Image();
-			var name = 'img/renders/CargoSafariAnimals/Cargo-' + j + '/00';
+			var name = 'img/'+imgfolder+'/CargoSafariAnimals/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1154,6 +1257,7 @@ $(document).ready(function(){
 	sounds["tada3"] = new Audio("sound/tada-a.wav");
 	sounds["failure"] = new Audio("sound/failure.wav");
 	sounds["open"] = new Audio("sound/open.wav");
+	sounds["save"] = new Audio("sound/save.wav");
 
 	// swap is used for compressing/decompressing. Compressed string uses cap, decompressed does not
 	//swap array for "TRXv1.0:"
@@ -1185,7 +1289,9 @@ $(document).ready(function(){
 	swap['"trackcargo"'] 	= 'Y';
 	swap['"blocks"'] 		= 'Z';
 	
-	
+	///trx
+	trxHelloWorld ='TRXv1.0:[{"-5,0":{B-5,A0,LE,C4,DG,I"",JK},"-5,1":{B-5,A1,LT,C4,DH,IU,JK},"-4,1":{B-4,A1,LE,C2,DG,I"",JK},"3,1":{B3,A1,LE,C6,DG,I"",JK},"2,1":{B2,A1,LE,C6,DG,I"",JK},"1,1":{B1,A1,LE,C6,DG,I"",JK},"0,1":{B0,A1,LE,C6,DG,I"",JK},"-1,1":{B-1,A1,LE,C6,DG,I"",JK},"-2,1":{B-2,A1,LE,C6,DG,I"",JK},"-3,1":{B-3,A1,LE,C6,DG,I"",JK},"5,1":{B5,A1,LE,C6,DG,I"",JK},"4,1":{B4,A1,LE,C6,DG,I"",JK},"2,2":{B2,A2,LE,C6,DG,I"",JK},"1,2":{B1,A2,LE,C6,DG,I"",JK},"0,2":{B0,A2,LE,C6,DG,I"",JK},"-1,2":{B-1,A2,LE,C6,DG,I"",JK},"-2,2":{B-2,A2,LE,C6,DG,I"",JK},"-3,2":{B-3,A2,LF,C6,DG,I"",JK},"-3,3":{B-3,A3,LE,C4,DG,I"slingshot",JK},"-3,4":{B-3,A4,LS,C4,DH,IU,JK},"-3,5":{B-3,A5,LF,C4,DG,I"",JK},"-2,5":{B-2,A5,LE,C2,DG,I"",JK},"-1,5":{B-1,A5,LE,C2,DG,I"",JK},"0,5":{B0,A5,LE,C2,DG,I"",JK},"1,5":{B1,A5,LE,C2,DG,I"",JK},"2,5":{B2,A5,LE,C2,DG,I"",JK},"3,5":{B3,A5,LV,C4,DG,IU,JK},"3,4":{B3,A4,LE,C0,DG,I"slingshot",JK},"3,3":{B3,A3,LS,C0,DH,IU,JK},"3,2":{B3,A2,LF,C0,DG,I"",JK},"4,3":{B4,A3,LE,C2,DG,I"",JK},"5,3":{B5,A3,LE,C2,DG,I"",JK},"6,3":{B6,A3,LF,C0,DG,I"",JK},"6,4":{B6,A4,LE,C4,DG,I"",JK},"6,5":{B6,A5,LF,C2,DG,I"",JK},"5,5":{B5,A5,LE,C6,DG,I"",JK},"4,5":{B4,A5,LE,C6,DG,I"",JK},"-4,4":{B-4,A4,LE,C6,DG,I"",JK},"-5,4":{B-5,A4,LF,C4,DG,I"",JK},"-5,3":{B-5,A3,LE,C0,DG,I"",JK},"-5,2":{B-5,A2,LE,C0,DG,I"",JK},"-2,0":{B-2,A0,LE,C2,DG,I"",JK},"-1,0":{B-1,A0,LE,C6,DG,I"",JK},"0,0":{B0,A0,LE,C6,DG,I"",JK},"1,-3":{B1,A-3,LT,C6,DH,IU,JK},"1,-2":{B1,A-2,LE,C4,DG,I"increment",JK},"1,-1":{B1,A-1,LF,C4,DG,I"",JK},"1,0":{B1,A0,LE,C6,DG,I"",JK},"2,-4":{B2,A-4,LY,C0,DG,I"","cargo":{"value":3,L0},JK},"2,-3":{B2,A-3,LS,C2,DG,IX,JK},"2,-2":{B2,A-2,LE,C0,DG,I"increment",JK},"2,0":{B2,A0,LE,C6,DG,I"",JK},"3,-4":{B3,A-4,LY,C0,DG,I"","cargo":{"value":0,L0},JK},"3,-3":{B3,A-3,LE,C6,DG,I"dump",JK},"3,-2":{B3,A-2,LY,C0,DG,I"","cargo":{"value":1,L0},JK},"3,0":{B3,A0,LE,C6,DG,I"",JK},"4,-2":{B4,A-2,LE,C0,DG,I"increment",JK},"5,-2":{B5,A-2,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"5,-3":{B5,A-3,LE,C6,DG,I"dump",JK},"4,-3":{B4,A-3,LS,C2,DH,IX,JK},"-4,-3":{B-4,A-3,LE,C6,DG,I"supply",JK},"-5,-3":{B-5,A-3,LF,C6,DG,I"",JK},"4,-4":{B4,A-4,LY,C0,DG,I"","cargo":{"value":3,L4},JK},"-4,-4":{B-4,A-4,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"-3,-3":{B-3,A-3,LT,C6,DG,IU,JK},"-3,-2":{B-3,A-2,LE,C4,DG,I"",JK},"-3,-1":{B-3,A-1,LE,C4,DG,I"",JK},"-3,0":{B-3,A0,LF,C4,DG,I"",JK},"-2,-3":{B-2,A-3,LE,C6,DG,I"supply",JK},"-2,-4":{B-2,A-4,LY,C0,DG,I"","cargo":{"value":1,L0},JK},"-1,-3":{B-1,A-3,LE,C2,DG,I"",JK},"2,-1":{B2,A-1,LF,C2,DG,I"",JK},"4,-1":{B4,A-1,LE,C4,DG,I"",JK},"4,0":{B4,A0,LF,C2,DG,I"",JK},"5,-4":{B5,A-4,LY,C0,DG,I"","cargo":{"value":0,L4},JK},"6,-3":{B6,A-3,LF,C0,DG,I"",JK},"6,-2":{B6,A-2,LE,C0,DG,I"",JK},"6,-1":{B6,A-1,LE,C0,DG,I"",JK},"6,0":{B6,A0,LE,C4,DG,I"",JK},"6,1":{B6,A1,LF,C2,DG,I"",JK},"0,-3":{B0,A-3,LE,C2,DG,I"",JK},"-5,-1":{B-5,A-1,LE,C0,DG,I"",JK},"-5,-2":{B-5,A-2,LE,C0,DG,I"supply",JK},"-4,-2":{B-4,A-2,LY,C0,DG,I"","cargo":{"value":0,L1},JK},"0,-2":{B0,A-2,LY,C0,DG,I"","cargo":{"value":0,L1},JK}},[{B-2,A2,LM,C6,D"",Q20,R0.5,JK,O[],P[]},{B2,A5,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-1,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":14,L2},JK,O[],P[]},{B0,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B1,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B2,A2,LN,C6,D"",Q20,R0.5,"cargo":{"value":4,L2},JK,O[],P[]},{B3,A2,LN,C0,D"",Q20,R0.5,"cargo":{"value":7,L1},JK,O[],P[]},{B1,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":22,L1},JK,O[],P[]},{B0,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":14,L2},JK,O[],P[]},{B-1,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":17,L2},JK,O[],P[]},{B-2,A5,LN,C2,D"",Q20,R0.5,"cargo":{"value":11,L2},JK,O[],P[]},{B-3,A5,LN,C4,D"",Q20,R0.5,"cargo":{"value":3,L2},JK,O[],P[]}]]';
+
 	//////// trx for levels
 	var trxLevels = [];
 	var bestTrackTime = [];
@@ -1220,10 +1326,11 @@ $(document).ready(function(){
 	//many diagonals through maze and pickup bunny
 	trxLevels['Trainee'][10]='TRXv1.0:[{"0,-3":{B0,A-3,LE,C6,DG,I"",Jtrue},"-2,-3":{B-2,A-3,LE,C6,DG,I"",Jtrue},"-3,-3":{B-3,A-3,LE,C6,DG,I"home",Jtrue},"-4,0":{B-4,A0,LE,C2,DG,I"",Jtrue},"-3,0":{B-3,A0,LE,C2,DG,I"",JK},"-2,0":{B-2,A0,LE,C2,DG,I"",Jtrue},"-1,0":{B-1,A0,LE,C2,DG,I"",Jtrue},"0,0":{B0,A0,LE,C2,DG,I"",Jtrue},"-3,-4":{B-3,A-4,LY,C0,DG,I"",Jtrue},"-4,-3":{B-4,A-3,LE,C6,DG,I"",Jtrue},"-5,-3":{B-5,A-3,LF,C6,DG,I"",Jtrue},"-5,-2":{B-5,A-2,LE,C4,DG,I"",Jtrue},"-5,-1":{B-5,A-1,LE,C4,DG,I"",Jtrue},"-5,0":{B-5,A0,LF,C4,DG,I"",Jtrue},"-1,-3":{B-1,A-3,LE,C6,DG,I"",Jtrue},"1,4":{B1,A4,LE,C2,DG,I"supply",Jtrue},"1,5":{B1,A5,LY,C0,DG,I"","cargo":{"value":0,L["stuffedanimals","bunny"]},JK},"0,2":{B0,A2,L"track45",C3,DG,I"",Jtrue},"-1,4":{B-1,A4,LF,C2,DG,I"",Jtrue},"-1,3":{B-1,A3,LF,C6,DG,I"",JK},"4,3":{B4,A3,LF,C2,DG,I"",Jtrue},"4,-4":{B4,A-4,LW,C4,DG,I"",Jtrue},"2,-6":{B2,A-6,LF,C6,DG,I"",Jtrue},"3,-2":{B3,A-2,LE,C5,DG,I"",Jtrue},"1,3":{B1,A3,LE,C2,DG,I"",Jtrue},"2,3":{B2,A3,L"track45",C2,DG,I"",Jtrue},"3,2":{B3,A2,L"track45",C1,DG,I"",Jtrue},"3,1":{B3,A1,LE,C0,DG,I"",Jtrue},"3,0":{B3,A0,L"track45",C0,DG,I"",Jtrue},"6,0":{B6,A0,L"track45",C0,DG,I"",Jtrue},"6,1":{B6,A1,L"track45",C1,DG,I"",Jtrue},"5,2":{B5,A2,L"track45",C5,DG,I"",Jtrue},"5,3":{B5,A3,L"track45",C1,DG,I"",Jtrue},"3,5":{B3,A5,LF,C2,DG,I"",Jtrue},"3,4":{B3,A4,LF,C6,DG,I"",Jtrue},"4,4":{B4,A4,LE,C2,DG,I"",Jtrue},"5,-2":{B5,A-2,L"track45",C5,DG,I"",Jtrue},"6,-3":{B6,A-3,L"track45",C1,DG,I"",Jtrue},"5,-6":{B5,A-6,L"track45",C0,DG,I"",Jtrue},"4,-7":{B4,A-7,L"track45",C7,DG,I"",Jtrue},"3,-7":{B3,A-7,LE,C6,DG,I"",Jtrue},"2,-7":{B2,A-7,L"track45",C6,DG,I"",Jtrue},"2,-4":{B2,A-4,LE,C7,DG,I"",Jtrue},"2,-3":{B2,A-3,LE,C3,DG,I"",Jtrue},"2,-2":{B2,A-2,LE,C3,DG,I"",Jtrue},"-3,1":{B-3,A1,LE,C4,DG,I"",Jtrue},"-3,2":{B-3,A2,LE,C4,DG,I"",Jtrue},"-3,3":{B-3,A3,LE,C4,DG,I"",Jtrue},"-1,2":{B-1,A2,LE,C7,DG,I"",Jtrue},"-3,4":{B-3,A4,LE,C4,DG,I"",Jtrue},"-3,5":{B-3,A5,LF,C4,DG,I"",Jtrue},"-2,5":{B-2,A5,LE,C2,DG,I"",Jtrue},"-1,5":{B-1,A5,LE,C2,DG,I"",Jtrue},"0,5":{B0,A5,LE,C2,DG,I"",Jtrue},"2,5":{B2,A5,LE,C6,DG,I"",Jtrue},"1,1":{B1,A1,LE,C2,DG,I"",Jtrue},"0,1":{B0,A1,L"track45",C3,DG,I"",Jtrue},"3,-1":{B3,A-1,LE,C7,DG,I"",Jtrue},"4,0":{B4,A0,LE,C3,DG,I"",Jtrue},"1,-6":{B1,A-6,LF,C0,DG,I"",Jtrue},"1,-5":{B1,A-5,LE,C4,DG,I"",Jtrue},"1,-4":{B1,A-4,LF,C2,DG,I"",Jtrue},"0,-4":{B0,A-4,LF,C4,DG,I"",Jtrue},"0,-5":{B0,A-5,LE,C0,DG,I"",Jtrue},"0,-6":{B0,A-6,LF,C6,DG,I"",Jtrue},"6,-4":{B6,A-4,LE,C0,DG,I"",Jtrue},"6,-5":{B6,A-5,L"track45",C0,DG,I"",Jtrue}},[{B-2,A0,LM,C2,D"",Q20,R0.5,JK,O[],P[]}],[{B-3,A0,LN,C2,D"",Q20,R0.5,"cargo":null,JK,O[],P[]}]]';
 	bestTrackTime['Trainee-10'] = 9105;
+	trxLevels['Trainee'][10] = trxLevels['Trainee'][1]
 	
-	openTrxJSON(decompress(trxLevels['Trainee'][1]));
-	updateUndoHistory();
-	buildTrains();
+//	openTrxJSON(decompress(trxLevels['Trainee'][1]));
+	//updateUndoHistory();
+	//buildTrains();
 /*	trxLevels['Trainee'] = [];
 	//draw single gap straight
 	trxLevels['Trainee'][1] ='[[[null,null,null,null,null,null,null,null,null,null],[null,{"gridx":1,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,null,null,null,null,null],[null,{"gridx":2,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":2,"gridy":4,"type":"track90","orientation":6,"state":"left","subtype":""},{"gridx":2,"gridy":5,"type":"track90","orientation":4,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":3,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,{"gridx":3,"gridy":4,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":3,"gridy":5,"type":"trackwyeleft","orientation":2,"state":"left","subtype":"sprung"},null,null,null,null],[null,{"gridx":4,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":4,"gridy":5,"type":"trackstraight","orientation":6,"state":"left","subtype":""},null,null,null,null],[null,{"gridx":5,"gridy":1,"type":"trackstraight","orientation":2,"state":"left","subtype":""},null,null,null,{"gridx":5,"gridy":5,"type":"trackstraight","orientation":2,"state":"left","subtype":"pickDrop"},{"gridx":5,"gridy":6,"type":"trackcargo","orientation":0,"state":"left","subtype":""},null,null,null],[null,{"gridx":6,"gridy":1,"type":"track90","orientation":0,"state":"left","subtype":""},{"gridx":6,"gridy":2,"type":"trackstraight","orientation":4,"state":"left","subtype":""},null,{"gridx":6,"gridy":4,"type":"trackstraight","orientation":4,"state":"left","subtype":""},{"gridx":6,"gridy":5,"type":"track90","orientation":2,"state":"left","subtype":""},null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null]],[{"gridx":2,"gridy":1,"type":"enginebasic","orientation":2,"state":"","speed":20,"position":0.5}],[{"gridx":1,"gridy":1,"type":"carbasic","orientation":2,"state":"","speed":20,"position":0.5,"cargo":{"value":0,"type":["stuffedanimals","bunny"]}}]]';
@@ -1436,23 +1543,24 @@ $(document).ready(function(){
 	toolButtonsLevels.push(new ToolButton(buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home", 2));
 	
 	// make Toolbar for Freeplay
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Play", 0));
 
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 14+2*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
-	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 20+3*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Track", 1, true));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Engine", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Car", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Cargo", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Eraser", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Select", 1));
+	toolButtonsFreeplay.push(new ToolButton(buttonPadding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Home"));
 
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 8+1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Octagon"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 14+2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload"));
-	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear"));
-	if (debugMode) toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 20+3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Write"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 1*buttonPadding+0*(1.1*buttonWidth), buttonWidth, buttonWidth, "Octagon"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+1*(1.1*buttonWidth), buttonWidth, buttonWidth, "Save"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+2*(1.1*buttonWidth), buttonWidth, buttonWidth, "Open"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+3*(1.1*buttonWidth), buttonWidth, buttonWidth, "Download"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 2*buttonPadding+4*(1.1*buttonWidth), buttonWidth, buttonWidth, "Upload"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 3*buttonPadding+5*(1.1*buttonWidth), buttonWidth, buttonWidth, "Clear"));
+	if (debugMode) toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 3*buttonPadding+6*(1.1*buttonWidth), buttonWidth, buttonWidth, "Write"));
+	toolButtonsFreeplay.push(new ToolButton(0.5*toolBarWidthFreeplay+0.5*buttonPadding, 4*buttonPadding+7*(1.1*buttonWidth), buttonWidth, buttonWidth, "Signin"));
 	
 	//download trx for a trackID passed through URL
 	if (passedTrackID) downloadTrackID(passedTrackID);
@@ -1460,15 +1568,16 @@ $(document).ready(function(){
 	var trainerLevelLocked = []; //show lock icon on levels page for each trainer level
 	var unlockedTrx = []; // e.g. unlockedTrx['Trainee-1'] = true if unlocked, in not unlocked then undefined or false
 	for (i=0; i<trainerLevelNames.length; i++) {
-		trainerLevelLocked[trainerLevelNames[i]] = true;	
+		trainerLevelLocked[trainerLevelNames[i+1]] = false;	
 		text= trainerLevelNames[i] + "-1"; //unlocked first trx of each level so place to start
 		unlockedTrx[text] = true;
-		for (j=0; j<10; j++) { //check if high score > 0 . If so unlock
+		for (j=1; j<=10; j++) { //check if high score > 0 . If so unlock
 			var highScore = 0;
 			text = "highscore-" + trainerLevelNames[i] + "-" + j;
 			if (localStorage.getObject(text)) highScore = localStorage.getObject(text);
 			text = trainerLevelNames[i] + "-" + j;
 			if (highScore > 0) unlockedTrx[text] = true;
+			else trainerLevelLocked[trainerLevelNames[i+1]] = true;	//lock the next level unless all tracks on this level are unlocked
 		}
 	}
 	trainerLevelLocked['Trainee'] = false; //unlock first level so somewhere to start
@@ -1505,7 +1614,7 @@ $(document).ready(function(){
 		this.type = type || "trackstraight";
 		this.orientation = orientation || 0;
 		this.state = state || "left"; //left or right
-		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareless, comparegreater
+		this.subtype = subtype || ""; //for TrackWye, TrackWyeLeft, TrackWyeRight subtype can be sprung, lazy, prompt, alternate, compareless, comparegreater, random
 		//for TrackStraight- subtype can be increment, decrement, add, subtract, divide, multiply, sligshot, catapult
 		this.cargo = undefined;// a reference to a Cargo object carried by this track
 		this.immutable = false; //can this track be deleted or changed
@@ -1515,7 +1624,7 @@ $(document).ready(function(){
 		console.log("Update undo history. Index="+undoCurrentIndex);
 	 	var trx = [tracks, engines, cars];
 		undoCurrentIndex += 1;
-		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(trx));
+		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(JSON.decycle(trx)));
 	}
 
 	function undoTrx() {
@@ -1553,7 +1662,7 @@ $(document).ready(function(){
 	
 	function decompress (compressedTrx) {
 		if (!compressedTrx) return;
-		var decompressedTrx= compressedTrx.replace("TRXv1.0:", "");
+		var decompressedTrx = compressedTrx.replace("TRXv1.0:", "");
 		for (var key in swap) {
 		    decompressedTrx = decompressedTrx.replace(new RegExp(swap[key], 'g'), key);
 		}
@@ -1596,18 +1705,23 @@ $(document).ready(function(){
 		var maxY=5;
 		if (interactionState == 'Levels') maxY=4;
 		for (x=0; x<2; x++) {
-			for (y=0; y<maxY; y++) {
-				var text, unlocked;
-				index = x*maxY + y +1;
+			for (y=maxY-1; y>=0; y--) {
+				var text, unlocked, badge;
+				var index = x*maxY + y +1;
 				if (interactionState == 'Levels') {
-					text = trainerLevelNames[x*maxY+y+1];
+					text = trainerLevelNames[index+1];
+					badge = !trainerLevelLocked[text];
+					text = trainerLevelNames[index];
 					unlocked = !trainerLevelLocked[text];
 				} else {
 					text = currentTrackSet + "-" + index;
 					unlocked = unlockedTrx[text];
 					text = "track "+index;
+					badge = false;
 				}
+				//badge = true;
 				drawTextButton((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight, text, !unlocked, unlocked, buttonColor, buttonBorderColor);
+				if (badge) ctx.drawImage(imgBadgeIconSmall, (x*2-1)*0.25*canvasWidth+0.5*canvasWidth+0.12*canvasWidth, 0.23*canvasHeight+y*0.12*canvasHeight);
 				buttonDimLevels[text] = new box((x*2-1)*0.25*canvasWidth+0.5*canvasWidth, 0.3*canvasHeight+y*0.12*canvasHeight, 0.38*canvasWidth, 0.08*canvasHeight);
 			}
 		}
@@ -1647,6 +1761,7 @@ $(document).ready(function(){
 	      radius[side] = radius[side] || defaultRadius[side];
 	    }
 	  }
+	  ctx.lineWidth = 1;
 	  ctx.beginPath();
 	  ctx.moveTo(x + radius.tl, y);
 	  ctx.lineTo(x + width - radius.tr, y);
@@ -1725,6 +1840,9 @@ $(document).ready(function(){
 					case "lazy":
 						name += "lazy";
 						break;
+					case "random":
+						name += "random";
+						break;
 					default:
 						name += "lazy";
 						console.log("ERROR-uncaught case track.subtype="+track.subtype+" type="+track.type);
@@ -1746,7 +1864,9 @@ $(document).ready(function(){
 			ctx.rect(-0.5*tileWidth, -0.5*tileWidth, tileWidth, tileWidth);
 		}
 		
-		drawCargo(track, Math.PI/4*track.orientation);
+		var cargoOri = Math.PI/4*track.orientation;
+		if (track.type == "trackblank") cargoOri = 16;
+		drawCargo(track, cargoOri);
 					
 		ctx.restore();
 	
@@ -1768,297 +1888,318 @@ $(document).ready(function(){
         var cargoOffsetY = -26;
 		switch (name) {
 			case "Captionblocks":
-                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Caption1":
-                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionuppercase":
-                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "CaptionA":
-                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionlowercase":
-				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiona":
-				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncolors":
-				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionwhite":
-				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondinosaurs":
-				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionraptor":
-				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionstuffedanimals":
-				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbunny":
-				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionnumbers":
-				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Caption0":
-				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbinary":
-				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionyes":
-				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionnone":
-				ctx.drawImage(imgCaptionNone, 0, -11);
+				ctx.drawImage(imgCaptionNone, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionalternate":
-				ctx.drawImage(imgCaptionAlternate, 0, -11);
+				ctx.drawImage(imgCaptionAlternate, 0, -11,imgTrackWidth,imgTrackWidth);
+				break;
+			case "Captionrandom":
+				ctx.drawImage(imgCaptionRandom, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncomparegreater":
-				ctx.drawImage(imgCaptionGreater, 0, -11);
+				ctx.drawImage(imgCaptionGreater, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionlazy":
-				ctx.drawImage(imgCaptionLazy, 0, -11);
+				ctx.drawImage(imgCaptionLazy, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncompareless":
-				ctx.drawImage(imgCaptionLesser, 0, -11);
+				ctx.drawImage(imgCaptionLesser, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionprompt":
-				ctx.drawImage(imgCaptionPrompt, 0, -11);
+				ctx.drawImage(imgCaptionPrompt, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsprung":
-				ctx.drawImage(imgCaptionSprung, 0, -11);
+				ctx.drawImage(imgCaptionSprung, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionadd":
-				ctx.drawImage(imgCaptionAdd, 0, -11);
+				ctx.drawImage(imgCaptionAdd, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captioncatapult":
-				ctx.drawImage(imgCaptionCatapult, 0, -11);
+				ctx.drawImage(imgCaptionCatapult, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondecrement":
-				ctx.drawImage(imgCaptionDecrement, 0, -11);
+				ctx.drawImage(imgCaptionDecrement, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondivide":
-				ctx.drawImage(imgCaptionDivide, 0, -11);
+				ctx.drawImage(imgCaptionDivide, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiondump":
-				ctx.drawImage(imgCaptionDump, 0, -11);
+				ctx.drawImage(imgCaptionDump, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionincrement":
-				ctx.drawImage(imgCaptionIncrement, 0, -11);
+				ctx.drawImage(imgCaptionIncrement, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionmultiply":
-				ctx.drawImage(imgCaptionMultiply, 0, -11);
+				ctx.drawImage(imgCaptionMultiply, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionhome":
-				ctx.drawImage(imgCaptionHome, 0, -11);
+				ctx.drawImage(imgCaptionHome, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionredtunnel":
-				ctx.drawImage(imgCaptionRedTunnel, -4, -5);
+				ctx.drawImage(imgCaptionRedTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captiongreentunnel":
-				ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
+				ctx.drawImage(imgCaptionGreenTunnel, -4, -4,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionbluetunnel":
-				ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
+				ctx.drawImage(imgCaptionBlueTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionpickdrop":
-				ctx.drawImage(imgCaptionPickDrop, 0, -11);
+				ctx.drawImage(imgCaptionPickDrop, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionslingshot":
-				ctx.drawImage(imgCaptionSlingshot, 0, -11);
+				ctx.drawImage(imgCaptionSlingshot, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsubtract":
-				ctx.drawImage(imgCaptionSubtract, 0, -11);
+				ctx.drawImage(imgCaptionSubtract, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "Captionsupply":
-				ctx.drawImage(imgCaptionSupply, 0, -11);
+				ctx.drawImage(imgCaptionSupply, 0, -11,imgTrackWidth,imgTrackWidth);
 				break;
 			case "track90":
-				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "track45":
-				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrack45[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "tracksquareSE": //draw the little squares between diagonal tracks 
-				ctx.drawImage(imgTrackDiagonalSquare[7], 0, 0);
+				ctx.drawImage(imgTrackDiagonalSquare[7], 0, 0,imgTrackWidth,imgTrackWidth);
 				break;
 			case "tracksquareSW": //draw the little squares between diagonal tracks 
-				ctx.drawImage(imgTrackDiagonalSquare[1], 0, 0);
+				ctx.drawImage(imgTrackDiagonalSquare[1], 0, 0,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackstraight":
 				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-				ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackStraight[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-alternate-l":
-				ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-alternate-r":
-				ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-lazy-l":
-				ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-lazy-r":
-				ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-less-l":
-				ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-less-r":
-				ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-greater-l":
-				ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-greater-r":
-				ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-sprung-l":
-				ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-sprung-r":
-				ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-prompt-l":
-				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-prompt-r":
-				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwyeright-random-r":
+				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwyeright-random-l":
+				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-alternate-l":
-				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-alternate-r":
-				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-lazy-l":
-				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-lazy-r":
-				ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-less-l":
-				ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-less-r":
-				ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-greater-l":
-				ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-greater-r":
-				ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-prompt-l":
-				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-prompt-r":
-				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwyeleft-random-l":
+				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwyeleft-random-r":
+				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-sprung-l":
-				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-sprung-r":
-				ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLeftSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-alternate-l":
-				ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-alternate-r":
-				ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeAlternateR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-less-l":
-				ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLesserL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-less-r":
-				ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLesserR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-lazy-l":
-				ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLazyL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-lazy-r":
-				ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeLazyR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-greater-l":
-				ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeGreaterL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-greater-r":
-				ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeGreaterR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-sprung-l":
-				ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-sprung-r":
-				ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyeSprungR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-prompt-l":
-				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-prompt-r":
-				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwye-random-l":
+				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				break;
+			case "trackwye-random-r":
+				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackcross":
 				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
-				ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackCross[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackblank":
 				break;
 			case "trackcargo":
 				var oriRot = ori%2;
-				ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgTrackCargo[oriRot], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "increment":
-				ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationIncrement[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "decrement":
-				ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDecrement[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "add":
-				ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationAdd[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "subtract":
-				ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSubtract[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "multiply":
-				ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationMultiply[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "divide":
-				ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDivide[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "catapult":
-				ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationCatapult[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "slingshot":
-				ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSlingshot[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "supply":
-				ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationSupply[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "pickdrop":
-				ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationPickDrop[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "dump":
-				ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationDump[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "home":
-				ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgStationHome[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "redtunnel":
-				ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgRedTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "greentunnel":
-				ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgGreenTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "bluetunnel":
-				ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2);
+				ctx.drawImage(imgBlueTunnel[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "speedController":
 			 	//draw engine speed controller
@@ -2236,13 +2377,13 @@ $(document).ready(function(){
 		if (ec.type == "enginebasic") {
 			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
 			var frame = (ec.orientation/8*imgEngine.length  + Math.round(rotation/(2*Math.PI/imgEngine.length)) +imgEngine.length)%imgEngine.length;
-			ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2);
+			ctx.drawImage(imgEngine[frame], -imgEngineWidth/2, -imgEngineWidth/2,imgTrackWidth,imgTrackWidth);
 			//console.log("Draw engine frame="+frame);
 					
 		} else	if (ec.type == "carbasic") {
 			ctx.rotate(-ec.orientation * Math.PI/4); //rotate back to normal
 			var frame = (ec.orientation/8*imgCar.length*2  + Math.round(rotation/(2*Math.PI/imgCar.length/2)) +imgCar.length)%imgCar.length;
-			ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2);
+			ctx.drawImage(imgCar[frame], -imgCarWidth/2, -imgCarWidth/2,imgTrackWidth,imgTrackWidth);
 		} else {
 			console.log ("EC is not an instance of anything");
 		}
@@ -2254,20 +2395,18 @@ $(document).ready(function(){
 
 	}
 
-	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords
+	function Cargo(value,type) { //object representing a Cargo. Cargo belongs to either EC or Track so no coords 
 		//this object is stored by JSON.stringify so no functions allowed in object
 		this.value = value || 0; //integer. numeric value of cargo for enums
-		this.type = type || cargoValues[0]; //reference to array of values. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
-
-		//cargos.push(this);
+		this.type = type || 0; //integer. Text name of type is cargoValues[type][0]. Index of cargoValues to type. One of predefined cargo types like cargoNumbers, cargoColors, cargoLowercase, cargoUppercase, cargoAfricanAnimals
 	}
 	
-	function drawCargo(obj, rotation) { //draws cargo for obj= car or track
-		if (obj == undefined || obj.cargo == undefined) return;
+	function drawCargo(obj, rotation) { //draws cargo for obj= car or track. Animated is drawn on one pass because not relative to ctx translate/rotate
+		if (obj == undefined || obj.cargo == undefined || obj.cargo.isanimating) return;
 		
 		//draws relative to current tile so after ctx has been translated and rotated to draw ec or tile
 		var imgCargo = imgCargoNumbers;
-		switch (obj.cargo.type[0]) {
+		switch (cargoValues[obj.cargo.type][0]) {
 			case "numbers":
 				imgCargo = imgCargoNumbers;
 				break;
@@ -2301,15 +2440,132 @@ $(document).ready(function(){
 		
 		var value = obj.cargo.value;
 		var frame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
-		if (obj.cargo.type[0] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
+		if (cargoValues[obj.cargo.type] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
 		if (obj.type == "trackcargo" || obj.type == "trackblank") frame = 16;
-		try {
-			ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2);
-		} catch (err) {
-			console.log("ERROR image not loaded. type="+obj.cargo.type[0]+" value="+value+" frame="+frame);
+		
+		ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+	}
+
+	function drawCargoAnimated(obj, rot) { //draws cargo for obj= car or track. Animated is drawn on one pass because not relative to ctx translate/rotate
+		if (obj == undefined || obj.cargo == undefined || obj.cargo.isanimating != true) return;
+		
+		var rotation = 0;
+		if (rot) rotation = rot; 
+		
+		var imgCargo = imgCargoNumbers;
+		switch (cargoValues[obj.cargo.type][0]) {
+			case "numbers":
+				imgCargo = imgCargoNumbers;
+				break;
+			case "uppercase":
+				imgCargo = imgCargoUppercase;
+				break;
+			case "lowercase":
+				imgCargo = imgCargoLowercase;
+				break;
+			case "colors":
+				imgCargo = imgCargoColors;
+				break;
+			case "safariAnimals":
+				imgCargo = imgCargoSafariAnimals;
+				break;
+			case "dinosaurs":
+				imgCargo = imgCargoDinosaurs;
+				break;
+			case "stuffedanimals":
+				imgCargo = imgCargoStuffedAnimals;
+				break;
+			case "binary":
+				imgCargo = imgCargoBinary;
+				break;
+			case "blocks":
+				imgCargo = imgCargoBlocks;
+				break;
+			default:
+				console.log ("ERROR-cargotype not found");
+		}
+		
+		//animate cargo
+		var xOffset = 0, yOffset = 0;
+		var fraction = obj.cargo.animatedframes/obj.cargo.animatetotalframes;
+		if (fraction>1) fraction = 1;
+		var opacity = 1;
+		if (obj.cargo && obj.cargo.animatetype == "supply") fraction = 1-fraction;
+		xOffset = tileWidth*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
+		yOffset = tileWidth*tileRatio*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
+//		xOffset = tileWidth*zoomScale*(obj.cargo.animateendobj.gridx - obj.cargo.animatestartobj.gridx) * fraction;
+//		yOffset = tileWidth*tileRatio*zoomScale*(obj.cargo.animateendobj.gridy - obj.cargo.animatestartobj.gridy) * fraction;
+		obj.cargo.animatedframes++;
+		
+		if (obj.cargo.animatedframes > obj.cargo.animatetotalframes) {
+			if (obj.cargo.animatetype == "dump" || obj.cargo.animatetype == "dump-poof") {
+				if (obj.cargo.animatedframes > obj.cargo.animatetotalframes*2) {
+					obj.cargo.isanimating = false;
+					obj.cargo = undefined;
+					return;
+				} else {
+					opacity = 1-(obj.cargo.animatedframes-obj.cargo.animatetotalframes)/obj.cargo.animatetotalframes; //fade once on station
+//					console.log ("Opacity="+opacity);
+				}
+			} else { // for "move" and "supply"	
+				obj.cargo.isanimating = false;
+				if (obj.cargo.animatetype == "move" || obj.cargo.animatetype == "move-spin") { //???
+					obj.cargo.animateendobj.cargo = obj.cargo;
+					obj.cargo = undefined;
+				} 
+				return;
+			}
+		}
+		
+		var value = obj.cargo.value;
+		//var endFrame = (obj.orientation/8*imgCargo[0].length  + Math.round(rotation/(2*Math.PI/imgCargo[0].length)) +imgCargo[0].length)%imgCargo[0].length;
+		var endFrame = obj.cargo.animateendobj.orientation*8;
+		if (cargoValues[obj.cargo.type] == "dinosaurs") endFrame = (endFrame+32)%64; //flip dinos because rendered wrong
+		if (obj.cargo && (obj.cargo.animatetype == "dump" || obj.cargo.animatetype == "dump-poof")) endFrame = obj.cargo.animatestartobj.orientation*8;
+		if (obj.cargo.animateendobj.type == "trackcargo" || obj.cargo.animateendobj.type == "trackblank") endFrame = 16;
+		
+		var startFrame = obj.cargo.animatestartobj.orientation*8;
+		if (obj.cargo.animatestartobj.type == "trackcargo" || obj.cargo.animatestartobj.type == "trackblank") startFrame = 16;
+		
+		var frame = startFrame + Math.round(fraction*(endFrame-startFrame));
+		if (obj.cargo && (obj.cargo.animatetype == "spin" || obj.cargo.animatetype == "move-spin")) frame = startFrame + Math.round(fraction*64);
+		frame %=64;
+//		console.log("Frame="+frame+" frac="+Math.round(fraction*64));
+		
+		if (obj.cargo.animatetype != "ontrackcargo") {
+			ctx.save();
+			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth+xOffset;
+			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio+yOffset
+//			var translateX=(0.5+obj.cargo.animatestartobj.gridx)*tileWidth*zoomScale+xOffset;
+//			var translateY=(0.5+obj.cargo.animatestartobj.gridy)*tileWidth*tileRatio*zoomScale+yOffset
+			ctx.translate(translateX, translateY); //center origin on tile
+	    	ctx.globalAlpha = opacity;
+	//		console.log("offset="+xOffset+","+yOffset+" opacity="+opacity+" translate="+translateX+","+translateY);
+			if (obj.cargo.animatedframes > obj.cargo.animatetotalframes && obj.cargo.animatetype == "dump-poof") ctx.drawImage(imgPoof, -imgTrackWidth/2+15, -imgTrackWidth/2+10);
+			else ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+	    	ctx.restore();
 		}
 	}
 	
+	function drawAllPoofs() {
+		for (var i=0; i<poofs.length; i++) {
+			var poof = poofs[i];
+			ctx.save();
+			var translateX=(0.5+poof.gridx)*tileWidth;
+			var translateY=(0.5+poof.gridy)*tileWidth*tileRatio
+			ctx.translate(translateX, translateY); 
+	    	ctx.globalAlpha = 1 - poof.animatedframes / poof.animatetotalframes;
+			ctx.drawImage(imgPoof, -imgTrackWidth/2+15, -imgTrackWidth/2+10);
+	    	ctx.restore();
+	    	poof.animatedframes++;
+	    	if (poof.animatedframes > poof.animatetotalframes) {
+	    		poofs.splice(i,1);
+	    		poof = undefined;
+	    	}
+		}	
+	}
+
+
 ///////////////////////////////////////	
 	function getButton(name) { //returns button in toolbar with text name
 		var toolButtons = getCurrentToolButtons();
@@ -2335,7 +2591,7 @@ $(document).ready(function(){
     function onClickDown (mouseX, mouseY, e) { //for handling both mouse and touch events
     	var worldMouse = screenToWorld(mouseX, mouseY);
     	var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
-        //console.log("onClickDown mouse="+mouseX+","+mouseY+" world="+worldMouse.xtile+","+worldMouse.ytile+" screenMouse="+screenMouse.x+","+screenMouse.y);
+//        console.log("onClickDown mouse="+mouseX+","+mouseY+" world="+worldMouse.xtile+","+worldMouse.ytile+" screenMouse="+screenMouse.x+","+screenMouse.y);
 		if (interactionState == 'TitleScreen') {
 			if (buttonDims['Levels'].inside(mouseX, mouseY)) {
 				interactionState = 'Levels';
@@ -2346,9 +2602,17 @@ $(document).ready(function(){
 				calculateLayout();
 				draw();
 			}	
+			else if (buttonDims['HelloWorld'] && buttonDims['HelloWorld'].inside(mouseX, mouseY)) {
+				console.log("Hello World"); 
+				interactionState = 'Freeplay';
+				openTrxJSON(decompress(trxHelloWorld));
+				updateUndoHistory();
+				buildTrains();
+				pushPlayButton();
+			}
 			else if (buttonDims['About'].inside(mouseX, mouseY)) {
 				ctx.fillStyle = aboutColor;
-				ctx.fillRect (0,0,canvasWidth,0.6*canvasHeight);
+				ctx.fillRect (0,0,canvasWidth,0.63*canvasHeight);
 				ctx.font = "20px Arial";
 				ctx.textAlign = 'center'; 
 				ctx.fillStyle = fontColor;
@@ -2360,6 +2624,10 @@ $(document).ready(function(){
 				    ctx.fillText(lines[i], x, y);
 				    y += lineHeight;
 				}
+				ctx.fillStyle = "blue";
+				y += 15;
+				ctx.fillText('"Hello World"', x, y);
+				buttonDims['HelloWorld'] = new box(x, y, 100, 20);
 			}	
 		} else if (interactionState == 'Levels') {
 			// loop through button positions to see if clicked in button
@@ -2379,7 +2647,7 @@ $(document).ready(function(){
 			}
 		} else if (interactionState == 'Choose track') {
 			// loop through button positions to see if clicked in button
-			for (i=1; i<9; i++) {
+			for (i=1; i<11; i++) {
 				index = "track "+ i;
 				if (buttonDimLevels[index].inside(mouseX, mouseY)) {
 					text = currentTrackSet + "-" + i; 
@@ -2460,7 +2728,7 @@ $(document).ready(function(){
 			    	if (mouseX > buttonCaptionX && mouseX < (buttonCaptionX+3*tileWidth) && mouseYWorld > buttonCaptionY && mouseYWorld < (buttonCaptionY+3*tileWidth)) {
 			    		//inside caption
 			    		var nBin = 3*Math.floor((mouseYWorld-buttonCaptionY)/tileWidth) + Math.floor((mouseX-buttonCaptionX)/tileWidth);
-			    		//console.log ("Clicked in button caption. bin=" + nBin);
+			    		console.log ("Clicked in button caption. bin=" + nBin);
 			    		if (getButton("Save").down) {
 			    			console.log("Save");
 				  			//getButton("Save").down = false;
@@ -2479,7 +2747,7 @@ $(document).ready(function(){
 			    		draw();
 			    	}
 			    }
-			    	//console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
+			    //console.log("Trackwidth="+tracksWidth+" mouseX="+mouseX+" gridx="+gridx);
 			    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
 			    	var worldMouse = screenToWorld(mouseX, mouseY);
 	       			var screenMouse = worldToScreen(worldMouse.xtile, worldMouse.ytile);
@@ -2531,13 +2799,14 @@ $(document).ready(function(){
 						var worldPoint = screenToWorld(mouseX, mouseY); 
 						var gridx = Math.floor(worldPoint.xtile); 
 						var gridy = Math.floor(worldPoint.ytile);
-		                console.log("gridx="+gridx+"tracks length="+tracks.length);
+		                console.log("gridx="+gridx+" gridy"+gridy);
 			    		if (tracks[mi(gridx,gridy)] == undefined || tracks[mi(gridx,gridy)] == null) {
 				    		//if no track at that location then add TrackBlank with "A"
 			    			console.log("Empty grid, add blank Track");
 			    			new Track(gridx, gridy, "trackblank");
-			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,cargoValues[1]);
+			    			tracks[mi(gridx,gridy)].cargo = new Cargo(0,1);
 		                    updateUndoHistory();
+		                    //console.log("DRAW");
 		                    draw();
 		                }
 			    		
@@ -2545,7 +2814,7 @@ $(document).ready(function(){
 			    	}
 			    	
 			    	//check if erase button down
-			    	if (getButton("Eraser")) if (getButton("Eraser").down) {
+			    	if (getButton("Eraser") && getButton("Eraser").down) {
 			    		if (!commandIsPressed) {
 				    		isErasing = true;
 							var worldPoint = screenToWorld(mouseX, mouseY); 
@@ -2663,7 +2932,14 @@ $(document).ready(function(){
 				        	}
 				  			break;
 				  		case "Download":
-				  			downloadTrackDialog();
+							var iframeBrowse = parent.document.getElementById('browseframeid');
+							if (iframeBrowse) {
+								iframeBrowse.height = 750;
+								var iframeTrain = parent.document.getElementById('trainframeid');
+								if (iframeTrain) iframeTrain.height = 0;
+							} else {
+								downloadTrackDialog();
+							}
 				  			break;
 				  		case "Clear":
 				  			//tracks.length=0;
@@ -2687,6 +2963,9 @@ $(document).ready(function(){
 				  		case "Octagon":
 				  			getButton("Octagon").down = !getButton("Octagon").down;
 				  			useOctagons = getButton("Octagon").down;
+				  			break;
+				  		case "Signin":
+				  			signinUserDialog();
 				  		default:
 				  			console.log("button not found");
 				  	}
@@ -2829,7 +3108,7 @@ $(document).ready(function(){
 	});
     
     function onClickUp(mouseX, mouseY, e) {
-        //console.log ("onClickUp");
+//        console.log ("onClickUp");
         if (!showToolBar) return; //if toolbar hidden then ignore events
 		isPanning = false;
 		isZooming = false;
@@ -2869,7 +3148,7 @@ $(document).ready(function(){
 					var col= Math.floor(nCols*fracX);
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
-					currentCaptionedObject.cargo = new Cargo(i,cargoValues[iCargo]);
+					currentCaptionedObject.cargo = new Cargo(i,iCargo); 
 					updateUndoHistory();
 					secondaryCaption = undefined;
 					captionX = undefined;
@@ -2886,7 +3165,7 @@ $(document).ready(function(){
 					var fracY = (worldPoint.ytile- (captionY+0.1))/(captionHeight-0.2);
    				
    					//which caption was cliked in
-                    //console.log("Captioned object="+currentCaptionedObject.type);
+                   // console.log("Captioned object="+currentCaptionedObject.type);
     				switch (currentCaptionedObject.type) {
     					case "enginebasic":
 	    					//adjust speed
@@ -2943,8 +3222,8 @@ $(document).ready(function(){
 	  						currentCaptionedObject.subtype = buttonsStation[row][col];
  						 	if (!(currentCaptionedObject.subtype == "redtunnel" ||
  						 	      currentCaptionedObject.subtype == "bluetunnel" ||
- 						 	      currentCaptionedObject.subtype == "increment" ||
- 						 	      currentCaptionedObject.subtype == "decrement" ||
+ 						 	      //currentCaptionedObject.subtype == "increment" ||
+ 						 	      //currentCaptionedObject.subtype == "decrement" ||
  						 	      currentCaptionedObject.subtype == "greentunnel"))
  						 	        addTrackCargo(currentCaptionedObject);
  							break;
@@ -2962,7 +3241,7 @@ $(document).ready(function(){
 					}
 						
 	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
-                //console.log("Select object for new caption");
+                	//console.log("Select object for new caption. objecttype="+tracks[mi(gridx,gridy)].type);
 		    		currentCaptionedObject = undefined;
 
 	    			//see if clicked engine or car
@@ -2981,6 +3260,7 @@ $(document).ready(function(){
 				    		 || tracks[mi(gridx,gridy)].type == "trackcargo"|| tracks[mi(gridx,gridy)].type == "trackblank") {
 				    			currentCaptionedObject = tracks[mi(gridx,gridy)];
 					    		captionX = undefined;
+					    		console.log("Captioned object="+tracks[mi(gridx,gridy)]+" xy="+gridx+","+gridy);
 				    		}
 				    	} 
 	    				
@@ -2999,7 +3279,7 @@ $(document).ready(function(){
 	    	draw();
 	    }
     	if (isDrawingEngine || isDrawingCar) {
-    		console.log("Drawing engine");
+    		//console.log("Drawing engine");
     		//make engine at startpoint in direction from down to up
 
     		if (startXPoint != undefined) {
@@ -3007,7 +3287,7 @@ $(document).ready(function(){
     			var startXTile = Math.floor(mouseWorld.xtile); 
     			var startYTile = Math.floor(mouseWorld.ytile);
     			var distSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseY),2);
-    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
+//    			console.log ("distSq=" + distSq + "Make new engine at x=" + startXTile + " y=" + startYTile + " orientation=" + orientation + " fraction=" + fraction);
 				if (tracks[mi(startXTile,startYTile)] && distSq>10 && 
 				(tracks[mi(startXTile,startYTile)].type == "trackstraight" ||
 				 tracks[mi(startXTile,startYTile)].type == "track45" ||
@@ -3096,14 +3376,22 @@ $(document).ready(function(){
 	
 	function addTrackCargo(track) { //adds a new TrackCargo for the given track. The new TrackCargo will be behind the inset so one tile away
 		step = getTrackCargoStep(track);
-		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)]) if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)].type == "trackcargo") return;
+		cargoTrack = tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)];
+		if (cargoTrack &&	cargoTrack.type == "trackcargo") return;
 		
-		if (tracks[mi(track.gridx+step.stepX,track.gridy+step.stepY)] && track.type == "trackstraight" && !tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)]) {
-			track.orientation = (track.orientation +4)%8;// rotate track
-			new Track(track.gridx-step.stepX, track.gridy-step.stepY, "trackcargo");
-			console.log("Rotate track then cargo");
-		} else {
-			//make new TrackCargo
+		if (cargoTrack && track.type == "trackstraight") {
+			 if (!tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)]) { //blocked in one way but not other so rotate and new trackcargo
+				track.orientation = (track.orientation +4)%8;// rotate track
+				new Track(track.gridx-step.stepX, track.gridy-step.stepY, "trackcargo");
+				console.log("Rotate track then new cargo");
+			} else if (tracks[mi(track.gridx-step.stepX,track.gridy-step.stepY)].type == "trackcargo") { //blocked in one way and trackcargo in other way so rotate and reuse trackcargo
+				track.orientation = (track.orientation +4)%8;// rotate track
+				console.log("Rotate track then reuse cargo");
+			} else {  //blocked both ways so make new trackcargo to replace something else
+				new Track(track.gridx+step.stepX, track.gridy+step.stepY, "trackcargo");
+				console.log("new track cargo");
+			}
+		} else { //make new TrackCargo over empty spot
 			new Track(track.gridx+step.stepX, track.gridy+step.stepY, "trackcargo");
 			console.log("new track cargo");
 		} 		
@@ -3322,16 +3610,16 @@ $(document).ready(function(){
     }
         
     function calculateLayout() {
-    	if (resizeCanvas) {
-	        windowWidth = window.innerWidth;
+    //	if (resizeCanvas) {
+	        windowWidth = window.innerWidth; //maximize canvas to screen or device
 	        windowHeight = window.innerHeight;
 	        pixelRatio = window.devicePixelRatio || 1; /// get pixel ratio of device
-	        //console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
+	        console.log ("width="+windowWidth+" height="+windowHeight+" ratio="+pixelRatio);
 	        canvas.width = windowWidth;// * pixelRatio;   /// resolution of canvas
 	        canvas.height = windowHeight;// * pixelRatio;
 	        canvas.style.width = windowWidth + 'px';   /// CSS size of canvas
 	        canvas.style.height = windowHeight + 'px';
-	    }
+	  //  }
         canvasWidth = canvas.width;
         canvasHeight = canvas.height;
         toolBarHeight = canvasHeight; //height of toolbar in pixels
@@ -3392,6 +3680,8 @@ $(document).ready(function(){
 		drawAllTracks();
 		drawAllEnginesAndCars();
 		drawAllTunnels();
+		drawAllCargoAnimated();
+		drawAllPoofs();
 		
 		if (showToolBar) {
 			drawCaption();
@@ -3399,6 +3689,7 @@ $(document).ready(function(){
 		}
 		
         ctx.restore();
+//		drawAllCargoAnimated();
 
 		if (showToolBar) { //toolbar doesn't zoom
 			drawSelection();
@@ -3429,6 +3720,19 @@ $(document).ready(function(){
 		width = canvasWidth*0.7;
 		height = canvasHeight*0.4;
 
+		//draw badge
+		if (currentTrackNumber == 10 && currentTrackScore > 0) {
+			//console.log ("Draw badge");
+			y = canvasHeight * 0.35;
+			ctx.fillStyle = starColor;
+			ctx.fillRect(x-width/2,y+height*0.7,width,height*0.3);
+			ctx.font = "bold 28px Arial";
+			ctx.fillStyle = fontColor;
+			ctx.textAlign = 'center';
+			ctx.fillText("Congratulations! You are now a "+currentTrackSet, x, y+0.85*height);
+			ctx.drawImage (imgBadgeIcon, x- imgBadgeIcon.width/2-width*0.55, y+height*.5);
+		}
+
 		var highScore = 0;
 		text = "highscore-" + currentTrackSet + "-" + (currentTrackNumber);
 //		console.log ("textHS="+text);
@@ -3450,7 +3754,7 @@ $(document).ready(function(){
 		ctx.font = "26px Arial";
 		message = ".";
 		if (newHighScore) {
-			console.log ("NewHS");
+//			console.log ("NewHS");
 			message = ". New high score!";
 		}
 		ctx.fillText("High score = "+highScore+message, x, y-0.05*height);
@@ -3461,13 +3765,17 @@ $(document).ready(function(){
 		ctx.font = "40px Arial";
 		if (currentTrackScore == 0) {
 			ctx.fillText("Crash!!!", x, y-0.3*height);
-			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", true, false, buttonColorGreen, buttonBorderColorGreen);
-			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0,0); //box is zero so can't click
+			if (currentTrackNumber<10) {
+				drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", true, false, buttonColorGreen, buttonBorderColorGreen);
+				buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0,0); //box is zero so can't click
+			}
 //			if (animationFrame == 0) {console.log("Failure"); playSound("failure");}
 		} else {
 			ctx.fillText("Success!!!", x, y-0.3*height);
-			drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", false, true, buttonColorGreen, buttonBorderColorGreen);
-			buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+			if (currentTrackNumber<10) {
+				drawTextButton(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height, "Next track", false, true, buttonColorGreen, buttonBorderColorGreen);
+				buttonDims['Next track'] = new box(x+0.25*width, y+0.15*height, 0.4*width, 0.22*height);
+			}
 			
 			//draw star
 			drawStar(x-0.35*width-imgStar.width/2, y-0.35*height-imgStar.height/2, 0);
@@ -3480,6 +3788,7 @@ $(document).ready(function(){
 				drawStar (x+0.35*width-imgStar.width/2, y-0.38*height-imgStar.height/2, 200);
 				if (animationFrame == 300) playSound ("tada3");
 			}
+			
 		}
 		if (animationFrame<304) animationFrame+=2.5;
 	}
@@ -3494,7 +3803,8 @@ $(document).ready(function(){
 		ctx.scale(scale, scale);
 		ctx.drawImage(imgStar, 0, 0);
 		ctx.restore();
-	}			
+	}	
+			
 	function drawAllTracks() {
 		var upperLeftWorld = screenToWorld(0, 0);
 		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
@@ -3505,6 +3815,23 @@ $(document).ready(function(){
 		}	
 	}	
 
+	function drawAllCargoAnimated() { //draws only cargo that is being animated
+		//draw all track cargo
+		var upperLeftWorld = screenToWorld(0, 0);
+		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
+		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
+			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				drawCargoAnimated(tracks[mi(Math.floor(i),Math.floor(j))]);
+			}
+		}	
+		
+		//draw all EC cargo
+		var ECs = engines.concat(cars);
+		for (var i=0; i<ECs.length; i++) {
+			drawCargoAnimated(ECs[i]);
+		}
+	}
+	
 	function drawAllTunnels() {
 		for (var key in tracks) {
 		    if (tracks[key].subtype == "redtunnel" || tracks[key].subtype == "greentunnel" || tracks[key].subtype == "bluetunnel") {;
@@ -3601,7 +3928,7 @@ $(document).ready(function(){
 	    var endX = screenPoint.x;
 	    var endY = screenPoint.y;
 	    if (isMoving) {
-	    	console.log("startMoveYTile="+startMoveYTile+" endMoveYTile="+endMoveYTile);
+	    	//console.log("startMoveYTile="+startMoveYTile+" endMoveYTile="+endMoveYTile);
 	    	var startScreen= worldToScreen(startMoveXTile, startMoveYTile);
 	    	var endScreen= worldToScreen(endMoveXTile, endMoveYTile);
     		startX = startX + (endScreen.x - startScreen.x);
@@ -3621,27 +3948,28 @@ $(document).ready(function(){
 			var upperLeftSelectYTile = Math.round(Math.min(startSelectYTile, endSelectYTile));
 			var lowerRightSelectXTile = Math.round(Math.max(startSelectXTile, endSelectXTile)); 
 			var lowerRightSelectYTile = Math.round(Math.max(startSelectYTile, endSelectYTile));
-    		console.log("IsMoving drag:start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+//    		console.log("IsMoving drag:start gridx="+upperLeftSelectXTile+" y="+upperLeftSelectYTile+" end select grix="+lowerRightSelectXTile+","+lowerRightSelectYTile);
+
+			ctx.save();
+			var screenCenter = worldToScreen(centerTileX, centerTileY);
+			ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
+			ctx.translate(tileWidth*zoomScale*(endMoveXTile - startMoveXTile), tileWidth*tileRatio*zoomScale*(endMoveYTile - startMoveYTile)); 
+			ctx.scale(zoomScale, zoomScale);
 	    	for (gridx= upperLeftSelectXTile; gridx<lowerRightSelectXTile; gridx++) {
 		    	for (gridy= upperLeftSelectYTile; gridy<lowerRightSelectYTile; gridy++) {
 					//translate
-					ctx.save();
-					///ctx.translate(startX-mouseX, startY-mouseY); //center origin on tile
 					//ctx.translate(startX-startSelectXTile*tileWidth, startY-startSelectYTile*tileWidth); //center origin on tile
-					ctx.translate(startX, startY); //center origin on tile
-			        var screenCenter = worldToScreen(centerTileX, centerTileY);
-					//ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
-					ctx.scale(zoomScale, zoomScale);
+					///ctx.translate(startX, startY); //center origin on tile
 		    		//draw track 
-		    		console.log ("Drag draw x="+gridx+","+gridy+"  track="+tracks[mi(gridx,gridy)]);
+		    		//console.log ("Drag draw x="+gridx+","+gridy+"  track="+tracks[mi(gridx,gridy)]);
 		    		drawTrack(tracks[mi(gridx,gridy)]);
 		    		//draw EC
 		    		var ec=getEC(gridx,gridy);
 		    		drawEC(ec);
-		    		
-		    		ctx.restore();
 		    	}
 	    	}
+    		ctx.restore();
+
 	    }
 	}
 	
@@ -3885,7 +4213,7 @@ $(document).ready(function(){
 			captionY = retVal.gridy;
 		}
 
-		if (captionX == -1) return;
+		//if (captionX == -1) return;
 				
 		var obj = getCenter(currentCaptionedObject);
 		//console.log("objx="+obj.X+" objy="+obj.Y);
@@ -3923,7 +4251,7 @@ $(document).ready(function(){
 			captionSecondaryX = retVal.gridx;
 			captionSecondaryY = retVal.gridy;
 		}
-		if (captionX == -1) return;
+		//if (captionX == -1) return;
 				
 		//console.log("capX="+captionX+","+captionY+" captionWidth="+captionWidth+","+captionHeight);
 		drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, (captionX+captionWidth/2)*tileWidth, (captionY+captionHeight/2)*tileWidth, true);
@@ -4166,6 +4494,7 @@ $(document).ready(function(){
 //		localStorage.setObject('trx-tracks'+nBin, tracks);
 //		localStorage.setObject('trx-engines'+nBin, engines);
 //		localStorage.setObject('trx-cars'+nBin, cars);
+		playSound("save");
 		draw();
 	}
 	
@@ -4187,10 +4516,17 @@ $(document).ready(function(){
 	}
 
 	function openTrxJSON(string) { //opens trx stored in JSON string 
-		var trxOpen = JSON.parse(string);
+		var trxOpen = JSON.retrocycle(JSON.parse(string));
 		tracks = trxOpen[0];
 		engines = trxOpen[1];
 		cars = trxOpen[2];
+		
+		//turn on octagons if not on and trx contain octagons
+		if (!useOctagons) {
+			for (var key in tracks) {
+				if (tracks[key].orientation %2 == 1) useOctagons = true;
+			}
+		}
 	}
 
  //// BEGIN code for dialog box for new user
@@ -4264,6 +4600,11 @@ $(document).ready(function(){
 		                currentUserID = retArray[1];
 		                currentUsername = retArray[2];
 		                console.log("Successfully logged in username="+currentUsername+", and userID="+currentUserID);
+		                
+		                //store locally
+		                localStorage.setObject('currentUserID', currentUserID);
+		                localStorage.setObject('currentUsername', currentUsername);
+
 		            }
 	            }
 	        };
@@ -4287,8 +4628,7 @@ $(document).ready(function(){
 	function uploadTrackGet() { // uses GET
 		console.log ("Function Upload track");
  		var trx = [tracks, engines, cars];
-		var strTrx = compress(JSON.stringify(trx));
-
+		var strTrx = compress(JSON.stringify(JSON.decycle(trx)));
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
      	valid = valid && checkLength( trackdescription, "trackdescription", 6, 300 );
@@ -4318,7 +4658,7 @@ $(document).ready(function(){
 	function uploadTrackPost() { //uses POST to upload longer tracks
 		console.log ("Function Upload track POST");
  		var trx = [tracks, engines, cars];
-		var strTrx = compress(JSON.stringify(trx));
+		var strTrx = compress(JSON.stringify(JSON.decycle(trx)));
 
       	var valid = true;
       	valid = valid && checkLength( trackname, "trackname", 3, 25 );
@@ -4327,7 +4667,16 @@ $(document).ready(function(){
       	if ( valid ) {
 			var http = new XMLHttpRequest();
 			var url = "php/uploadTrackPost.php";
-			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val());
+			
+			//shrink image of canvas
+			var destCtx = canvas2.getContext('2d');
+			//destCtx.drawImage(canvas, 0, 0, 50,50);
+			destCtx.drawImage(imgPoof,5,5);
+			var img    = canvas2.toDataURL("image/png");
+			var img2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM0AAADNCAMAAAAsYgRbAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABJQTFRF3NSmzMewPxIG//ncJEJsldTou1jHgAAAARBJREFUeNrs2EEKgCAQBVDLuv+V20dENbMY831wKz4Y/VHb/5RGQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0PzMWtyaGhoaGhoaGhoaGhoaGhoxtb0QGhoaGhoaGhoaGhoaGhoaMbRLEvv50VTQ9OTQ5OpyZ01GpM2g0bfmDQaL7S+ofFC6xv3ZpxJiywakzbvd9r3RWPS9I2+MWk0+kbf0Hih9Y17U0nTHibrDDQ0NDQ0NDQ0NDQ0NDQ0NTXbRSL/AK72o6GhoaGhoRlL8951vwsNDQ0NDQ1NDc0WyHtDTEhDQ0NDQ0NTS5MdGhoaGhoaGhoaGhoaGhoaGhoaGhoaGposzSHAAErMwwQ2HwRQAAAAAElFTkSuQmCC";
+			//document.write('<img src="'+img+'"/>');
+//			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+encodeURI(img2);
+			var params = "userID="+currentUserID+"&trx="+strTrx+"&trackName="+encodeURI(trackname.val())+"&trackDescription="+encodeURI(trackdescription.val())+"&imgPreview="+img2;
 			console.log("params="+params);
 			http.open("POST", url, true);
 			
@@ -4391,9 +4740,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Create an account": newUser,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4419,9 +4768,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Sign-in user": signinUser,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4447,9 +4796,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Forgot Password": forgotPassword,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4467,7 +4816,7 @@ $(document).ready(function(){
 	
  	function downloadTrackDialog() {
 		console.log("Browse Tracks dialog");
-		downloadTrack();
+		//downloadTrack();
 /*	
 	    dialogDownloadTracks = $( "#dialog-downloadTracks" ).dialog({
 	      autoOpen: false,
@@ -4504,9 +4853,9 @@ $(document).ready(function(){
 	      modal: true,
 	      buttons: {
 	        "Upload Track": uploadTrackPost,
-	        Cancel: function() {
-	          dialog.dialog( "close" );
-	        }
+//	        Cancel: function() {
+//	          dialog.dialog( "close" );
+//	        }
 	      },
 	      close: function() {
 	        form[ 0 ].reset();
@@ -4527,7 +4876,7 @@ $(document).ready(function(){
  	
 	function writeTrx() { //write out trx to console so can be manually cut and paste to save
 		var trx = [tracks, engines, cars];
-		var strTrx= JSON.stringify(trx)
+		var strTrx= JSON.stringify(JSON.decycle(trx));
 		console.log("    trx[]=\'"+strTrx+"\'\;");
 		var compressed= compress(strTrx);
 		console.log("comptrx[]=\'"+compressed+"\'\;");
@@ -4575,13 +4924,38 @@ $(document).ready(function(){
  	}
 	
 	function interpretAll() {
-		for (var i=0; i<engines.length; i++) {
+/*		for (var i=0; i<engines.length; i++) {
 			if (!modalTrack) interpret(engines[i]);
 		}
 
 		for (var i=0; i<cars.length; i++) {
 			if (!modalTrack) interpret(cars[i]);
+		} */
+		for (var t=0; t<trains.length; t++) { //iterate through trains to see if leading edge is too close to another car
+			var train = trains[t];
+			for (c=train.length-1; c>=0; c--) { // go through train backwards so wye doesn't switch under a car
+				if (!modalTrack) interpret (train[c]);
+			}
 		}
+		
+		// see if ec crashed into another ec -- todo probably slower than could be
+		for (var t=0; t<trains.length; t++) { //iterate through trains
+			var train = trains[t];
+			for (var c=train.length-1; c>=0; c--) {
+				for (var t2=0; t2<trains.length; t2++) { //iterate through trains
+					var train2 = trains[t2];
+					for (var c2=train2.length-1; c2>=0; c2--) {
+						//console.log("t=",train[c].gridx+","+train[c].gridy+" t2="+train2[c2].gridx+","+train2[c2].gridy);
+						if (train[c] != train2[c2] && train[c].gridx == train2[c2].gridx && train[c].gridy == train2[c2].gridy) {
+							console.log ("CRASH ecs");
+							crash(train[c]);
+							crash(train2[c2]);
+						}
+					}
+				}
+			}
+		}
+		
 	}
 	
 	function interpret(ec) { //interprets an engine or car one iteration (moves engine or car down track)
@@ -4610,10 +4984,22 @@ $(document).ready(function(){
 				ec.gridy = next.gridy;
 				ec.orientation = next.orientation;
 
+				//check for crashes with other ecs
+/*				for (var t=0; t<trains.length; t++) { //iterate through trains
+					var train = trains[t];
+					for (var c=train.length-1; c>=0; c--) {
+						if (train[c] != ec && train[c].gridx == ec.gridx && train[c].gridy == ec.gridy) {
+							console.log ("CRASH ecs");
+							crash(ec);
+							crash(train[c]);
+						}
+					}
+				}*/
+				
 				//check for lazy wyes
 				var oriDif = (ec.orientation - tracks[mi(ec.gridx,ec.gridy)].orientation +8)%8;
 				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "lazy") {
-					//console.log("Lazy wye. Ori dif="+oriDif);
+					console.log("Lazy wye. Ori dif="+oriDif);
 					var state = tracks[mi(ec.gridx,ec.gridy)].state;
 					switch 	(tracks[mi(ec.gridx,ec.gridy)].type) {
 						case "trackwyeleft":
@@ -4672,15 +5058,26 @@ $(document).ready(function(){
 					playSound("switch");
 				}
 				
+				//check for random wye on exiting tile
+				if (tracks[mi(ec.gridx,ec.gridy)].subtype == "random" && oriDif == 0 && isFirstCarInTrain(ec)) {
+					console.log("Random wye");
+					if (Math.random() < 0.5) {
+						console.log("switch");
+						if (tracks[mi(ec.gridx,ec.gridy)].state == "left") tracks[mi(ec.gridx,ec.gridy)].state = "right";
+						else tracks[mi(ec.gridx,ec.gridy)].state = "left";
+						playSound("switch");
+					}
+				}
+				
 				//check for compareless or comparegreater on engine entering tile
 				var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
 				if ((tracks[mi(ec.gridx,ec.gridy)].subtype == "compareless" || tracks[mi(ec.gridx,ec.gridy)].subtype == "comparegreater") && oriDif == 0 && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined && isFirstCarInTrain(ec)) {
 					//iterate through train to find first car with same type as switch cargo type. Use it for comparison
-					console.log("COmpare greater less");
+//					console.log("COmpare greater less");
 					var train = getTrain(ec);
 					var car;
 					for (var c=1; c<train.length && car == undefined;  c++) {
-						if (train[c].cargo) if (train[c].cargo.type[0] == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0]) car = train[c];
+						if (train[c].cargo) if (train[c].cargo.type == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type) car = train[c];
 					}
 					
 					if (car) {
@@ -4750,120 +5147,128 @@ $(document).ready(function(){
 				if (ec.position >= 0.5 && ec.position < 0.5+ec.speed/1000 /*&& ec.type == "carbasic"*/) { //perform action when car reaches middle of track
 					//console.log("detect stations");
 					// pickup cargo lying on track (not on station)
-				/*	if (ec.cargo == undefined && tracks[mi(ec.gridx,ec.gridy)].cargo != undefined && tracks[mi(ec.gridx,ec.gridy)].type == "supply") {
+					if (ec.cargo == undefined && tracks[mi(ec.gridx,ec.gridy)].cargo != undefined && ec.type == "carbasic") {
 						//move cargo
 						ec.cargo = tracks[mi(ec.gridx,ec.gridy)].cargo;
 						tracks[mi(ec.gridx,ec.gridy)].cargo = undefined;
-					} */
+					} 
 					
 					var step = getTrackCargoStep(tracks[mi(ec.gridx,ec.gridy)]);
+					var cargoLength;
+					if (ec.cargo !=undefined) cargoLength = cargoValues[ec.cargo.type].length-1;
 
 					//divide cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "divide") {
 						console.log("Divide");
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so divide
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so divide
 								playSound("divide");
 								ec.cargo.value = Math.round(ec.cargo.value / tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							console.log("Transfer to empty");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							//animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo,0,0,0,0,0,"ontrackcargo");
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 					
 					//multiply cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "multiply") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so multiply
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so multiply
 								playSound("multiply");
-								ec.cargo.value = (ec.cargo.value * tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value * tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//subtract cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "subtract") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so subtract
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so subtract
 								playSound("subtract");
-								ec.cargo.value = (ec.cargo.value - tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value + (ec.cargo.type.length-1))%(ec.cargo.type.length-1);
-								//console.log("len="+ec.cargo.type.length+" testmod="+ 2%10+" ecval="+ec.cargo.value+" trackval="+tracks[mi(ec.gridx,ec.gridy)].cargo.value);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value - tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value + cargoLength)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//add cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "add") {
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo 
-							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type[0] == ec.cargo.type[0]) { // same type so add
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec.cargo.type) { // same type so add
 								playSound("add");
-								ec.cargo.value = (ec.cargo.value + tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%(ec.cargo.type.length-1);
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+								ec.cargo.value = (ec.cargo.value + tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value)%cargoLength;
+								animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "dump-poof");
 							}
 						} else { // station does not have cargo so transfer cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					} 
 
 					//catapult cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "catapult") {
+						console.log("Catapult switch");
 						if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined)  { //station has cargo so catapult ec cargo and remove number from station and cargo from car
 							playSound("catapult");
 							var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
-							var stepX = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.cos(angle));
-							var stepY = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value * Math.round(Math.sin(angle));
+							var value = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value;
+							if (cargoValues[tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type][0] == "blocks") value++;
+							var stepX = value * Math.round(Math.cos(angle));
+							var stepY = value * Math.round(Math.sin(angle));
 							//console.log("stepX="+stepX+" stepY="+stepY)
 							if (tracks[mi(ec.gridx+stepX,ec.gridy+stepY)] == undefined) new Track (ec.gridx+stepX, ec.gridy+stepY, "trackblank");
-							tracks[mi(ec.gridx+stepX,ec.gridy+stepY)].cargo = ec.cargo; //catapult
-							ec.cargo = undefined;
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+stepX,ec.gridy+stepY)], "move-spin");
+							//tracks[mi(ec.gridx+stepX,ec.gridy+stepY)].cargo = ec.cargo; //catapult
+							//ec.cargo = undefined;
+							//tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)],tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)],"dump");
 						} else { // station does not have cargo so transfer cargo if its a number
-							if (ec.cargo.type[0] == "numbers") {
+							console.log("Value type="+cargoValues[ec.cargo.type][0]);
+							if (cargoValues[ec.cargo.type][0] == "numbers" || cargoValues[ec.cargo.type][0] == "blocks") {
+								console.log("Wind up catapult");
 								playSound("catapultWindup");
-								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-								ec.cargo = undefined;
+//								tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+//								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump"); 
+								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move");
 							}
 						}
 					} 
 
 					//slingshot cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "slingshot") {
-						playSound("slingshot");
-						var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
-						var stepX = Math.round(Math.cos(angle));
-						var stepY = Math.round(Math.sin(angle));
-						
-						var curX = ec.gridx;
-						var curY = ec.gridy;
-						var tempCargo = ec.cargo;
-						ec.cargo = undefined;
-						
-						//push cargo in away from station until free square
-						do {
-							curX += stepX;
-							curY += stepY;
-							if (curX<0 || curY<0 || curX>=numTilesX || curY>=numTilesY) { // exit loop if goes off screen
-								tempCargo = undefined;
-							} else {
-								if (tracks[mi(curX,curY)] == undefined) new Track(curX, curY, "trackblank");
-								track = tracks[mi(curX,curY)];
-								temp2cargo = track.cargo;
-								track.cargo = tempCargo;
-								tempCargo=temp2cargo;
-							}
-						} while (tempCargo);
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) { //type specific
+							playSound("slingshot");
+							var angle = ((tracks[mi(ec.gridx,ec.gridy)].orientation + 2 + 2) %8)*Math.PI/4;
+							var stepX = Math.round(Math.cos(angle));
+							var stepY = Math.round(Math.sin(angle));
+							
+							var curX = ec.gridx;
+							var curY = ec.gridy;
+							var loops = 0; //???
+	
+							do {
+								var nextX = curX + stepX;
+								var nextY = curY + stepY;
+								if (tracks[mi(nextX,nextY)] == undefined) new Track(nextX, nextY, "trackblank");
+								if (loops == 0) {
+									first = false;
+									animateCargo(ec, tracks[mi(nextX,nextY)], "move", 15-loops);
+								} else animateCargo(tracks[mi(curX,curY)], tracks[mi(nextX,nextY)], "move", 15-loops);
+								curX = nextX;
+								curY = nextY;
+								loops++;
+							} while (tracks[mi(curX,curY)].cargo);
+						}							
 					}
 					
 					//pickdrop cargo
@@ -4873,35 +5278,12 @@ $(document).ready(function(){
 						//if station has cargo and car doesn't, then swap station cargo to car
 						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
 							playSound("pickdrop");
-							ec.cargo = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo; //move cargo
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = undefined;
+							animateCargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], ec, "move"); 
 						}
 						//if car has cargo and station doesn't, then swap car cargo to station
 						else if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
-							//check for bunny
-/*							if (ec.cargo.type[1] == "bunny") {
-								playSound("home");
-								console.log("Bunny delivered successfully");
-								index = currentTrackSet + "-" + (currentTrackNumber+1);
-								console.log("trx unlocked for index=" + index);
-								unlockedTrx[index] = true;
-								animationFrame = 0;
-								interactionState = 'StarScreen';
-								text = currentTrackSet + "-" + (currentTrackNumber);
-								bestTime = 1;
-								if (bestTrackTime[text]) bestTime= bestTrackTime[text];
-								var d = new Date();
-								now = d.getTime();
-								currentTrackTime = now - startTimePlay;
-								currentTrackScore = Math.round(1000*bestTrackTime[text]/currentTrackTime);
-								newHighScore = false;
-								if (currentTrackScore>1000) currentTrackScore = 1000; 
-								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
-							} else {
-*/								playSound("pickdropreverse");
-						//	}
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							playSound("pickdropreverse");
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					}
 					
@@ -4930,44 +5312,82 @@ $(document).ready(function(){
 								if (currentTrackScore>1000) currentTrackScore = 1000; 
 								console.log("bestTrackTime['"+text+"'] = "+currentTrackTime);
 							}
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = new Cargo(ec.cargo.value, ec.cargo.type);
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump"); 
 						}
 					}
 					
 					//dump cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "dump") {
-						playSound("dump");
-						ec.cargo = undefined;
+						//dump only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							playSound("dump");
+							//ec.cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "dump-poof"); 
+						}
 					}
 					
 					//increment cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "increment") {
-						playSound("increment");
-						ec.cargo.value++;
-						//console.log("Increment lnegth="+ ec.cargo.type.length);
-						ec.cargo.value %= ec.cargo.type.length-1;
+						//increment only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							playSound("increment");
+							ec.cargo.value++;
+							ec.cargo.value %= cargoValues[ec.cargo.type].length-1;
+							animateCargo(ec, ec, "spin", 8);
+						}
 					}
 					
 					//decrement cargo
 					if (ec.cargo !=undefined && tracks[mi(ec.gridx,ec.gridy)].subtype == "decrement") {
 						playSound("decrement");
-						ec.cargo.value--;
-						ec.cargo.value %= ec.cargo.type.length-1;
+						//decrement only if cargo type on trackCargo matches or is nonexistent
+						if (!tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)] || !tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo || tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type == ec. cargo.type) {
+							ec.cargo.value--;
+							ec.cargo.value += cargoValues[ec.cargo.type].length-1;
+							ec.cargo.value %= cargoValues[ec.cargo.type].length-1;
+							console.log("Value="+ec.cargo.value);
+							animateCargo(ec, ec, "spin", 8);
+						}
 					}
 					
 					//supply station
-					if (ec.type == "carbasic" && tracks[mi(ec.gridx,ec.gridy)].subtype == "supply") {
-						//if station has cargo and car doesn't, then copy station cargo to car
-						if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
-							playSound("supply");
-							ec.cargo = jQuery.extend({},tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo); //copy cargo
+					if (tracks[mi(ec.gridx,ec.gridy)].subtype == "supply") {
+						//increment uniqueid each time train passes for use to ensure that cargo only added once per train per pass
+						if (isFirstCarInTrain(ec)  && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
+							if (tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid) tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid += 1;
+							else tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid = 1000*(ec.gridx+step.stepX) + 1000000*ec.gridy+step.stepY;
+//							console.log ("First car. Uniqueid="+tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid);
 						}
-						//if car has cargo and station doesn't, then moce car cargo to station
-						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
-							playSound("supply");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo;
-							ec.cargo == undefined;
+
+						if (ec.type == "carbasic") {
+							//if station has cargo and car doesn't, then copy station cargo to car
+							if (ec.cargo == undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo != undefined) {
+								//only add once per train each trip
+								var addedBefore = false;
+								var train = getTrain(ec);
+//								console.log("Train length="+train.length);
+								for (var i=0; i<train.length; i++) {
+									if (train[i].cargo && train[i].cargo.uniqueid && train[i].cargo.uniqueid == tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid) {
+										addedBefore = true;
+//										console.log ("Added before is true. i="+i);
+									}
+								}
+								if (!addedBefore) {
+									playSound("supply");
+									ec.cargo = new Cargo(tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.value, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.type); //copy cargo
+									//ec.cargo = jQuery.extend({},tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo); //copy cargo
+									ec.cargo.uniqueid = tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo.uniqueid;
+									animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "supply"); 
+								}
+							}
+							
+							
+							//if car has cargo and station doesn't, then move car cargo to station
+							if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
+								playSound("supply");
+								animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move");
+							}
 						}
 					}
 
@@ -5023,8 +5443,7 @@ $(document).ready(function(){
 						//if car has cargo and station doesn't, then swap car cargo to station
 						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined) {
 							playSound("supply");
-							tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo = ec.cargo ; //move cargo
-							ec.cargo = undefined;
+							animateCargo(ec, tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)], "move"); 
 						}
 					}
 				}
@@ -5032,6 +5451,44 @@ $(document).ready(function(){
 		}
 		
 	}	
+	
+	function animateCargo (startObj, endObj, type, frames) {
+		startObj.cargo.isanimating = true;
+		startObj.cargo.animatestartobj = startObj;
+		startObj.cargo.animateendobj = endObj;	
+		var defaultFrames = 15;
+		startObj.cargo.animatetype = type || "straight";
+		startObj.cargo.animatetotalframes = frames || defaultFrames;
+		startObj.cargo.animatedframes = 0;
+	}
+	
+	function animatePoof (gridx, gridy, frames) {
+		var poof = {};
+		var defaultFrames = 15;
+		poof.gridx = gridx;
+		poof.gridy = gridy;
+		poof.animatetotalframes = frames || defaultFrames;
+		poof.animatedframes = 0;
+		poofs.push(poof);
+	}
+	
+/*	function animateCargo (cargo, startX, startY, ori, endX, endY, type, frames) { //moves cargo along path (type=straight or arc) from start to end 
+		//type
+		// "ontrackcargo"- hides cargo untl "totrackcargo" is done animating
+		// "totrackcargo"- for cargo going from car to trackcargo
+		// "dump"- for cargo going from car to trackcargo
+		cargo.isanimating = true;
+		cargo.animatestartx = startX;
+		cargo.animatestarty = startY;
+		cargo.startframe = ori*8;
+		cargo.animateendx = endX;
+		cargo.animateendy = endY;
+		cargo.animatetype = type || "straight";
+		var defaultFrames = 10;
+		cargo.animatetotalframes = frames || defaultFrames;
+		cargo.animatedframes = 0;
+		//console.log(cargo);
+} */
 	
 	function playSound(name) { // play sound for the named event
 		if (sounds[name]) {
@@ -5055,13 +5512,13 @@ $(document).ready(function(){
 	}
 	
 	function reverseOrientation(ec) { //flips the orientation of the ec so it is going the other way on the track. For track straight just ori+=4
-		console.log("ReverseOri");
+		//console.log("ReverseOri");
 		var track=tracks[mi(ec.gridx,ec.gridy)];
 		for (var dif=1; dif<8; dif++) {
 			var oriCheck = (ec.orientation+dif)%8;
 			if (ec.speed >=0) oriCheck = (oriCheck+4)%8; //add 4 since orientation is based on orientation when entering
 			if (trackConnects(track, oriCheck)) {
-				console.log("Found reverse ori. original ori="+ec.orientation+" new ori="+(ec.orientation+dif)%8);
+//				console.log("Found reverse ori. original ori="+ec.orientation+" new ori="+(ec.orientation+dif)%8);
 				ec.orientation = (oriCheck+4)%8;
 				return;
 			}
@@ -5100,7 +5557,10 @@ $(document).ready(function(){
 	function getNextTrack(ec) {
 		//console.log("getNextTrack");
 		var track = tracks[mi(ec.gridx,ec.gridy)];
-		if (!track) console.log("ERROR no track found for getNextTrack ec.gridx="+ec.gridx+" y="+ec.gridy);
+		if (!track) {
+			console.log("ERROR no track found for getNextTrack ec.gridx="+ec.gridx+" y="+ec.gridy);
+			return;
+		}
 		var type = getTypeForWye(ec, track);
 		var gridx=0, gridy=0;
 		var orientation = ec.orientation;
@@ -5255,6 +5715,7 @@ $(document).ready(function(){
 		
 		playSound("crash");
 		console.log ("Engine crashed at gridx="+ ec.gridx + " gridy=" + ec.gridy);
+		animatePoof(ec.gridx, ec.gridy);
 		if (interactionState == 'Try level') { 
 			console.log ("Crashed on levels");
 			interactionState = 'StarScreen';
@@ -5268,6 +5729,7 @@ $(document).ready(function(){
 			//delete train if crashes
 			var nEngine;
 			var train = getTrain(ec);
+			if (!train) return;
 			console.log("Train length="+train.length);
 			for (var i=0; i<train.length; i++) {
 				if (train[i].type == "enginebasic") nEngine = i;
@@ -5275,7 +5737,8 @@ $(document).ready(function(){
 				deleteEC(train[i]);
 			}
 			trains.splice(i,1);
-		}		
+		}
+		buildTrains();		
 	}
 	
 	function deleteEC(ecdel) { //removes engines and cars from their arrays
@@ -5657,7 +6120,7 @@ $(document).ready(function(){
 					}
 					break;
 				case "Track":
-					ctx.drawImage(imgTrackStraight[1], -10,-10);
+					ctx.drawImage(imgTrackStraight[1], -10,-10,imgTrackWidth,imgTrackWidth);
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -5670,10 +6133,10 @@ $(document).ready(function(){
 				case "Write":
 					ctx.fillStyle = fontColor;
 					ctx.font = "20px Arial";
-					ctx.fillText("Write",11,45);
+					ctx.fillText("Write",17,45);
 					break;
 				case "Cargo":
-					ctx.drawImage(imgCargoUppercase[0][14], -8,3);
+					ctx.drawImage(imgCargoUppercase[0][14], -8,3,imgTrackWidth,imgTrackWidth);
 					if (this.down) {
 						ctx.lineWidth = 3;
 					    ctx.strokeStyle = "yellow";
@@ -5724,7 +6187,7 @@ $(document).ready(function(){
 					break;
 				case "Engine":
 					// engine icon
-					ctx.drawImage(imgEngine[46], offset,offset);
+					ctx.drawImage(imgEngine[46], offset,offset,imgTrackWidth,imgTrackWidth);
 					//drawCrosshair(width,height);
 					/*ctx.beginPath();
 					ctx.moveTo(0.4*width,0.4*height);
@@ -5743,7 +6206,7 @@ $(document).ready(function(){
 					}
 					break;
 				case "Car":
-					ctx.drawImage(imgCar[14], offset,offset);
+					ctx.drawImage(imgCar[14], offset,offset,imgTrackWidth,imgTrackWidth);
 					//drawCrosshair(width,height);
 					/*ctx.beginPath();
 					ctx.moveTo(0.375*width,0.45*height);
@@ -5825,6 +6288,9 @@ $(document).ready(function(){
 				case "Upload":
 					ctx.drawImage(imgUploadIcon,5,7);
 					break;
+				case "Signin":
+					ctx.drawImage(imgSigninIcon,5,7);
+					break;
 	
 			}
 			ctx.restore();
@@ -5862,3 +6328,181 @@ $(document).ready(function(){
 	}
 		
 });
+
+/*
+    cycle.js
+    2017-02-07
+    Public Domain.
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+*/
+
+// The file uses the WeakMap feature of ES6.
+
+/*jslint es6, eval */
+
+/*property
+    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
+    retrocycle, set, stringify, test
+*/
+
+if (typeof JSON.decycle !== "function") {
+    JSON.decycle = function decycle(object, replacer) {
+        "use strict";
+
+// Make a deep copy of an object or array, assuring that there is at most
+// one instance of each object or array in the resulting structure. The
+// duplicate references (which might be forming cycles) are replaced with
+// an object of the form
+
+//      {"$ref": PATH}
+
+// where the PATH is a JSONPath string that locates the first occurance.
+
+// So,
+
+//      var a = [];
+//      a[0] = a;
+//      return JSON.stringify(JSON.decycle(a));
+
+// produces the string '[{"$ref":"$"}]'.
+
+// If a replacer function is provided, then it will be called for each value.
+// A replacer function receives a value and returns a replacement value.
+
+// JSONPath is used to locate the unique object. $ indicates the top level of
+// the object or array. [NUMBER] or [STRING] indicates a child element or
+// property.
+
+        var objects = new WeakMap();     // object to path mappings
+
+        return (function derez(value, path) {
+
+// The derez function recurses through the object, producing the deep copy.
+
+            var old_path;   // The path of an earlier occurance of value
+            var nu;         // The new object or array
+
+// If a replacer function was provided, then call it to get a replacement value.
+
+            if (replacer !== undefined) {
+                value = replacer(value);
+            }
+
+// typeof null === "object", so go on if this value is really an object but not
+// one of the weird builtin objects.
+
+            if (
+                typeof value === "object" && value !== null &&
+                !(value instanceof Boolean) &&
+                !(value instanceof Date) &&
+                !(value instanceof Number) &&
+                !(value instanceof RegExp) &&
+                !(value instanceof String)
+            ) {
+
+// If the value is an object or array, look to see if we have already
+// encountered it. If so, return a {"$ref":PATH} object. This uses an
+// ES6 WeakMap.
+
+                old_path = objects.get(value);
+                if (old_path !== undefined) {
+                    return {$ref: old_path};
+                }
+
+// Otherwise, accumulate the unique value and its path.
+
+                objects.set(value, path);
+
+// If it is an array, replicate the array.
+
+                if (Array.isArray(value)) {
+                    nu = [];
+                    value.forEach(function (element, i) {
+                        nu[i] = derez(element, path + "[" + i + "]");
+                    });
+                } else {
+
+// If it is an object, replicate the object.
+
+                    nu = {};
+                    Object.keys(value).forEach(function (name) {
+                        nu[name] = derez(
+                            value[name],
+                            path + "[" + JSON.stringify(name) + "]"
+                        );
+                    });
+                }
+                return nu;
+            }
+            return value;
+        }(object, "$"));
+    };
+}
+
+
+if (typeof JSON.retrocycle !== "function") {
+    JSON.retrocycle = function retrocycle($) {
+        "use strict";
+
+// Restore an object that was reduced by decycle. Members whose values are
+// objects of the form
+//      {$ref: PATH}
+// are replaced with references to the value found by the PATH. This will
+// restore cycles. The object will be mutated.
+
+// The eval function is used to locate the values described by a PATH. The
+// root object is kept in a $ variable. A regular expression is used to
+// assure that the PATH is extremely well formed. The regexp contains nested
+// * quantifiers. That has been known to have extremely bad performance
+// problems on some browsers for very long strings. A PATH is expected to be
+// reasonably short. A PATH is allowed to belong to a very restricted subset of
+// Goessner's JSONPath.
+
+// So,
+//      var s = '[{"$ref":"$"}]';
+//      return JSON.retrocycle(JSON.parse(s));
+// produces an array containing a single element which is the array itself.
+
+        var px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\([\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
+
+        (function rez(value) {
+
+// The rez function walks recursively through the object looking for $ref
+// properties. When it finds one that has a value that is a path, then it
+// replaces the $ref object with a reference to the value that is found by
+// the path.
+
+            if (value && typeof value === "object") {
+                if (Array.isArray(value)) {
+                    value.forEach(function (element, i) {
+                        if (typeof element === "object" && element !== null) {
+                            var path = element.$ref;
+                            if (typeof path === "string" && px.test(path)) {
+                                value[i] = eval(path);
+                            } else {
+                                rez(element);
+                            }
+                        }
+                    });
+                } else {
+                    Object.keys(value).forEach(function (name) {
+                        var item = value[name];
+                        if (typeof item === "object" && item !== null) {
+                            var path = item.$ref;
+                            if (typeof path === "string" && px.test(path)) {
+                                value[name] = eval(path);
+                            } else {
+                                rez(item);
+                            }
+                        }
+                    });
+                }
+            }
+        }($));
+        return $;
+    };
+}
