@@ -357,7 +357,9 @@ $(document).ready(function(){
     
     drawTitleScreen();
 
-    var imgTerrain = new Image(); imgTerrain.src = 'img/WoodShutterstockLightSmall.jpg';
+   // var imgTerrain = new Image(); imgTerrain.src = 'img/WoodShutterstockBrownGraySmall.jpg';
+//    var imgTerrain = new Image(); imgTerrain.src = 'img/WoodShutterstockOrangeSmall.jpg';
+   // var imgTerrain = new Image(); imgTerrain.src = 'img/parquet4.jpg';
 	var imgButtonHome = new Image(); imgButtonHome.src = 'img/homeicon.png';
 	var imgStar = new Image(); imgStar.src = 'img/star.png';
 		
@@ -387,6 +389,17 @@ $(document).ready(function(){
 	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
 	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/'+imgfolder+'/CaptionButtons/sprung.png';
 	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
+
+	//load the array of parquet tiles
+	var imgParquet = [];
+	for (var i=0; i<12; i++) {
+		imgParquet[i] = new Image();
+		var name = 'img/Parquet';
+		//if (i<9) name += '0';
+		name += (i+1);
+		name += '.jpg';
+		imgParquet[i].src = name;
+	}
 
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
 	var imgEngine = [];
@@ -1728,7 +1741,7 @@ $(document).ready(function(){
 		
 		drawTextButton(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight, "Back", false, false, "lightGray", "gray");
 		text= interactionState + "-back";
-		buttonDimLevels[text] = new box(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight,);
+		buttonDimLevels[text] = new box(0.5*canvasWidth, 0.88*canvasHeight, 0.15*canvasWidth, 0.08*canvasHeight);
 		
 	}
 		
@@ -3663,7 +3676,7 @@ $(document).ready(function(){
 		//add background texture
 //        ctx.save();
 //		ctx.scale(zoomScale, zoomScale);
-		ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
+		//ctx.drawImage(imgTerrain,0,0,canvasWidth,canvasHeight);
  //       ctx.restore();
         
         ctx.save();
@@ -3674,7 +3687,8 @@ $(document).ready(function(){
 		ctx.translate(screenCenter.x-centerTileX*tileWidth*zoomScale, screenCenter.y-centerTileY*tileWidth*tileRatio*zoomScale);
 		ctx.scale(zoomScale, zoomScale);
 
-		if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
+		//if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
+		drawGrid();
 		
 		drawSquares();
 		drawAllTracks();
@@ -4416,6 +4430,7 @@ $(document).ready(function(){
 		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
 		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
 			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				//console.log("i="+i+" j="+j);
 				drawTileBorder(Math.floor(i),Math.floor(j));
 			}
 		}	
@@ -4427,11 +4442,11 @@ $(document).ready(function(){
 		ctx.save();
 		ctx.translate((0.5+tilex)*tileWidth, (0.5+tiley)*tileWidth*tileRatio); //center origin on tile
 		ctx.strokeStyle = gridColor;
-		drawOctagonOrSquare();
+		drawOctagonOrSquare(tilex, tiley);
 		ctx.restore();
 	}
 	
-	function drawOctagonOrSquare() {
+	function drawOctagonOrSquare(tilex, tiley) {
 		ctx.beginPath();
 		ctx.lineWidth = 1;
 		if (useOctagons) { //draw octagon boundary
@@ -4445,7 +4460,16 @@ $(document).ready(function(){
 			ctx.lineTo(0 - 0.5*tileWidth,													Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // |
 			ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio); // /
 		} else { //draw square boundary
-			ctx.rect(-0.5*tileWidth, -0.5*tileWidth*tileRatio, tileWidth, tileWidth*tileRatio)
+			//var rx = Math.sin(tilex+tiley*77) * 10000;
+    		//var index = Math.floor((rx - Math.floor(rx))*imgParquet.length);
+			var index = 1;
+			//console.log("index="+index+" tilex="+tilex+" tiley="+tiley);
+			if ((tilex+tiley)%2 == 0) {
+				ctx.rotate(-Math.PI/2);
+				ctx.drawImage(imgParquet[index], -0.5*tileWidth*tileRatio-1, -0.5*tileWidth-1, tileWidth*tileRatio+2, tileWidth+2);
+			} else {
+				ctx.drawImage(imgParquet[index], -0.5*tileWidth-1, -0.5*tileWidth*tileRatio-1, tileWidth+2, tileWidth*tileRatio+2);
+			}
 		}
 		ctx.stroke();
 	}
@@ -6229,7 +6253,7 @@ $(document).ready(function(){
 					ctx.strokeStyle = gridColorDark;
 					ctx.translate(width/2, height/2);
 					ctx.scale (0.8,0.8);
-					drawOctagonOrSquare();
+					drawOctagonOrSquare(1,1);
 					break;
 				case "Eraser":
 					if (this.down) {
