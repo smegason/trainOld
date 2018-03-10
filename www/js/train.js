@@ -217,11 +217,12 @@ $(document).ready(function(){
 			iconscale = data["iconscale"];
 			if (iconscale == 0.25) imgfolder = "renders25";
 			else if (iconscale == 0.5) imgfolder = "renders50";
+			else if (iconscale == 1) imgfolder = "renders100";
 			else if (iconscale == 2) imgfolder = "renders200";
 			else if (iconscale == 4) imgfolder = "renders400";
 			else {
-				imgfolder = "renders100";
-				iconscale = 1;
+				imgfolder = "renders200";
+				iconscale = 2;
 			}
 		}
 		console.log("imgfolder="+imgfolder);
@@ -1908,7 +1909,7 @@ $(document).ready(function(){
 		
 	}		    
 
-	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different angles. Value for choosing from array of values for cargo type
+	function drawSprite(name, ori, value) { //draws an image either from scratch or via a loaded image at the current position. ori used for choosing image from array of renders from different orientations. Value for choosing from array of values for cargo type
 		ctx.rotate(-ori * Math.PI/4);
 		//console.log("drawSprite="+name); //kkk
         var cargoOffsetX = -37;
@@ -1918,118 +1919,118 @@ $(document).ready(function(){
                 ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Caption1":
-                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionuppercase":
-                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "CaptionA":
-                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionlowercase":
-				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiona":
-				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captioncolors":
-				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionwhite":
-				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiondinosaurs":
-				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionraptor":
-				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionstuffedanimals":
-				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionbunny":
-				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionnumbers":
-				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Caption0":
-				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionbinary":
-				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionyes":
-				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY);
+				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionnone":
-				ctx.drawImage(imgCaptionNone, 0, -11);
+				ctx.drawImage(imgCaptionNone, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionalternate":
-				ctx.drawImage(imgCaptionAlternate, 0, -11);
+				ctx.drawImage(imgCaptionAlternate, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionrandom":
-				ctx.drawImage(imgCaptionRandom, 0, -11);
+				ctx.drawImage(imgCaptionRandom, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captioncomparegreater":
-				ctx.drawImage(imgCaptionGreater, 0, -11);
+				ctx.drawImage(imgCaptionGreater, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionlazy":
-				ctx.drawImage(imgCaptionLazy, 0, -11);
+				ctx.drawImage(imgCaptionLazy, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captioncompareless":
-				ctx.drawImage(imgCaptionLesser, 0, -11);
+				ctx.drawImage(imgCaptionLesser, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionprompt":
-				ctx.drawImage(imgCaptionPrompt, 0, -11);
+				ctx.drawImage(imgCaptionPrompt, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionsprung":
-				ctx.drawImage(imgCaptionSprung, 0, -11);
+				ctx.drawImage(imgCaptionSprung, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionadd":
-				ctx.drawImage(imgCaptionAdd, 0, -11);
+				ctx.drawImage(imgCaptionAdd, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captioncatapult":
-				ctx.drawImage(imgCaptionCatapult, 0, -11);
+				ctx.drawImage(imgCaptionCatapult, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiondecrement":
-				ctx.drawImage(imgCaptionDecrement, 0, -11);
+				ctx.drawImage(imgCaptionDecrement, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiondivide":
-				ctx.drawImage(imgCaptionDivide, 0, -11);
+				ctx.drawImage(imgCaptionDivide, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiondump":
-				ctx.drawImage(imgCaptionDump, 0, -11);
+				ctx.drawImage(imgCaptionDump, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionincrement":
-				ctx.drawImage(imgCaptionIncrement, 0, -11);
+				ctx.drawImage(imgCaptionIncrement, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionmultiply":
-				ctx.drawImage(imgCaptionMultiply, 0, -11);
+				ctx.drawImage(imgCaptionMultiply, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionhome":
-				ctx.drawImage(imgCaptionHome, 0, -11);
+				ctx.drawImage(imgCaptionHome, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionredtunnel":
-				ctx.drawImage(imgCaptionRedTunnel, -4, -5);
+				ctx.drawImage(imgCaptionRedTunnel, -4, -5,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captiongreentunnel":
-				ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
+				ctx.drawImage(imgCaptionGreenTunnel, -4, -4,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionbluetunnel":
-				ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
+				ctx.drawImage(imgCaptionBlueTunnel, -4, -5,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionpickdrop":
-				ctx.drawImage(imgCaptionPickDrop, 0, -11);
+				ctx.drawImage(imgCaptionPickDrop, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionslingshot":
-				ctx.drawImage(imgCaptionSlingshot, 0, -11);
+				ctx.drawImage(imgCaptionSlingshot, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionsubtract":
-				ctx.drawImage(imgCaptionSubtract, 0, -11);
+				ctx.drawImage(imgCaptionSubtract, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionsupply":
-				ctx.drawImage(imgCaptionSupply, 0, -11);
+				ctx.drawImage(imgCaptionSupply, 0, -11,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "track90":
 				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
@@ -4419,8 +4420,8 @@ $(document).ready(function(){
 	function spiral (gridx, gridy, width, height) { //gridx and gridy are the center tile to spiral out from. Width and height are how much space is needed
 		//this function spirals outward from x,y = 0,0 to max of X,Y
 		// then exits when an empty space is found
-		var maxX=10;
-		var maxY=10;
+		var maxX=5;
+		var maxY=5;
 	    var x,y,dx,dy;
 	    x = y = dx =0;
 	    dy = -1;
@@ -4428,9 +4429,9 @@ $(document).ready(function(){
 	    var maxI = t*t;
 	    for (var i =0; i < maxI; i++) {
 	    	if ((-maxX/2 < x && x <= maxX/2) && (-maxY/2 < y && y <= maxY/2)) {
-//	    		console.log ("x=" + (gridx+x) + " y=" + (gridy+y));
+	    		console.log ("x=" + (gridx+x) + " y=" + (gridy+y));
 	    		if (isSpace(gridx+x, gridy+y, width, height)) {
-//	    			console.log ("Found empty space at x=" + (gridx+x) + " y=" + (gridy+y));
+	    			console.log ("Found empty space at x=" + (gridx+x) + " y=" + (gridy+y));
 	    			//successfully found empty space
 				    return {
 				        'gridx': gridx + x,
