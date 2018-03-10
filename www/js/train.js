@@ -166,14 +166,17 @@ $(document).ready(function(){
 	var showToolBar = true;
 	var passedTrx;
 	var passedTrackID;
-	var zoomScale = 1;
+	var zoomScale = 1.5;
 	var zoomMultiplier = 1.1;	
 	var panStartX, panStartY, zoomStartX, zoomStartY, startZoomScale; 
 	var startTimePlay; //time when play pressed
 	var animationFrame = 0; //used for keeping track of frames for animation of star after successfully completing track
 	var imgfolder = "renders100";
 	var iconscale = 1;
-	
+	var dirtyTiles = {}; //associative array for keeping track of which tiles to redraw
+	var allTilesDirty = true; //redraws everything if true
+
+		
 	if (data) {
 		if (data["resize"]) {
 			if (data["resize"]==0) {
@@ -388,17 +391,28 @@ $(document).ready(function(){
 	var imgCaptionLesser = new Image(); imgCaptionLesser.src = 'img/'+imgfolder+'/CaptionButtons/lesser.png';
 	var imgCaptionPrompt = new Image(); imgCaptionPrompt.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
 	var imgCaptionSprung = new Image(); imgCaptionSprung.src = 'img/'+imgfolder+'/CaptionButtons/sprung.png';
-	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/'+imgfolder+'/CaptionButtons/prompt.png';
+	var imgCaptionRandom = new Image(); imgCaptionRandom.src = 'img/'+imgfolder+'/CaptionButtons/random.png';
 
 	//load the array of parquet tiles
 	var imgParquet = [];
-	for (var i=0; i<12; i++) {
+	for (var i=0; i<3; i++) {
 		imgParquet[i] = new Image();
-		var name = 'img/Parquet';
+		var name = 'img/carpetTileBeige';
 		//if (i<9) name += '0';
 		name += (i+1);
 		name += '.jpg';
 		imgParquet[i].src = name;
+	}
+
+	//load the array of parquet tiles for octagon
+	var imgParquetOct = [];
+	for (var i=0; i<3; i++) {
+		imgParquetOct[i] = new Image();
+		var name = 'img/carpetTileBeigeOct';
+		//if (i<9) name += '0';
+		name += (i+1);
+		name += '.jpg';
+		imgParquetOct[i].src = name;
 	}
 
 	//load the array of images for animating the engines. The images are renderings of a model from Blender from 64 different angles
@@ -613,7 +627,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftRandomL[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Random-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -623,7 +637,7 @@ $(document).ready(function(){
 	var imgTrackWyeLeftRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeLeftRandomR[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWyeLeft-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeLeft-Random-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -755,7 +769,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightRandomL[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Random-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -765,7 +779,7 @@ $(document).ready(function(){
 	var imgTrackWyeRightRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRightRandomR[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWyeRight-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWyeRight-Random-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -896,7 +910,7 @@ $(document).ready(function(){
 	var imgTrackWyeRandomL = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRandomL[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWye-Prompt-L/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Random-L/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -906,7 +920,7 @@ $(document).ready(function(){
 	var imgTrackWyeRandomR = [];
 	for (var i=0; i<8; i++) { //one for each orientation
 		imgTrackWyeRandomR[i] = new Image();
-		var name = 'img/'+imgfolder+'/TrackWye-Prompt-R/00';
+		var name = 'img/'+imgfolder+'/TrackWye-Random-R/00';
 		if (i<9) name += '0';
 		name += (i+1);
 		name += '.png';
@@ -1901,121 +1915,121 @@ $(document).ready(function(){
         var cargoOffsetY = -26;
 		switch (name) {
 			case "Captionblocks":
-                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Caption1":
-                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+                ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionuppercase":
-                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+                ctx.drawImage(imgCargoUppercase[0][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "CaptionA":
-                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+                ctx.drawImage(imgCargoUppercase[value][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionlowercase":
-				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoLowercase[0][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captiona":
-				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoLowercase[value][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captioncolors":
-				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoColors[0][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionwhite":
-				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoColors[value][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captiondinosaurs":
-				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoDinosaurs[0][5], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionraptor":
-				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoDinosaurs[value][5], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionstuffedanimals":
-				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionbunny":
-				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionnumbers":
-				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoNumbers[0][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Caption0":
-				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoNumbers[value][16], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionbinary":
-				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoBinary[0][5], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionyes":
-				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCargoBinary[value][5], cargoOffsetX, cargoOffsetY);
 				break;
 			case "Captionnone":
-				ctx.drawImage(imgCaptionNone, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionNone, 0, -11);
 				break;
 			case "Captionalternate":
-				ctx.drawImage(imgCaptionAlternate, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionAlternate, 0, -11);
 				break;
 			case "Captionrandom":
-				ctx.drawImage(imgCaptionRandom, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionRandom, 0, -11);
 				break;
 			case "Captioncomparegreater":
-				ctx.drawImage(imgCaptionGreater, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionGreater, 0, -11);
 				break;
 			case "Captionlazy":
-				ctx.drawImage(imgCaptionLazy, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionLazy, 0, -11);
 				break;
 			case "Captioncompareless":
-				ctx.drawImage(imgCaptionLesser, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionLesser, 0, -11);
 				break;
 			case "Captionprompt":
-				ctx.drawImage(imgCaptionPrompt, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionPrompt, 0, -11);
 				break;
 			case "Captionsprung":
-				ctx.drawImage(imgCaptionSprung, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionSprung, 0, -11);
 				break;
 			case "Captionadd":
-				ctx.drawImage(imgCaptionAdd, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionAdd, 0, -11);
 				break;
 			case "Captioncatapult":
-				ctx.drawImage(imgCaptionCatapult, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionCatapult, 0, -11);
 				break;
 			case "Captiondecrement":
-				ctx.drawImage(imgCaptionDecrement, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionDecrement, 0, -11);
 				break;
 			case "Captiondivide":
-				ctx.drawImage(imgCaptionDivide, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionDivide, 0, -11);
 				break;
 			case "Captiondump":
-				ctx.drawImage(imgCaptionDump, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionDump, 0, -11);
 				break;
 			case "Captionincrement":
-				ctx.drawImage(imgCaptionIncrement, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionIncrement, 0, -11);
 				break;
 			case "Captionmultiply":
-				ctx.drawImage(imgCaptionMultiply, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionMultiply, 0, -11);
 				break;
 			case "Captionhome":
-				ctx.drawImage(imgCaptionHome, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionHome, 0, -11);
 				break;
 			case "Captionredtunnel":
-				ctx.drawImage(imgCaptionRedTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionRedTunnel, -4, -5);
 				break;
 			case "Captiongreentunnel":
-				ctx.drawImage(imgCaptionGreenTunnel, -4, -4,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionGreenTunnel, -4, -4);
 				break;
 			case "Captionbluetunnel":
-				ctx.drawImage(imgCaptionBlueTunnel, -4, -5,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionBlueTunnel, -4, -5);
 				break;
 			case "Captionpickdrop":
-				ctx.drawImage(imgCaptionPickDrop, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionPickDrop, 0, -11);
 				break;
 			case "Captionslingshot":
-				ctx.drawImage(imgCaptionSlingshot, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionSlingshot, 0, -11);
 				break;
 			case "Captionsubtract":
-				ctx.drawImage(imgCaptionSubtract, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionSubtract, 0, -11);
 				break;
 			case "Captionsupply":
-				ctx.drawImage(imgCaptionSupply, 0, -11,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgCaptionSupply, 0, -11);
 				break;
 			case "track90":
 				ctx.drawImage(imgTrack90[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
@@ -2070,10 +2084,10 @@ $(document).ready(function(){
 				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-random-r":
-				ctx.drawImage(imgTrackWyeRightPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeRightRandomR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeright-random-l":
-				ctx.drawImage(imgTrackWyeRightPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeRightRandomL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-alternate-l":
 				ctx.drawImage(imgTrackWyeLeftAlternateL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
@@ -2106,10 +2120,10 @@ $(document).ready(function(){
 				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-random-l":
-				ctx.drawImage(imgTrackWyeLeftPromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeLeftRandomL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-random-r":
-				ctx.drawImage(imgTrackWyeLeftPromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeLeftRandomR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwyeleft-sprung-l":
 				ctx.drawImage(imgTrackWyeLeftSprungL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
@@ -2154,10 +2168,10 @@ $(document).ready(function(){
 				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-random-l":
-				ctx.drawImage(imgTrackWyePromptL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeRandomL[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackwye-random-r":
-				ctx.drawImage(imgTrackWyePromptR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
+				ctx.drawImage(imgTrackWyeRandomR[ori], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 				break;
 			case "trackcross":
 				var oriRot = (ori+4)%8; // this is to correct an error in the rendering angle
@@ -3045,11 +3059,13 @@ $(document).ready(function(){
 	   			if (worldMouse.xtile>Math.min(startSelectXTile, endSelectXTile) && worldMouse.ytile>Math.min(startSelectYTile, endSelectYTile)
 	   		          && worldMouse.xtile<Math.max(startSelectXTile, endSelectXTile) && worldMouse.ytile<Math.max(startSelectYTile, endSelectYTile)) {
 	   				e.target.style.cursor = 'move';
+	   				allTilesDirty = true;
 	   			} else {
 	   				e.target.style.cursor = 'default';
 	   			}	
 	   		} else if (isMoving) {
 	   			e.target.style.cursor = 'move';
+	   			allTilesDirty = true;
 		   	} else {
 	   			e.target.style.cursor = 'default';
 		   	}
@@ -3057,8 +3073,14 @@ $(document).ready(function(){
    			e.target.style.cursor = 'default';
 	    }
 
-		if (isZooming || optionIsPressed) e.target.style.cursor = 'zoom-in';
-		if (isPanning || shiftIsPressed) e.target.style.cursor = 'move';
+		if (isZooming || optionIsPressed) {
+			e.target.style.cursor = 'zoom-in';
+   			allTilesDirty = true;
+		}
+		if (isPanning || shiftIsPressed) {
+			 e.target.style.cursor = 'move';
+   			allTilesDirty = true;
+			}
 		
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) {
 	    	if (isDrawingTrack) {
@@ -3122,6 +3144,7 @@ $(document).ready(function(){
     
     function onClickUp(mouseX, mouseY, e) {
 //        console.log ("onClickUp");
+		allTilesDirty = true;
         if (!showToolBar) return; //if toolbar hidden then ignore events
 		isPanning = false;
 		isZooming = false;
@@ -3688,6 +3711,35 @@ $(document).ready(function(){
 		ctx.scale(zoomScale, zoomScale);
 
 		//if (getButton("Track").down || getButton("Cargo").down || getButton("Select").down) drawGrid();
+
+		//determine dirty tiles
+		dirtyTiles = {};
+		// mark all track tiles as dirty because you have to redraw tracks from top to bottom, cant just redraw one
+		var upperLeftWorld = screenToWorld(0, 0);
+		var lowerRightWorld = screenToWorld(tracksWidth, canvasHeight);
+		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
+			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
+				drawTrack(tracks[mi(Math.floor(i),Math.floor(j))]);
+				if (tracks[mi(Math.floor(i),Math.floor(j))]) {
+					dirtyTiles[mi(Math.floor(i),Math.floor(j))] = true;
+					if (tracks[mi(Math.floor(i),Math.floor(j))].cargo) dirtyTiles[mi(Math.floor(i),Math.floor(j)-1)] = true;
+				}
+			}
+		}	
+		// mark all ECs and adjacent sites dirty	
+		var ECs = engines.concat(cars);
+		for (var i=0; i<ECs.length; i++) {
+			dirtyTiles[mi(ECs[i].gridx,ECs[i].gridy)] = true;
+			dirtyTiles[mi(ECs[i].gridx,ECs[i].gridy+1)] = true;
+			dirtyTiles[mi(ECs[i].gridx,ECs[i].gridy-1)] = true;
+			dirtyTiles[mi(ECs[i].gridx+1,ECs[i].gridy)] = true;
+			dirtyTiles[mi(ECs[i].gridx+1,ECs[i].gridy+1)] = true;
+			dirtyTiles[mi(ECs[i].gridx+1,ECs[i].gridy-1)] = true;
+			dirtyTiles[mi(ECs[i].gridx-1,ECs[i].gridy)] = true;
+			dirtyTiles[mi(ECs[i].gridx-1,ECs[i].gridy+1)] = true;
+			dirtyTiles[mi(ECs[i].gridx-1,ECs[i].gridy-1)] = true;
+		}
+
 		drawGrid();
 		
 		drawSquares();
@@ -3716,6 +3768,8 @@ $(document).ready(function(){
 		if (interactionState == 'StarScreen') {
 			drawStarScreen();
 		}
+		
+		allTilesDirty = false;
 	}
 	
 	function interpretAndDraw() {
@@ -3825,6 +3879,8 @@ $(document).ready(function(){
 		for (var i=upperLeftWorld.xtile; i<=lowerRightWorld.xtile+1; i++) {
 			for (var j=upperLeftWorld.ytile; j<=lowerRightWorld.ytile+1; j++) {
 				drawTrack(tracks[mi(Math.floor(i),Math.floor(j))]);
+				if (tracks[mi(Math.floor(i),Math.floor(j))]) dirtyTiles[mi(Math.floor(i),Math.floor(j))] = true;
+//				if (allTilesDirty || dirtyTiles[mi(Math.floor(i),Math.floor(j))]) drawTrack(tracks[mi(Math.floor(i),Math.floor(j))]);
 			}
 		}	
 	}	
@@ -4439,6 +4495,7 @@ $(document).ready(function(){
 	function drawTileBorder(tilex, tiley) {
 		//draw tile border
 		//console.log("Draw tile border x="+tilex+" y="+tiley);
+		if (!allTilesDirty) if (!dirtyTiles[mi(tilex,tiley)]) return;
 		ctx.save();
 		ctx.translate((0.5+tilex)*tileWidth, (0.5+tiley)*tileWidth*tileRatio); //center origin on tile
 		ctx.strokeStyle = gridColor;
@@ -4447,31 +4504,16 @@ $(document).ready(function(){
 	}
 	
 	function drawOctagonOrSquare(tilex, tiley) {
-		ctx.beginPath();
-		ctx.lineWidth = 1;
-		if (useOctagons) { //draw octagon boundary
-			ctx.moveTo( Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio);
-			ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, -0.5*tileWidth*tileRatio); //  -
-			ctx.lineTo(tileWidth - 0.5*tileWidth, 										 	Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   \
-			ctx.lineTo(tileWidth - 0.5*tileWidth,											Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); //   |
-			ctx.lineTo(Math.round(tileWidth*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth, 0.5*tileWidth*tileRatio); //   /
-			ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				0.5*tileWidth*tileRatio); //  -
-			ctx.lineTo(0 - 0.5*tileWidth, 									 			  	Math.round(tileWidth*tileRatio*(1+Math.SQRT2)/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // \
-			ctx.lineTo(0 - 0.5*tileWidth,													Math.round(tileWidth*tileRatio/(2+Math.SQRT2)) - 0.5*tileWidth*tileRatio); // |
-			ctx.lineTo(Math.round(tileWidth/(2+Math.SQRT2)) - 0.5*tileWidth, 				-0.5*tileWidth*tileRatio); // /
-		} else { //draw square boundary
-			//var rx = Math.sin(tilex+tiley*77) * 10000;
-    		//var index = Math.floor((rx - Math.floor(rx))*imgParquet.length);
-			var index = 1;
-			//console.log("index="+index+" tilex="+tilex+" tiley="+tiley);
-			if ((tilex+tiley)%2 == 0) {
-				ctx.rotate(-Math.PI/2);
-				ctx.drawImage(imgParquet[index], -0.5*tileWidth*tileRatio-1, -0.5*tileWidth-1, tileWidth*tileRatio+2, tileWidth+2);
-			} else {
-				ctx.drawImage(imgParquet[index], -0.5*tileWidth-1, -0.5*tileWidth*tileRatio-1, tileWidth+2, tileWidth*tileRatio+2);
-			}
+		var rx = Math.sin(tilex+tiley*77) * 10000;
+		var index = Math.floor((rx - Math.floor(rx))*imgParquet.length);
+		var img = imgParquet;
+		if (useOctagons) img=imgParquetOct;
+		if ((tilex+tiley)%2 == 0) {
+			ctx.rotate(-Math.PI/2);
+			ctx.drawImage(img[index], -0.5*tileWidth*tileRatio-1, -0.5*tileWidth-1, tileWidth*tileRatio+2, tileWidth+2);
+		} else {
+			ctx.drawImage(img[index], -0.5*tileWidth-1, -0.5*tileWidth*tileRatio-1, tileWidth+2, tileWidth*tileRatio+2);
 		}
-		ctx.stroke();
 	}
 		
 	function drawToolBar () {
@@ -4958,7 +5000,9 @@ $(document).ready(function(){
 		for (var t=0; t<trains.length; t++) { //iterate through trains to see if leading edge is too close to another car
 			var train = trains[t];
 			for (c=train.length-1; c>=0; c--) { // go through train backwards so wye doesn't switch under a car
-				if (!modalTrack) interpret (train[c]);
+				if (!modalTrack) {
+					interpret (train[c]);
+				}
 			}
 		}
 		
