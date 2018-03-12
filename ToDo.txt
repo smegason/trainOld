@@ -1,7 +1,6 @@
 To Do:
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -Test browse on ipad
--use Renders25 if loaded with certain flag
 -Switch back to 2 iframes. convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
    Need to split all variables in common and instance specific--really everything but imgs.
 -OR just use thumbnails in db. Would need to make thumbnail during upload process
