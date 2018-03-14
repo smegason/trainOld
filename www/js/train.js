@@ -2877,7 +2877,8 @@ $(document).ready(function(){
 					    				var oldCar = cars.splice(i,1); //delete car
 					    				if (currentCaptionedObject == oldCar) currentCaptionObject = undefined; //remove caption bubble if its car is deleted
 					    				delete oldCar;
-					    				i = cars.length;
+										i = cars.length;
+										draw();
 				    				} else {
 				    					console.log ("Car has cargo. Delete cargo");
 				    					cars[i].cargo = null;
@@ -3162,8 +3163,8 @@ $(document).ready(function(){
 				var gridx = Math.floor(mouseWorld.xtile); 
 				var gridy = Math.floor(mouseWorld.ytile);
 				
-				console.log("CLICK- gridx="+gridx+" gridy="+gridy+" capX="+captionSecondaryX+" capY="+captionSecondaryY);
-	    		if ((secondaryCaption) && captionSecondaryX !=undefined && gridx >= captionSecondaryX && gridx< captionSecondaryX+3 && gridy >= captionSecondaryY && gridy< captionSecondaryY+3) {
+				console.log("CLICK- mouseWorld.xtile="+mouseWorld.xtile+" mouseWorld.ytile="+mouseWorld.ytile+" capX="+captionSecondaryX+" capY="+captionSecondaryY);
+	    		if ((secondaryCaption) && captionSecondaryX !=undefined && mouseWorld.xtile >= captionSecondaryX && mouseWorld.xtile< captionSecondaryX+3 && mouseWorld.ytile >= captionSecondaryY && mouseWorld.ytile< captionSecondaryY+3) {
     				//clicked in secondary caption ***********************
     				console.log ("Clicked in secondary caption bubble");
 					var worldPoint = screenToWorld(mouseX, mouseY); 
@@ -3200,7 +3201,7 @@ $(document).ready(function(){
     				secondaryCaption = undefined;
     				captionSecondaryX = undefined;
     			
-					if (captionX !=undefined && gridx >= captionX && gridx< captionX+captionWidth && gridy >= captionY && gridy< captionY+captionHeight) {
+					if (captionX !=undefined && mouseWorld.xtile >= captionX && mouseWorld.xtile< captionX+captionWidth && mouseWorld.ytile >= captionY && mouseWorld.ytile< captionY+captionHeight) {
 						//clicked in caption (primary) *******************
 						console.log("Clicked in caption primary---");
 						var worldPoint = screenToWorld(mouseX, mouseY); 
@@ -4386,7 +4387,6 @@ $(document).ready(function(){
 				//var ySpacing = (height*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
 			 	ctx.save();
 			 	if (isSecondary) {
-					 console.log("HHETERER");
 			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionSecondaryX)*tileWidth+10, (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionSecondaryY)*tileWidth*tileRatio)+8);
 			 	} else {
 			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionX)*tileWidth, (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionY)*tileWidth)*tileRatio);
