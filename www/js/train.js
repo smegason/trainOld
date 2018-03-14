@@ -308,6 +308,7 @@ $(document).ready(function(){
 	var currentCaptionedButton;
 	var buttonCaptionX;
 	var buttonCaptionY;
+	var lastClickUp; //position in world coords of mouse cursor on last click up
 	var currentUserID = localStorage.getObject('currentUserID');
 	var currentUsername = localStorage.setObject('currentUsername');
 	if (!currentUserID) currentUserID = 1;
@@ -453,6 +454,7 @@ $(document).ready(function(){
 		imgTrackStraight[i].src = name;
 	}
 	var imgTrackWidth = 92;
+	var captionIconWidth = 0.4*imgTrackWidth;
 	
 	var imgTrackDiagonalSquare = [];
 	for (var i=0; i<8; i++) { //one for each orientation
@@ -1916,7 +1918,7 @@ $(document).ready(function(){
         var cargoOffsetY = -26;
 		switch (name) {
 			case "Captionblocks":
-                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY);
+                ctx.drawImage(imgCargoBlocks[2][12], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Caption1":
                 ctx.drawImage(imgCargoBlocks[value][12], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
@@ -3151,6 +3153,7 @@ $(document).ready(function(){
 		isZooming = false;
 		
 		var mouseWorld = screenToWorld(mouseX, mouseY);
+		lastClickUp = mouseWorld;
 
 	    if (mouseX < tracksWidth && mouseY < tracksHeight) { //in track space
 	    	var distanceSq = Math.pow((startXPoint-mouseX),2) + Math.pow((startYPoint-mouseY),2);
@@ -4325,7 +4328,8 @@ $(document).ready(function(){
 		//if (captionX == -1) return;
 				
 		//console.log("capX="+captionX+","+captionY+" captionWidth="+captionWidth+","+captionHeight);
-		drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, (captionX+captionWidth/2)*tileWidth, (captionY+captionHeight/2)*tileWidth, true);
+		drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, lastClickUp.xtile*tileWidth, lastClickUp.ytile*tileWidth*tileRatio, true);
+		//drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, (captionX+captionWidth/2)*tileWidth, (captionY+captionHeight/2)*tileWidth, true);
 		
 		//console.log("Draw button array="+secondaryCaption.type)
 		
@@ -4372,13 +4376,15 @@ $(document).ready(function(){
 		
  		for (var row=0; row<array.length; row++) {
  			for (var col=0; col<array[row].length; col++) {
- 				var xSpacing = (width*tileWidth-array[row].length*insetWidth)/(array[row].length+1);
- 				var ySpacing = (height*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
+				//var xSpacing = (width*tileWidth-array[row].length*insetWidth)/(array[row].length+1);
+				var xSpacing = (width*tileWidth-array[row].length*captionIconWidth)/(array[row].length+1);
+				var ySpacing = (height*tileWidth*tileRatio-array.length*captionIconWidth)/(array.length+1);
+				//var ySpacing = (height*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
 			 	ctx.save();
 			 	if (isSecondary) {
-			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionSecondaryX)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionSecondaryY)*tileWidth*tileRatio);
+			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionSecondaryX)*tileWidth, 5+ (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionSecondaryY)*tileWidth));
 			 	} else {
-			 		ctx.translate(xSpacing*(col+1)+(col*insetWidth)+(captionX)*tileWidth, ySpacing*(row+1)+(row*insetWidth)+(captionY)*tileWidth*tileRatio);
+			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionX)*tileWidth, (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionY)*tileWidth)*tileRatio);
 			 	}
 			 	if (isSecondary) {
                     if (array[row][col] != undefined) {
@@ -4405,21 +4411,32 @@ $(document).ready(function(){
 		ctx.lineTo ((capX+0.5*captionWidth)*tileWidth+Math.cos(angle-Math.PI/2)*0.2*tileWidth+Math.cos(angle)*captionWidth*0.45*tileWidth, (capY+0.5*captionHeight)*tileWidth+Math.sin(angle-Math.PI/2)*0.2*tileWidth+Math.sin(angle)*captionHeight*0.45*tileWidth);
 //		ctx.lineTo ((capX+0.5*captionWidth)*tileWidth+Math.cos(angle-Math.PI/2)*0.2*tileWidth, (capY+0.5*captionHeight)*tileWidth-Math.sin(angle+Math.PI/2)*0.2*tileWidth);
 		
-		if (isSecondary) {
-			ctx.fillStyle = secondaryCaptionColor;
-			ctx.fill();
-		 	roundRect((capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, true, false);
-		} else { 
-			ctx.fillStyle = captionColor;
-			ctx.fill();
-		 	roundRect((capX+0.1)*tileWidth, (capY+0.1)*tileWidth, (captionWidth-0.2)*tileWidth, (captionHeight-0.2)*tileWidth, 0.2*tileWidth, true, false);
-		}
+		if (isSecondary) ctx.fillStyle = secondaryCaptionColor;
+		else ctx.fillStyle = captionColor;
+		ctx.fill();
+		roundRect((capX-0.06)*tileWidth, (capY-0.06)*tileWidth, (captionWidth+0.12)*tileWidth, (captionHeight+0.12)*tileWidth, 0.2*tileWidth, true, false);
 		
 	}
 			 	
 	function spiral (gridx, gridy, width, height) { //gridx and gridy are the center tile to spiral out from. Width and height are how much space is needed
 		//this function spirals outward from x,y = 0,0 to max of X,Y
 		// then exits when an empty space is found
+
+		//don't spiral, just put adjacent
+		var retx, rety;
+		var tracksWorld = screenToWorld(tracksWidth/2, tracksHeight/2);
+		console.log("gridx="+gridx+" tracksWorld.xtile="+tracksWorld.xtile);
+		console.log("gridy="+gridy+" tracksWorld.ytile="+tracksWorld.ytile);
+		if (gridx<tracksWorld.xtile) retx=gridx;
+		else retx=gridx-width-1;
+		if (gridy<tracksWorld.ytile) rety=gridy;
+		else rety=gridy-height+1;
+	    return {
+	        'gridx': retx + 1,
+	        'gridy': rety
+	    };  
+
+		//spiral
 		var maxX=5;
 		var maxY=5;
 	    var x,y,dx,dy;
