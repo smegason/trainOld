@@ -1651,7 +1651,7 @@ $(document).ready(function(){
 	}	
 	
 	function updateUndoHistory() {
-		console.log("Update undo history. Index="+undoCurrentIndex);
+//		console.log("Update undo history. Index="+undoCurrentIndex);
 	 	var trx = [tracks, engines, cars];
 		undoCurrentIndex += 1;
 		undoHistory[undoCurrentIndex] =	compress(JSON.stringify(JSON.decycle(trx)));
@@ -2473,6 +2473,7 @@ $(document).ready(function(){
 		if (cargoValues[obj.cargo.type] == "dinosaurs") frame = (frame+32)%64; //flip dinos because rendered wrong
 		if (obj.type == "trackcargo" || obj.type == "trackblank") frame = 16;
 		
+		//console.log("draw Cargo value="+value+" frame="+frame);
 		ctx.drawImage(imgCargo[value][frame], -imgTrackWidth/2, -imgTrackWidth/2,imgTrackWidth,imgTrackWidth);
 	}
 
@@ -2751,7 +2752,7 @@ $(document).ready(function(){
  				e.target.style.cursor = 'zoom-in';
        		} else {
        			//console.log("mouseX="+mouseX+","+mouseY);
-			    var mouseYWorld = mouseY*tileRatio; //world coordinates
+			    var mouseYWorld = mouseY/tileRatio; //world coordinates
 				
 				//see if clicked in button caption (button caption is a caption balloon that pops up from button in button bar)
 				if (currentCaptionedButton != undefined) {	
@@ -3160,25 +3161,26 @@ $(document).ready(function(){
 	    	if (distanceSq<10) { //select object for caption if mouse up near mouse down
 				var gridx = Math.floor(mouseWorld.xtile); 
 				var gridy = Math.floor(mouseWorld.ytile);
-	    		
+				
+				console.log("CLICK- gridx="+gridx+" gridy="+gridy+" capX="+captionSecondaryX+" capY="+captionSecondaryY);
 	    		if ((secondaryCaption) && captionSecondaryX !=undefined && gridx >= captionSecondaryX && gridx< captionSecondaryX+3 && gridy >= captionSecondaryY && gridy< captionSecondaryY+3) {
     				//clicked in secondary caption ***********************
-    				//console.log ("Clicked in secondary caption bubble");
+    				console.log ("Clicked in secondary caption bubble");
 					var worldPoint = screenToWorld(mouseX, mouseY); 
 					var fracX = (worldPoint.xtile- (captionSecondaryX+0.1))/(captionSecondaryWidth-0.2); //account for for border then divide
 					var fracY = (worldPoint.ytile- (captionSecondaryY+0.1))/(captionSecondaryHeight-0.2);
 					//get cargo subarray
 					var iCargo;
 					for (var i=0; i<cargoValues.length; i++) {
-						//console.log("cv="+cargoValues[i][0]+" sct="+secondaryCaption.type);
+					//	console.log("cv="+cargoValues[i][0]+" sct="+secondaryCaption.type);
 						if (cargoValues[i][0] == secondaryCaption.type) iCargo = i;
-						//console.log ("cargovalue="+cargoValues[i][0]+" i="+i);
+					//	console.log ("cargovalue="+cargoValues[i][0]+" i="+i);
 					}
 					if (iCargo == undefined) {
 						console.log("ERROR- cargo not found");
 						return;
 					}
-					//console.log("iCargo"+iCargo);
+					console.log("iCargo"+iCargo);
 					
 					var array = [];
 					var nCols = Math.floor(Math.sqrt(cargoValues[iCargo].length-1));
@@ -3186,126 +3188,128 @@ $(document).ready(function(){
 					
 					var row= Math.floor(nRows*fracY);
 					var col= Math.floor(nCols*fracX);
+					console.log("XXX row="+row+" col="+col);
 					var i = row*nCols + col; //which item was selected
 					i = Math.min(i, cargoValues[iCargo].length-2);
 					currentCaptionedObject.cargo = new Cargo(i,iCargo); 
 					updateUndoHistory();
 					secondaryCaption = undefined;
 					captionX = undefined;
-   				
+					currentCaptionedObject = undefined;
     			} else {
     				secondaryCaption = undefined;
     				captionSecondaryX = undefined;
-    			}
     			
-	    		if (captionX !=undefined && gridx >= captionX && gridx< captionX+captionWidth && gridy >= captionY && gridy< captionY+captionHeight) {
-    				//clicked in caption (primary) *******************
-					var worldPoint = screenToWorld(mouseX, mouseY); 
-					var fracX = (worldPoint.xtile- (captionX+0.1))/(captionWidth-0.2);
-					var fracY = (worldPoint.ytile- (captionY+0.1))/(captionHeight-0.2);
-   				
-   					//which caption was cliked in
-                   // console.log("Captioned object="+currentCaptionedObject.type);
-    				switch (currentCaptionedObject.type) {
-    					case "enginebasic":
-	    					//adjust speed
-							fracX = (worldPoint.xtile-captionX)/captionWidth;
-							fracY = (worldPoint.ytile-captionY)/captionHeight;
-		 	    			var angle = Math.atan2(fracY-0.8,fracX-0.5);
-		    				if (angle>1) angle = -Math.PI;
-		    				var speed = (2*angle/Math.PI+1)*maxEngineSpeed;
-		    				speed = Math.min(speed, maxEngineSpeed);
-		    				speed = Math.max(speed, -maxEngineSpeed);
-		    				speed = (maxEngineSpeed/(nNumSpeeds/2))*Math.round(speed/(maxEngineSpeed/(nNumSpeeds/2)));
-							//console.log("Speed="+speed);
-		    				//find train
-	    					var nEngine;
-	    					for (var k=0; k<engines.length && !nEngine; k++) {
-	    						if (engines[k] == currentCaptionedObject) nEngine = k;
-	    					}
-	    					//console.log("Clicked engine ="+nEngine);
-	    					if (nEngine == undefined) console.log ("ERROR- did not find nEngine");
-	    					var train = trains[nEngine];
-	
-	    					// change orientation for ECs on corner tracks if speed reversed
-		    				if (train) {
-		    					if ((currentCaptionedObject.speed>=0 && speed<0) || (currentCaptionedObject.speed<0 && speed>=0)) {
-			    					for (var k=0; k<train.length; k++) {
-			    						reverseSpeed(train[k]);
-			    					}
-			    				}
-			    			} else {
-			    				reverseSpeed(currentCaptionedObject);
-			    			}
-		    				
-		    				//change speed of whole train
-	    					if (train) for (var k=0; k<train.length; k++) {
-	    						train[k].speed = speed;
-	    					}
-		    				currentCaptionedObject.speed = speed;
-		    				break;
-		    			case "carbasic":
-		    			case "trackblank":
-		    			case "trackcargo":
- 	  						var row = Math.floor(fracY*buttonsCargoTypes.length);
-    						var col = Math.floor(fracX*buttonsCargoTypes[row].length);
-//    						currentCaptionedObject.subtype = buttonsCargoTypes[row][col];
-	   						secondaryCaption = {
-	   							'type': buttonsCargoTypes[row][col],
-	   							'X': mouseX,
-	   							'Y': mouseY/tileRatio
-	   						};
-							break;
-						case "trackstraight":
- 	  						var row = Math.floor(fracY*buttonsStation.length);
-    						var col = Math.floor(fracX*buttonsStation[row].length);
-	  						currentCaptionedObject.subtype = buttonsStation[row][col];
- 						 	if (!(currentCaptionedObject.subtype == "redtunnel" ||
- 						 	      currentCaptionedObject.subtype == "bluetunnel" ||
- 						 	      //currentCaptionedObject.subtype == "increment" ||
- 						 	      //currentCaptionedObject.subtype == "decrement" ||
- 						 	      currentCaptionedObject.subtype == "greentunnel"))
- 						 	        addTrackCargo(currentCaptionedObject);
- 							break;
-						case "trackwye":
-						case "trackwyeleft":
-						case "trackwyeright":
-    						var row = Math.floor(fracY*buttonsWye.length);
-    						var col = Math.floor(fracX*buttonsWye[row].length);
-    						currentCaptionedObject.subtype = buttonsWye[row][col];
-    						if (currentCaptionedObject.subtype  == "compareless"
-    						 || currentCaptionedObject.subtype  == "comparegreater" ) {
-    						 	addTrackCargo(currentCaptionedObject);
-    						 }
-							break;
-					}
-						
-	    		} else if (secondaryCaption == undefined) { //select object for new caption *****************
-                	//console.log("Select object for new caption. objecttype="+tracks[mi(gridx,gridy)].type);
-		    		currentCaptionedObject = undefined;
-
-	    			//see if clicked engine or car
-	    			var foundEC = false;
-	    			if (getButton("Eraser")) if (!getButton("Eraser").down) {
-			    		captionX = undefined;
-			    		currentCaptionedObject = getEC(gridx, gridy); 
-			    		if (currentCaptionedObject != undefined) foundEC = true;
-			    	}
+					if (captionX !=undefined && gridx >= captionX && gridx< captionX+captionWidth && gridy >= captionY && gridy< captionY+captionHeight) {
+						//clicked in caption (primary) *******************
+						console.log("Clicked in caption primary---");
+						var worldPoint = screenToWorld(mouseX, mouseY); 
+						var fracX = (worldPoint.xtile- (captionX+0.1))/(captionWidth-0.2);
+						var fracY = (worldPoint.ytile- (captionY+0.1))/(captionHeight-0.2);
 					
-	    			//see if clicked track
-	    			if (!getButton("Eraser").down && !foundEC ) {
-			    		if (tracks[mi(gridx,gridy)] != undefined) {
-				    		if (tracks[mi(gridx,gridy)].type == "trackwye" || tracks[mi(gridx,gridy)].type == "trackwyeleft" 
-				    		 || tracks[mi(gridx,gridy)].type == "trackwyeright" || tracks[mi(gridx,gridy)].type == "trackstraight"
-				    		 || tracks[mi(gridx,gridy)].type == "trackcargo"|| tracks[mi(gridx,gridy)].type == "trackblank") {
-				    			currentCaptionedObject = tracks[mi(gridx,gridy)];
-					    		captionX = undefined;
-					    		console.log("Captioned object="+tracks[mi(gridx,gridy)]+" xy="+gridx+","+gridy);
-				    		}
-				    	} 
-	    				
-			    	}
-	    		}
+						//which caption was cliked in
+					// console.log("Captioned object="+currentCaptionedObject.type);
+						switch (currentCaptionedObject.type) {
+							case "enginebasic":
+								//adjust speed
+								fracX = (worldPoint.xtile-captionX)/captionWidth;
+								fracY = (worldPoint.ytile-captionY)/captionHeight;
+								var angle = Math.atan2(fracY-0.8,fracX-0.5);
+								if (angle>1) angle = -Math.PI;
+								var speed = (2*angle/Math.PI+1)*maxEngineSpeed;
+								speed = Math.min(speed, maxEngineSpeed);
+								speed = Math.max(speed, -maxEngineSpeed);
+								speed = (maxEngineSpeed/(nNumSpeeds/2))*Math.round(speed/(maxEngineSpeed/(nNumSpeeds/2)));
+								//console.log("Speed="+speed);
+								//find train
+								var nEngine;
+								for (var k=0; k<engines.length && !nEngine; k++) {
+									if (engines[k] == currentCaptionedObject) nEngine = k;
+								}
+								//console.log("Clicked engine ="+nEngine);
+								if (nEngine == undefined) console.log ("ERROR- did not find nEngine");
+								var train = trains[nEngine];
+		
+								// change orientation for ECs on corner tracks if speed reversed
+								if (train) {
+									if ((currentCaptionedObject.speed>=0 && speed<0) || (currentCaptionedObject.speed<0 && speed>=0)) {
+										for (var k=0; k<train.length; k++) {
+											reverseSpeed(train[k]);
+										}
+									}
+								} else {
+									reverseSpeed(currentCaptionedObject);
+								}
+								
+								//change speed of whole train
+								if (train) for (var k=0; k<train.length; k++) {
+									train[k].speed = speed;
+								}
+								currentCaptionedObject.speed = speed;
+								break;
+							case "carbasic":
+							case "trackblank":
+							case "trackcargo":
+								var row = Math.floor(fracY*buttonsCargoTypes.length);
+								var col = Math.floor(fracX*buttonsCargoTypes[row].length);
+	//    						currentCaptionedObject.subtype = buttonsCargoTypes[row][col];
+								secondaryCaption = {
+									'type': buttonsCargoTypes[row][col],
+									'X': mouseX,
+									'Y': mouseY/tileRatio
+								};
+								break;
+							case "trackstraight":
+								var row = Math.floor(fracY*buttonsStation.length);
+								var col = Math.floor(fracX*buttonsStation[row].length);
+								currentCaptionedObject.subtype = buttonsStation[row][col];
+								if (!(currentCaptionedObject.subtype == "redtunnel" ||
+									currentCaptionedObject.subtype == "bluetunnel" ||
+									//currentCaptionedObject.subtype == "increment" ||
+									//currentCaptionedObject.subtype == "decrement" ||
+									currentCaptionedObject.subtype == "greentunnel"))
+										addTrackCargo(currentCaptionedObject);
+								break;
+							case "trackwye":
+							case "trackwyeleft":
+							case "trackwyeright":
+								var row = Math.floor(fracY*buttonsWye.length);
+								var col = Math.floor(fracX*buttonsWye[row].length);
+								currentCaptionedObject.subtype = buttonsWye[row][col];
+								if (currentCaptionedObject.subtype  == "compareless"
+								|| currentCaptionedObject.subtype  == "comparegreater" ) {
+									addTrackCargo(currentCaptionedObject);
+								}
+								break;
+						}
+							
+					} else if (secondaryCaption == undefined) { //select object for new caption *****************
+						//console.log("Select object for new caption. objecttype="+tracks[mi(gridx,gridy)].type);
+						currentCaptionedObject = undefined;
+
+						//see if clicked engine or car
+						var foundEC = false;
+						if (getButton("Eraser")) if (!getButton("Eraser").down) {
+							captionX = undefined;
+							currentCaptionedObject = getEC(gridx, gridy); 
+							if (currentCaptionedObject != undefined) foundEC = true;
+						}
+						
+						//see if clicked track
+						if (!getButton("Eraser").down && !foundEC ) {
+							if (tracks[mi(gridx,gridy)] != undefined) {
+								if (tracks[mi(gridx,gridy)].type == "trackwye" || tracks[mi(gridx,gridy)].type == "trackwyeleft" 
+								|| tracks[mi(gridx,gridy)].type == "trackwyeright" || tracks[mi(gridx,gridy)].type == "trackstraight"
+								|| tracks[mi(gridx,gridy)].type == "trackcargo"|| tracks[mi(gridx,gridy)].type == "trackblank") {
+									currentCaptionedObject = tracks[mi(gridx,gridy)];
+									captionX = undefined;
+									console.log("Captioned object="+tracks[mi(gridx,gridy)]+" xy="+gridx+","+gridy);
+								}
+							} 
+							
+						}
+					}
+				}
 	    		
 	    		draw();
 	    	}
@@ -4321,14 +4325,14 @@ $(document).ready(function(){
 		captionSecondaryWidth =3;
 		captionSecondaryHeight =3;
 		if (captionSecondaryX == undefined) { //choose coordinates for secondary caption bubble
-			var retVal = spiral (captionX, captionY, captionSecondaryWidth, captionSecondaryHeight);
+			var retVal = spiral (captionX, captionY, captionSecondaryWidth, captionSecondaryHeight, true);
 			captionSecondaryX = retVal.gridx;
 			captionSecondaryY = retVal.gridy;
 		}
 		//if (captionX == -1) return;
 				
 		//console.log("capX="+captionX+","+captionY+" captionWidth="+captionWidth+","+captionHeight);
-		drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, lastClickUp.xtile*tileWidth, lastClickUp.ytile*tileWidth*tileRatio, true);
+		drawCaptionBubble(captionSecondaryX, captionSecondaryY*tileRatio, captionSecondaryWidth, captionSecondaryHeight*tileRatio, lastClickUp.xtile*tileWidth, lastClickUp.ytile*tileWidth*tileRatio, true);
 		//drawCaptionBubble(captionSecondaryX, captionSecondaryY, captionSecondaryWidth, captionSecondaryHeight, (captionX+captionWidth/2)*tileWidth, (captionY+captionHeight/2)*tileWidth, true);
 		
 		//console.log("Draw button array="+secondaryCaption.type)
@@ -4367,8 +4371,8 @@ $(document).ready(function(){
 		var width;
 		var height;
 		if (isSecondary) {
-			width = captionSecondaryWidth;
-			height = captionSecondaryHeight;
+			width = 0.9*captionSecondaryWidth;
+			height = 0.9*captionSecondaryHeight;
 		} else {
 			width = captionWidth;
 			height = captionHeight;
@@ -4382,7 +4386,8 @@ $(document).ready(function(){
 				//var ySpacing = (height*tileWidth*tileRatio-array.length*insetWidth)/(array.length+1);
 			 	ctx.save();
 			 	if (isSecondary) {
-			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionSecondaryX)*tileWidth, 5+ (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionSecondaryY)*tileWidth));
+					 console.log("HHETERER");
+			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionSecondaryX)*tileWidth+10, (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionSecondaryY)*tileWidth*tileRatio)+8);
 			 	} else {
 			 		ctx.translate(xSpacing*(col+1)+((col+0.5)*captionIconWidth)+(captionX)*tileWidth, (ySpacing*(row+1)+((row+0.5)*captionIconWidth)+(captionY)*tileWidth)*tileRatio);
 			 	}
@@ -4418,26 +4423,33 @@ $(document).ready(function(){
 		
 	}
 			 	
-	function spiral (gridx, gridy, width, height) { //gridx and gridy are the center tile to spiral out from. Width and height are how much space is needed
+	function spiral (gridx, gridy, width, height, isSecondary) { //gridx and gridy are the center tile to spiral out from. Width and height are how much space is needed
 		//this function spirals outward from x,y = 0,0 to max of X,Y
 		// then exits when an empty space is found
 
 		//don't spiral, just put adjacent
 		var retx, rety;
-		var tracksWorld = screenToWorld(tracksWidth/2, tracksHeight/2);
-		console.log("gridx="+gridx+" tracksWorld.xtile="+tracksWorld.xtile);
-		console.log("gridy="+gridy+" tracksWorld.ytile="+tracksWorld.ytile);
-		if (gridx<tracksWorld.xtile) retx=gridx;
-		else retx=gridx-width-1;
-		if (gridy<tracksWorld.ytile) rety=gridy;
-		else rety=gridy-height+1;
+		var center = screenToWorld(tracksWidth/2, tracksHeight/2);
+		//console.log("gridx="+gridx+" tracksWorld.xtile="+tracksWorld.xtile);
+		//console.log("gridy="+gridy+" tracksWorld.ytile="+tracksWorld.ytile);
+		if (isSecondary) {
+			if (gridx<center.xtile) retx=gridx+1;
+			else retx=gridx-width-1;
+			if (gridy<center.ytile) rety=gridy-0.5;
+			else rety=gridy-height+2.5;
+		} else {
+			if (gridx<center.xtile) retx=gridx;
+			else retx=gridx-width-1;
+			if (gridy<center.ytile) rety=gridy;
+			else rety=gridy-height+1;
+		}
 	    return {
 	        'gridx': retx + 1,
 	        'gridy': rety
 	    };  
 
 		//spiral
-		var maxX=5;
+/*		var maxX=5;
 		var maxY=5;
 	    var x,y,dx,dy;
 	    x = y = dx =0;
@@ -4471,7 +4483,8 @@ $(document).ready(function(){
 	        'gridx': currentCaptionedObject.gridx + 1,
 	        'gridy': currentCaptionedObject.gridy
 	    };  
-    }
+	*/
+	}
     
     function isSpace (capx,capy,width, height) {
     	//returns true if the space has all empty tiles, else false
@@ -4554,17 +4567,17 @@ $(document).ready(function(){
 		buttonCaptionX = xC*tileWidth;
 		buttonCaptionY = yC*tileWidth;
 
-		drawCaptionBubble (xC, yC, wC, hC, tracksWidth+currentCaptionedButton.x, currentCaptionedButton.y+currentCaptionedButton.height/2);
+		drawCaptionBubble (xC, yC*tileRatio, wC, hC*tileRatio, tracksWidth+currentCaptionedButton.x, currentCaptionedButton.y+currentCaptionedButton.height/2);
 		for (var i=0; i<wC; i++) {
 			for (var j=0; j<hC; j++) {
 				var nBin = j*wC+i;
 				if (localStorage.getObject('trx-'+nBin) == undefined) {
 					ctx.strokeStyle = saveButtonColors[nBin];
 					ctx.lineWidth=3;
-					ctx.strokeRect(10+(i+xC)*tileWidth,10+(j+yC)*tileWidth, tileWidth-20, tileWidth-20);
+					ctx.strokeRect(10+(i+xC)*tileWidth,10+(j+yC)*tileWidth*tileRatio, tileWidth-20, (tileWidth-20)*tileRatio);
 				} else {
 					ctx.fillStyle = saveButtonColors[nBin];
-					ctx.fillRect(10+(i+xC)*tileWidth,10+(j+yC)*tileWidth, tileWidth-20, tileWidth-20);
+					ctx.fillRect(10+(i+xC)*tileWidth,10+(j+yC)*tileWidth*tileRatio, tileWidth-20, (tileWidth-20)*tileRatio);
 				}
 			}
 		}

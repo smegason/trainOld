@@ -16,6 +16,7 @@ To Do:
 -render random wye (3 types) and caption button
 
 Bug-
+-should render cargo last to prevent clipping problems
 -if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405
 -copy when zoomed doesn't work
 -some weird bug where can't add cargo and makes immutable
