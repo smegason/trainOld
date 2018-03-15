@@ -1,4 +1,6 @@
 To Do:
+-re-render caption buttons
+-rerender numbers, blocks, binary, dinosaurs, bunny
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -Test browse on ipad
 -Switch back to 2 iframes. convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
@@ -13,7 +15,6 @@ To Do:
 -browse: add up down votes (or just likes), and voting for online version, pagiate browse.php, add more search options (just text for all fields?)
 -remake trx for each level
 -secondary caption off screen
--render random wye (3 types) and caption button
 
 Bug-
 -if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405
