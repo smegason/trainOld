@@ -1,54 +1,39 @@
 To Do:
--re-render caption buttons
+At work
+-re-render caption buttons using seperate rendering
 -rerender numbers, blocks, binary, dinosaurs, bunny
+-rerender 22.5 track
+
+On iPad
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
 -Test browse on ipad
--Switch back to 2 iframes. convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
-   Need to split all variables in common and instance specific--really everything but imgs.
 -OR just use thumbnails in db. Would need to make thumbnail during upload process
 -icon for app
 -all blend files being copied to ipad app. Need to trim.
 -splash screen for ipad
 -always landscape on ipad
--Display username when signed in
 
+Online
+-Display username when signed in
 -browse: add up down votes (or just likes), and voting for online version, pagiate browse.php, add more search options (just text for all fields?)
+-Get search/preview working
+-Switch back to 2 iframes. convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
+   Need to split all variables in common and instance specific--really everything but imgs.
+
+On laptop
 -remake trx for each level
--secondary caption off screen
 
 Bug-
--if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405
--copy when zoomed doesn't work
--some weird bug where can't add cargo and makes immutable
--station on diagonal straight doesn't work
+-redraw rectangle when selecting for copy
+-redraw when deleteing multiple
 -jumps track. e.g. trainee 9
--trackCargo doesn't work diagonally
--cant draw car on wye
--on move track need to copy to buffer before overwriting in case overlap
--if click toolbutton switches to immutable
--shrink trackcargo image because overlaps
-
-New features:
-High prioirty-
-
-
--add stop, reverse, decouple stations
--need to script rendering, re-render everything at higher res
--render cargoShapes line, triangle...octagon
 
 Low priority-
--optimize draw(). It currently redraws everything rather than just what has changed
-
--SERVER
-
--APPS
--test on iPhone and Android
+-add stop, reverse, decouple stations
+-render cargoShapes point,line, triangle...octagon
 
 *Improvements
--optimize- might be detectingStations every iteration instead of just on entering tile.
--improve prompt switching from popup dialog to clicking on tile
--put dot in middle or in someway highlight which ec the mouse is currently over (hover using mouse move) so you can delete the right ec if near edge of tile
--add undo/redo chain-for web
+-detects crashes every iteration isntead of just on entering
 -need an idiom for storing numbers >10. Like by having different cars for ones,tens, hundreds...
 -idiom for two digit numbers- if cargo rolls over then increment next car's cargo (but backwards...)
 
