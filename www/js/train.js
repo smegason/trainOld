@@ -3167,18 +3167,6 @@ $(document).ready(function(){
 					secondaryCaption = undefined;
 					captionX = undefined;
 					currentCaptionedObject = undefined;
-<<<<<<< HEAD
-					//console.log("SEC HERE");
-					//console.log(captionX);
-    			} else {
-    				secondaryCaption = undefined;
-					captionSecondaryX = undefined;
-					////////
-    			
-    			
-					if (captionX !=undefined && gridx >= captionX && gridx< captionX+captionWidth && gridy >= captionY && gridy< captionY+captionHeight) {
-						//clicked in caption (primary) *******************
-=======
     			} else {
     				secondaryCaption = undefined;
     				captionSecondaryX = undefined;
@@ -3186,7 +3174,6 @@ $(document).ready(function(){
 					if (captionX !=undefined && mouseWorld.xtile >= captionX && mouseWorld.xtile< captionX+captionWidth && mouseWorld.ytile >= captionY && mouseWorld.ytile< captionY+captionHeight) {
 						//clicked in caption (primary) *******************
 						console.log("Clicked in caption primary---");
->>>>>>> origin/master
 						var worldPoint = screenToWorld(mouseX, mouseY); 
 						var fracX = (worldPoint.xtile- (captionX+0.1))/(captionWidth-0.2);
 						var fracY = (worldPoint.ytile- (captionY+0.1))/(captionHeight-0.2);
@@ -4390,15 +4377,6 @@ $(document).ready(function(){
 
 		//don't spiral, just put adjacent
 		var retx, rety;
-<<<<<<< HEAD
-		var tracksWorld = screenToWorld(tracksWidth/2, tracksHeight/2);
-		//console.log("gridx="+gridx+" tracksWorld.xtile="+tracksWorld.xtile);
-		//console.log("gridy="+gridy+" tracksWorld.ytile="+tracksWorld.ytile);
-		if (gridx<tracksWorld.xtile) retx=gridx;
-		else retx=gridx-width-1;
-		if (gridy<tracksWorld.ytile) rety=gridy;
-		else rety=gridy-height+1;
-=======
 		var center = screenToWorld(tracksWidth/2, tracksHeight/2);
 		//console.log("gridx="+gridx+" tracksWorld.xtile="+tracksWorld.xtile);
 		//console.log("gridy="+gridy+" tracksWorld.ytile="+tracksWorld.ytile);
@@ -4413,7 +4391,6 @@ $(document).ready(function(){
 			if (gridy<center.ytile) rety=gridy;
 			else rety=gridy-height+1;
 		}
->>>>>>> origin/master
 	    return {
 	        'gridx': retx + 1,
 	        'gridy': rety
@@ -4454,12 +4431,8 @@ $(document).ready(function(){
 	        'gridx': currentCaptionedObject.gridx + 1,
 	        'gridy': currentCaptionedObject.gridy
 	    };  
-<<<<<<< HEAD
-	*/   }
-=======
 	*/
 	}
->>>>>>> origin/master
     
     function isSpace (capx,capy,width, height) {
     	//returns true if the space has all empty tiles, else false
