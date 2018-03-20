@@ -329,7 +329,7 @@ $(document).ready(function(){
 	//cargoValues.push( ['shapes', 'point', 'line', 'triangle', 'square', 'pentagon', 'hexagon']); //6
 	//cargoValues.push( ['safarianimals','aardvark', 'cheetah', 'elephant', 'giraffe', 'hippo', 'lion', 'osterich', 'rhino', 'warthog', 'zebra']); //10
 	cargoValues.push( ['dinosaurs', 'raptor', 'triceratops', 'stegosaurus', 'tyranisaurus', 'brontosaurus']); //5
-	cargoValues.push( ['stuffedanimals', 'bunny']);
+	cargoValues.push( ['stuffedanimals', 'bear', 'bunny']);
 	//var cargoJungleAnimals
 	//var cargoAustralianAnimals
 	//var cargoAmericanAnimals
@@ -1083,12 +1083,11 @@ $(document).ready(function(){
 
 //cargo
 	var imgCargoStuffedAnimals = [];
-	for (var j=0; j<1; j++) {
+	for (var j=0; j<2; j++) {
 		imgCargoStuffedAnimals[j] = [];
 		for (var i=0; i<64; i++) { //one for each orientation
 			imgCargoStuffedAnimals[j][i] = new Image();
-//			var name = 'img/'+imgfolder+'/CargoBear/00';
-			var name = 'img/'+imgfolder+'/CargoBunny/00';
+			var name = 'img/'+imgfolder+'/CargoStuffedAnimal/Cargo-' + j + '/00';
 			if (i<9) name += '0';
 			name += (i+1);
 			name += '.png';
@@ -1917,7 +1916,7 @@ $(document).ready(function(){
 			case "Captionstuffedanimals":
 				ctx.drawImage(imgCargoStuffedAnimals[0][34], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
-			case "Captionbunny":
+			case "Captionbear":
 				ctx.drawImage(imgCargoStuffedAnimals[value][34], cargoOffsetX, cargoOffsetY,imgTrackWidth*0.8,imgTrackWidth*0.8);
 				break;
 			case "Captionnumbers":
@@ -5333,7 +5332,7 @@ $(document).ready(function(){
 						if (ec.cargo != undefined && tracks[mi(ec.gridx+step.stepX,ec.gridy+step.stepY)].cargo == undefined
 						&& cargoValues[ec.cargo.type][0] == "stuffedanimals" && ec.cargo.value == 0) {
 							playSound("home");
-							console.log("Bunny delivered successfully");
+							console.log("Stuffed animal delivered successfully");
 							if (interactionState == 'Try level') {
 								index = currentTrackSet + "-" + (currentTrackNumber+1);
 								console.log("trx unlocked for index=" + index);
