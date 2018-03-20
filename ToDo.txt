@@ -24,16 +24,6 @@ On laptop
 -remake trx for each level
 
 Bug-
-<<<<<<< HEAD
--redraw rectangle when selecting for copy
--redraw when deleteing multiple
-=======
--should render cargo last to prevent clipping problems
--if select cargo quickly from caption can get TypeError: imgCargo[value] is undefined[Learn More] line 2405
--copy when zoomed doesn't work
--some weird bug where can't add cargo and makes immutable
--station on diagonal straight doesn't work
->>>>>>> origin/master
 -jumps track. e.g. trainee 9
 
 Low priority-
