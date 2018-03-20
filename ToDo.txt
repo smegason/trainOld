@@ -1,7 +1,6 @@
 To Do:
 At work
 -re-render caption buttons using seperate rendering
--rerender numbers, blocks, binary, dinosaurs, bunny
 -rerender 22.5 track
 
 On iPad
@@ -31,8 +30,6 @@ Low priority-
 -render cargoShapes point,line, triangle...octagon
 
 *Improvements
--detects crashes every iteration isntead of just on entering
--need an idiom for storing numbers >10. Like by having different cars for ones,tens, hundreds...
 -idiom for two digit numbers- if cargo rolls over then increment next car's cargo (but backwards...)
 
 
