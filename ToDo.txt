@@ -1,7 +1,4 @@
 To Do:
-At work
--re-render caption buttons using seperate rendering
--rerender 22.5 track
 
 On iPad
 -Pan and zoom for ipad. On ipad, two finger drag is pan and pinch is zoom.
