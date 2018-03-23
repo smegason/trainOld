@@ -10,11 +10,9 @@ On iPad
 -always landscape on ipad
 
 Online
--Display username when signed in
 -browse: add up down votes (or just likes), and voting for online version, pagiate browse.php, add more search options (just text for all fields?)
 -Get search/preview working
--Switch back to 2 iframes. convert from 2 iframes to 2 divs, run one instance of train.js, have an array of trx and associated panels (Main and thumb1, thumb2, thumb3). 
-   Need to split all variables in common and instance specific--really everything but imgs.
+
 
 On laptop
 -remake trx for each level

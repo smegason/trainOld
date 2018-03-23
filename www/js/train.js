@@ -311,7 +311,7 @@ $(document).ready(function(){
 	var currentUserID = localStorage.getObject('currentUserID');
 	var currentUsername = localStorage.setObject('currentUsername');
 	if (!currentUserID) currentUserID = 1;
-	if (!currentUsername) currentUsername = "X";
+	if (!currentUsername) currentUsername = " ";
 	console.log("Current user="+currentUsername+" ID="+currentUserID);
 		
 	var trainerLevelNames = ['Hobo', 'Trainee', 'Caboose captain', 'Breakman', 'Switchman', 'Conductor', 'Engineer', 'Yard Master', 'Train Master'];
@@ -4503,6 +4503,15 @@ $(document).ready(function(){
 		
 		for (var i=0; i<toolButtons.length; i++) {
 			toolButtons[i].draw();
+		}
+
+		if (interactionState == 'Freeplay') { //show username at bottom of toolbar
+			ctx.font = "normal bold 30px Arial";
+			ctx.fillStyle = fontColor;
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			var width = toolBarWidthFreeplay;
+			ctx.fillText(currentUsername, tracksWidth+width/2, toolBarHeight-20);	//bbbb
 		}
 	}
 	
